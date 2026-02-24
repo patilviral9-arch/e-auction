@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 
 export const UserNavbar = ({ role, setRole }) => {
   const location = useLocation();
@@ -35,6 +35,7 @@ export const UserNavbar = ({ role, setRole }) => {
   });
 
   return (
+    <>
     <nav style={navStyle}>
       {/* Left side: Logo + Home + Profile */}
       <div style={{ display: "flex", alignItems: "center" }}>
@@ -59,6 +60,27 @@ export const UserNavbar = ({ role, setRole }) => {
         >
           Profile
         </Link>
+
+        <Link
+          to="/user/GetApiDemo"
+          style={{
+            ...linkStyle,
+            ...(location.pathname === "/user/GetApiDemo" && activeStyle),
+          }}
+        >
+          Get API Demo
+        </Link>
+
+        <Link
+          to="/user/UseEffectDemo"
+          style={{
+            ...linkStyle,
+            ...(location.pathname === "/user/UseEffectDemo" && activeStyle),
+          }}
+        >
+          Get API Demo
+        </Link>
+
       </div>
 
       {/* Right side: Role Switch + Logout */}
@@ -69,11 +91,18 @@ export const UserNavbar = ({ role, setRole }) => {
         <button style={roleButton("seller")} onClick={() => setRole("seller")}>
           Seller
         </button>
-
+       <button>
         <Link to="/" style={{ ...linkStyle, marginLeft: "20px" }}>
           Logout
         </Link>
+        </button>
       </div>
     </nav>
+    
+      {/* 🔥 PAGE CONTENT HERE */}
+      <div style={{ padding: "20px" }}>
+        <Outlet />
+        </div>
+        </>
   );
 };

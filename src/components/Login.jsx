@@ -1,7 +1,9 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import Swal from "sweetalert2";
 import bgImage from "../assets/img/E-auction-bg.png";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export const Login = () => {
   const {
@@ -10,6 +12,8 @@ export const Login = () => {
     formState: { errors },
     reset,
   } = useForm();
+
+  const navigate = useNavigate();
 
   const validationschema = {
     email: {
@@ -28,12 +32,24 @@ export const Login = () => {
     },
   };
 
-  const submithandler = (data) => {
-    Swal.fire({
-      icon: "success",
-      title: "Login Successful",
-      confirmButtonColor: "#f43f5e",
-    });
+  const submithandler = async (data) => {
+    try{
+      console.log(data);
+      
+      const res = await axios.post("https://node5.onrender.com/user/login",data)
+      console.log("response...",res); 
+      console.log("response data...",res.data); 
+
+      if(res.status==200){
+        toast.success("login success")
+        navigate("/user")
+    }
+    } catch (error) {
+      console.error("Login error:", error);
+       toast.error("Login Failed");
+    }
+    
+    
 
     reset();
   };

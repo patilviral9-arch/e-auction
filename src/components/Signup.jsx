@@ -2,6 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import bgImage from "../assets/img/E-auction-bg.png";
+import { toast } from "react-toastify";
 
 export const Signup = () => {
   const {
@@ -18,12 +19,7 @@ export const Signup = () => {
   const onSubmit = (data) => {
     console.log(data);
 
-    Swal.fire({
-      icon: "success",
-      title: "Registration Successful",
-      text: "Welcome to E-Auction Platform!",
-      confirmButtonColor: "#2563eb",
-    });
+    toast.success("Registration successful");
 
     reset();
   };

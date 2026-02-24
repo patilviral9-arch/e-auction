@@ -4,6 +4,8 @@ import { Signup } from "../components/Signup";
 import { AdminSidebar } from "../components/admin/Adminsidebar";
 import { AdminLayout } from "../components/admin/AdminLayout";
 import { UserNavbar } from "../components/user/UserNavbar.jsx";
+import { GetApiDemo } from "../components/user/GetApiDemo.jsx";
+import { UseEffectDemo } from "../components/user/UseEffectDemo.jsx";
 
 const router = createBrowserRouter([
     {path:"/",element:<Login/>},
@@ -11,11 +13,22 @@ const router = createBrowserRouter([
 
      {
         path:"/admin",element:<AdminSidebar/>,
-        path:"/admin",element:<AdminLayout/>,
+     },
+     {
+      path:"/admin",element:<AdminLayout/>,
      },
 
      {
-        path:"/user", element:<UserNavbar/>
+        path:"/user", element:<UserNavbar/>,
+        children:[
+          {
+            path:"GetApiDemo", element:<GetApiDemo/>,
+           
+          },
+          {
+            path:"UseEffectDemo", element:<UseEffectDemo/>
+          },
+        ],
      }
     
 ])
