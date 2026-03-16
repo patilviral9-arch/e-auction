@@ -1,14 +1,19 @@
 import React from "react";
-import { AdminSidebar } from "./Adminsidebar";
+import { Outlet } from "react-router-dom";
+import AdminSidebar from "./AdminSidebar";
 
-
-export const AdminLayout = ({ children }) => {
+const AdminLayout = () => {
   return (
-    <div className="flex">
-      <AdminSidebar/>
-      <div className="flex-1 p-8 bg-gray-100 min-h-screen">
-        {children}
-      </div>
+    <div className="flex bg-gray-100 min-h-screen">
+
+      <AdminSidebar />
+
+        <div className="p-6">
+          <Outlet />
+        </div>
+
     </div>
   );
 };
+
+export default AdminLayout;

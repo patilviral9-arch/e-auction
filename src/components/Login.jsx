@@ -1,9 +1,9 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import bgImage from "../assets/img/E-auction-bg.png";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext"; // ← one level up, not two
 
 export const Login = () => {
   const {
@@ -14,6 +14,7 @@ export const Login = () => {
   } = useForm();
 
   const navigate = useNavigate();
+  const { login } = useAuth(); // ← updates navbar instantly, no refresh needed
 
   const validationschema = {
     email: {
@@ -26,119 +27,93 @@ export const Login = () => {
     password: {
       required: "Password is required *",
       minLength: {
-        value: 8,
-        message: "Minimum 8 characters required *",
+        value: 6,
+        message: "Minimum 6 characters required *",
       },
     },
   };
 
-  const submithandler = async (data) => {
-    try{
-      console.log(data);
-      
-      const res = await axios.post("https://node5.onrender.com/user/login",data)
-      console.log("response...",res); 
-      console.log("response data...",res.data); 
+  const submitHandler = async (data) => {
+    try {
+      const res = await axios.post("/user/login", data);
+      console.log("Login Response:", res.data);
 
-      if(res.status==200){
-        toast.success("login success")
-        navigate("/user")
-    }
-    } catch (error) {
-      console.error("Login error:", error);
-       toast.error("Login Failed");
-    }
-    
-    
+      if (res.status === 200) {
+        const userData = res.data.data;
+        const role     = userData?.role?.toLowerCase();
+        const userName = userData?.firstName || userData?.businessName || "User";
 
-    reset();
+        // Write to localStorage (same as before)
+        localStorage.setItem("userName", userName);
+        localStorage.setItem("role",     userData.role);
+
+        // ✅ Updates AuthContext state → navbar re-renders instantly, no refresh needed
+        login({ role: userData.role, userName });
+
+        toast.success("Login Success");
+
+        if (role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/");
+        }
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Login Failed");
+    }
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center"
-      style={{
-        backgroundImage: `url(${bgImage})`,
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center"
-      }}
-    >
-      {/* SMALL CARD - NOT FULL WIDTH */}
-      <div className="w-[500px] h-[520px] bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-10 font-['sans-serif']" 
-      style={{ 
-        border: "1px solid #fff",
-         borderBottom: "1px solid rgba(255,255,255,0.5)",
-          borderRight: "1px solid rgba(255,255,255,0.5)", 
-          borderRadius: "20px",
-           }} >
-        
-        <h2 className="text-4xl font-extrabold text-black text-center mb-10 tracking-wide">
-            Sign In
-       </h2>
-        
-        <div className="backdrop-blur-[15px] ">
-        <form onSubmit={handleSubmit(submithandler)} className="space-y-5">
-          
-          {/* Email */}
-          <div>
-            <input
-              type="email"
-              placeholder="Enter Email"
-              {...register("email", validationschema.email)}
-              className="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-red-500"
-            />
-            <p className="text-red-600 text-sm mt-1">
-              {errors.email?.message}
-            </p>
+    <div style={styles.container}>
+      <div style={styles.formCard}>
+        <h2 style={styles.heading}>Sign In</h2>
+        <form onSubmit={handleSubmit(submitHandler)} style={styles.formStack}>
+          <div style={styles.inputGroup}>
+            <input type="email" placeholder="Email" style={styles.input} {...register("email", validationschema.email)} />
+            {errors.email && <p style={styles.error}>{errors.email.message}</p>}
           </div>
-             
-           
-
-          {/* Password */}
-          <div>
-            <input
-              type="password"
-              placeholder="Enter Password"
-              {...register("password", validationschema.password)}
-              className="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-red-500"
-            />
-            <p className="text-red-700 text-sm mt-1">
-              {errors.password?.message}
-            </p>
+          <div style={styles.inputGroup}>
+            <input type="password" placeholder="Password" style={styles.input} {...register("password", validationschema.password)} />
+            {errors.password && <p style={styles.error}>{errors.password.message}</p>}
           </div>
-
-          {/* Button */}
-          <button
-            type="submit"
-            className="w-full bg-red-500 hover:bg-red-600 transition duration-300 text-white font-semibold py-3 rounded-lg"
-          >
-            Login
-          </button>
-          
-          {/* Bottom Links */}
-        <div className="flex justify-between mt-3 text-base font-semibold">
-        <a
-            href="/forgot-password"
-            className="text-black hover:text-red-500 transition duration-300"
-          >
-            Forget Password
-          </a>
-
-          <a
-            href="/signup"
-            className="text-black underline hover:text-red-500 transition duration-300"
-            >
-            Sign Up
-          </a>
-
-        </div>
+          <button type="submit" style={styles.button}>Login</button>
+          <div style={styles.socialContainer}>
+            <button type="button" style={styles.socialButton}>
+              <img src="https://cdn-icons-png.flaticon.com/512/300/300221.png" alt="google" style={styles.icon} />
+              Google
+            </button>
+            <button type="button" style={styles.socialButton}>
+              <img src="https://cdn-icons-png.flaticon.com/512/0/747.png" alt="apple" style={styles.icon} />
+              Apple
+            </button>
+            <button type="button" style={styles.socialButton}>
+              <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="facebook" style={styles.icon} />
+              Facebook
+            </button>
+          </div>
+          <div style={styles.footerLinks}>
+            <Link to="/forgot-password" style={styles.link}>Forgot Password?</Link>
+            <Link to="/signup" style={styles.signupLink}>Sign Up</Link>
+          </div>
         </form>
-
-        </div>
-
       </div>
     </div>
   );
+};
+
+const styles = {
+  container: { minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", background: "radial-gradient(circle at center, #1e293b 0%, #0f172a 100%)", fontFamily: "'Inter', system-ui, -apple-system, sans-serif", padding: "20px" },
+  formCard: { backgroundColor: "white", padding: "48px", borderRadius: "16px", width: "100%", maxWidth: "450px", boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 20px 25px -5px rgba(0, 0, 0, 0.05)" },
+  heading: { textAlign: "center", fontSize: "28px", fontWeight: "700", color: "#1E293B", marginBottom: "32px" },
+  formStack: { display: "flex", flexDirection: "column", gap: "20px" },
+  inputGroup: { display: "flex", flexDirection: "column" },
+  input: { width: "100%", padding: "12px 16px", borderRadius: "8px", border: "1px solid #000001", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "all 0.2s" },
+  button: { padding: "14px", borderRadius: "8px", border: "none", backgroundColor: "#4F46E5", color: "white", fontSize: "15px", fontWeight: "600", cursor: "pointer", marginTop: "10px", transition: "background-color 0.2s" },
+  footerLinks: { display: "flex", justifyContent: "space-between", marginTop: "15px", fontSize: "14px" },
+  link: { color: "#5c6e86", textDecoration: "none" },
+  signupLink: { color: "#4F46E5", fontWeight: "600", textDecoration: "none" },
+  socialContainer: { gridColumn: "1 / -1", display: "flex", gap: "12px" },
+  socialButton: { flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "10px", borderRadius: "30px", border: "1px solid #000000", backgroundColor: "white", cursor: "pointer", fontSize: "13px", fontWeight: "600", color: "#334155", transition: "background-color 0.2s" },
+  icon: { width: "18px", height: "18px" },
+  error: { color: "#EF4444", fontSize: "11px", marginTop: "4px", fontWeight: "500" },
 };

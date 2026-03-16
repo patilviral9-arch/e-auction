@@ -3,11 +3,13 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import AppRouter from './router/Approuter'
 import { Bounce, ToastContainer } from 'react-toastify'
+import axios from 'axios'
 // import './App.css'
 
 function App() {
- 
-
+   
+  axios.defaults.baseURL = 'http://localhost:3000/'
+  
   return (
     <>
       <AppRouter></AppRouter>
