@@ -1,6 +1,7 @@
 import React from "react";
 import { createBrowserRouter, RouterProvider, Outlet, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "../context/AuthContext";
+import { ThemeProvider } from "../context/ThemeContext";
 
 import { Login }   from "../components/Login";
 import { Signup }  from "../components/Signup";
@@ -11,37 +12,54 @@ import { HomeComponent } from "../components/user/HomeComponent";
 import AdminLayout from "../components/admin/AdminLayout";
 import Dashboard   from "../components/admin/Dashboard";
 import Settings    from "../components/admin/Settings";
+import Reports     from "../components/admin/Reports/Reports";
 import UsersList   from "../components/admin/Users/UsersList";
-import BrowseAuctions  from "../components/user/BrowseAuctions";
-import AddAuction      from "../components/user/AddAuction";
-import PersonalProfile from "../components/user/PersonalProfile";
-import BusinessProfile from "../components/user/BusinessProfile";
+import Auctions from "../components/admin/Auctions/Auctions";
+import BidsList from "../components/admin/Bids/BidsList";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// AppShell — wraps the entire app in AuthProvider INSIDE the router tree.
-// This is the critical fix: AuthProvider must live inside RouterProvider
-// so that useAuth() and useNavigate() share the same React context tree.
-// ─────────────────────────────────────────────────────────────────────────────
+import BrowseAuctions  from "../pages/BrowseAuctions";
+import AddAuction      from "../components/user/Business/AddAuction";
+import PersonalProfile from "../pages/PersonalProfile";
+import BusinessProfile from "../pages/BusinessProfile";
+import AuctionDetail   from "../pages/AuctionDetail";
+import Listings        from "../components/user/Business/Listings";
+import ProtectedRoutes from "../components/user/ProtectedRoutes";
+import { Forgetpassword } from "../components/Forgetpassword";
+import { Resetpassword } from "../components/Resetpassword";
+import EditAuction from "../components/user/Business/EditAuction";
+import MyWishlist from "../pages/MyWishlist";
+import LiveAuctions from "../pages/LiveAuctions"
+import MyBids from "../pages/MyBids"
+import WonAuctions from "../pages/WonAuctions"
+import Notifications from "../pages/Notifications";
+import Aboutus from "../pages/Aboutus";
+import Payouts from "../pages/Payouts";
+import Wallet from "../pages/Wallet";
+import { useMaintenanceMode } from "../hooks/useMaintenanceMode";
+
+
+
+
 function AppShell() {
   return (
-    <AuthProvider>
-      <Outlet />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Outlet />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
 function ProfileSwitch() {
   const { role } = useAuth();
-  return role === "business" ? <BusinessProfile/> : <PersonalProfile />;
+  return role === "business" ? <BusinessProfile /> : <PersonalProfile />;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// UserShell — reads live auth state from context.
-// Re-renders automatically the moment login() / logout() is called.
-// ─────────────────────────────────────────────────────────────────────────────
 function UserShell() {
   const { role, userName, setRole, logout } = useAuth();
-  
+  const maintenanceMode = useMaintenanceMode();
+  const blockUserContent = maintenanceMode && role !== "admin";
+
   return (
     <>
       <UserNavbar
@@ -49,67 +67,86 @@ function UserShell() {
         userName={userName}
         setRole={setRole}
         onLogout={logout}
+        maintenanceMode={maintenanceMode}
       />
-      {/* CRITICAL: This renders the HomeComponent or other children */}
-      <Outlet /> 
+      {blockUserContent ? (
+        <div
+          style={{
+            minHeight: "calc(100vh - 64px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            padding: "24px",
+          }}
+        >
+          <h1
+            style={{
+              fontSize: "clamp(2.5rem, 7vw, 5rem)",
+              lineHeight: 1.1,
+              fontWeight: 800,
+              color: "#f59e0b",
+              letterSpacing: "0.01em",
+            }}
+          >
+            Website is in Maintenance
+          </h1>
+        </div>
+      ) : (
+        <Outlet />
+      )}
     </>
   );
 }
-// ─────────────────────────────────────────────────────────────────────────────
-// Router — defined ONCE at module level (never recreated on re-render)
-// ─────────────────────────────────────────────────────────────────────────────
+
 const router = createBrowserRouter([
   {
-    // AppShell provides AuthContext to every route beneath it
     element: <AppShell />,
     children: [
-
-      // ── Auth pages (no navbar)
       { path: "/login",  element: <Login /> },
       { path: "/Login",  element: <Login /> },
       { path: "/signup", element: <Signup /> },
       { path: "/Signup", element: <Signup /> },
+      {path:"/forgotpassword",element:<Forgetpassword/>},
+      {path:"/resetpassword/:token",element:<Resetpassword/>},
 
-      // ── Admin (no UserNavbar)
       {
         path: "/admin",
-        element: <AdminLayout />,
+        element: <ProtectedRoutes userRoles={["admin"]}>
+          <AdminLayout />
+        </ProtectedRoutes>,
         children: [
-          { index: true,           element: <Dashboard /> },
-          { path: "Users/UsersList",     element: <UsersList /> },
-          { path: "settings",      element: <Settings /> },
+          { index: true,               element: <Dashboard /> },
+          { path: "Users/UsersList",   element: <UsersList /> },
+          { path: "Auctions/Auctions", element: <Auctions/>},
+          { path: "bids",              element:<BidsList/>},
+          { path: "reports",           element: <Reports /> },
+          { path: "Reports/Reports",   element: <Reports /> },
+          { path: "settings",          element: <Settings /> },
         ],
       },
 
-      // ── User-facing (with UserNavbar)
       {
         path: "/",
         element: <UserShell />,
         children: [
-          { index: true,              element: <HomeComponent /> },
-
-          // ── Browsing (shared)
-          { path: "browse",           element: <BrowseAuctions /> },
-          { path: "live",             element: <BrowseAuctions /> },
-          { path: "my-bids",          element: <BrowseAuctions /> },
-          { path: "watchlist",        element: <BrowseAuctions /> },
-          { path: "category/:slug",   element: <BrowseAuctions /> },
-          { path: "auction/:id",      element: <BrowseAuctions /> },
-
-          // ── Business
-          { path: "create-auction",   element: <AddAuction /> },
-
-          // ── Profile: ProfileSwitch renders PersonalProfile or BusinessProfile by role
-          // All these routes point to same ProfileSwitch so the right page always opens
-          { path: "profile",          element: <ProfileSwitch /> },
-          { path: "my-listings",      element: <ProfileSwitch /> },
-          { path: "analytics",        element: <ProfileSwitch /> },
-          { path: "payouts",          element: <ProfileSwitch /> },
-
-          // ── Personal only
-          { path: "won",              element: <PersonalProfile /> },
-          { path: "payment-methods",  element: <PersonalProfile /> },
-
+          { index: true,             element: <HomeComponent /> },
+          { path: "browse",          element: <BrowseAuctions /> },
+          { path: "LiveAuctions",     element: <LiveAuctions/> },
+          { path: "my-bids",         element: <ProtectedRoutes userRoles={["personal"]}><MyBids/> </ProtectedRoutes> },
+          { path: "auction/:id",     element: <AuctionDetail /> },
+          { path: "add-auction",     element:<ProtectedRoutes userRoles={["business"]}> <AddAuction /></ProtectedRoutes> },
+          { path: "profile",         element: <ProfileSwitch /> },
+          { path: "my-listings",     element: <ProfileSwitch /> },
+          { path: "analytics",       element: <ProfileSwitch /> },
+          { path: "payouts",         element: <ProtectedRoutes userRoles={["business"]}><Payouts/></ProtectedRoutes> },
+          { path: "won",             element:<ProtectedRoutes userRoles={["personal"]}> <WonAuctions/> </ProtectedRoutes> },
+          { path: "wallet", element: <Wallet/> },
+          { path: "business/Listings",  element:<ProtectedRoutes userRoles={["business"]}><Listings/></ProtectedRoutes> },
+          { path: "/edit-auction/:id",  element:<ProtectedRoutes userRoles={["business"]}><EditAuction/></ProtectedRoutes>},
+          { path: "MyWishlist", element:<MyWishlist/>},
+          { path: "notifications", element: <Notifications />},
+          { path: "aboutus", element: <Aboutus /> },
         ],
       },
 
@@ -118,7 +155,5 @@ const router = createBrowserRouter([
   },
 ]);
 
-// ─────────────────────────────────────────────────────────────────────────────
 const AppRouter = () => <RouterProvider router={router} />;
-
 export default AppRouter;

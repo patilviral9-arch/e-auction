@@ -1,91 +1,154 @@
 @import "tailwindcss";
 
-.rotate-y-0 {
-  transform: rotateY(0deg);
+/* ── Tailwind helpers ── */
+.rotate-y-0    { transform: rotateY(0deg); }
+.perspective   { perspective: 1000px; }
+.transform-style { transform-style: preserve-3d; }
+.backface-hidden { backface-visibility: hidden; }
+.rotate-y-180  { transform: rotateY(180deg); }
+
+/* ── Default CSS variables (dark theme) ── */
+:root {
+  --bg-primary:     #080e1a;
+  --bg-secondary:   #0f172a;
+  --bg-card:        rgba(255,255,255,0.03);
+  --bg-card-hover:  rgba(255,255,255,0.06);
+  --bg-input:       rgba(255,255,255,0.05);
+  --bg-nav:         rgba(15,23,42,0.97);
+  --border:         rgba(255,255,255,0.07);
+  --border-input:   rgba(255,255,255,0.1);
+  --text-primary:   #ffffff;
+  --text-secondary: #94a3b8;
+  --text-muted:     #64748b;
+  --text-faint:     #475569;
+  --accent-blue:    #38bdf8;
+  --accent-indigo:  #818cf8;
+  --accent-green:   #34d399;
+  --accent-red:     #f43f5e;
+  --accent-yellow:  #f59e0b;
+  --shadow:         rgba(0,0,0,0.4);
 }
 
-.perspective {
-  perspective: 1000px;
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg-primary:     #f1f5f9;
+  --bg-secondary:   #ffffff;
+  --bg-card:        #ffffff;
+  --bg-card-hover:  #f8fafc;
+  --bg-input:       #f8fafc;
+  --bg-nav:         rgba(255,255,255,0.97);
+  --border:         rgba(0,0,0,0.08);
+  --border-input:   rgba(0,0,0,0.12);
+  --text-primary:   #0f172a;
+  --text-secondary: #334155;
+  --text-muted:     #64748b;
+  --text-faint:     #94a3b8;
+  --accent-blue:    #0284c7;
+  --accent-indigo:  #6366f1;
+  --accent-green:   #059669;
+  --accent-red:     #e11d48;
+  --accent-yellow:  #d97706;
+  --shadow:         rgba(0,0,0,0.1);
 }
 
-.transform-style {
-  transform-style: preserve-3d;
-}
-
-.backface-hidden {
-  backface-visibility: hidden;
-}
-
-.rotate-y-180 {
-  transform: rotateY(180deg);
-}
-
-
-/* :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
+/* ── Apply theme to entire page ── */
+html, body, #root {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.25s ease, color 0.25s ease;
+  font-family: 'Segoe UI', system-ui, sans-serif;
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  padding: 0;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* ── Light theme: scrollbar ── */
+[data-theme="light"] * {
+  scrollbar-color: #cbd5e1 #f1f5f9;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+[data-theme="light"] body,
+[data-theme="light"] #root {
+  background: #f1f5f9 !important;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-} */
+/* ── Light theme: override dark inline backgrounds on page wrappers ── */
+[data-theme="light"] .page-root {
+  background: var(--bg-primary) !important;
+}
+
+[data-theme="light"] div[style*="#080e1a"]:not([data-asb-root] div) { background: #f1f5f9 !important; }
+[data-theme="light"] div[style*="#0f172a"]:not([data-asb-root] div) { background: #ffffff !important; }
+[data-theme="light"] div[style*="#1e293b"]:not([data-asb-root] div) { background: #f8fafc !important; }
+[data-theme="light"] div[style*="rgba(255,255,255,0.03)"]:not([data-asb-root] div) { background: #ffffff !important; box-shadow: 0 2px 12px rgba(0,0,0,0.06) !important; }
+[data-theme="light"] div[style*="rgba(255,255,255,.03)"]:not([data-asb-root] div)  { background: #ffffff !important; box-shadow: 0 2px 12px rgba(0,0,0,0.06) !important; }
+[data-theme="light"] div[style*="rgba(255,255,255,0.05)"]:not([data-asb-root] div) { background: #f8fafc !important; }
+[data-theme="light"] div[style*="rgba(255,255,255,.05)"]:not([data-asb-root] div)  { background: #f8fafc !important; }
+
+/* ── Light theme: text colors (exclude admin sidebar) ── */
+[data-theme="light"] *[style*="color: white"]:not([data-asb-root] *),
+[data-theme="light"] *[style*="color:#ffffff"]:not([data-asb-root] *),
+[data-theme="light"] *[style*="color: #ffffff"]:not([data-asb-root] *)  { color: #0f172a !important; }
+[data-theme="light"] *[style*="color: #94a3b8"]:not([data-asb-root] *),
+[data-theme="light"] *[style*="color:#94a3b8"]:not([data-asb-root] *)   { color: #334155 !important; }
+[data-theme="light"] *[style*="color: #64748b"]:not([data-asb-root] *),
+[data-theme="light"] *[style*="color:#64748b"]:not([data-asb-root] *)   { color: #64748b !important; }
+
+/* ── Light theme: borders ── */
+[data-theme="light"] *[style*="rgba(255,255,255,0.07)"],
+[data-theme="light"] *[style*="rgba(255,255,255,.07)"] { border-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] *[style*="rgba(255,255,255,0.1)"],
+[data-theme="light"] *[style*="rgba(255,255,255,.1)"]  { border-color: rgba(0,0,0,0.12) !important; }
+
+/* ── Light theme: navbar (exclude admin sidebar nav) ── */
+[data-theme="light"] nav:not([data-asb-root] nav) {
+  background: rgba(255,255,255,0.97) !important;
+  border-bottom-color: rgba(0,0,0,0.08) !important;
+}
+
+/* ── Light theme: dropdowns/modals (exclude admin sidebar) ── */
+[data-theme="light"] div[style*="background: #0f172a"]:not([data-asb-root] div) {
+  background: #ffffff !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+/* ── Light theme: inputs ── */
+[data-theme="light"] input {
+  background: #f8fafc !important;
+  border-color: rgba(0,0,0,0.12) !important;
+  color: #0f172a !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ADMIN SIDEBAR DARK LOCK
+   [data-asb-root] wraps the sidebar in AdminLayout.
+   These rules come LAST so they beat everything above — no :not() needed.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Base: lock divs and nav backgrounds to dark — color handled by inline styles */
+[data-asb-root],
+[data-asb-root] div,
+[data-asb-root] nav {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
+  border-color: #1e293b !important;
+}
+/* spans and links: only control background, let inline style colors win */
+[data-asb-root] span,
+[data-asb-root] a {
+  background: inherit !important;
+  background-color: inherit !important;
+}
+/* NOTE: NO button rule here — inline styles on buttons handle their colors */
+
+/* Active nav item — restore indigo gradient */
+[data-asb-root] a.active {
+  background: linear-gradient(135deg, #4f46e5, #6366f1) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.3) !important;
+}
+
+/* Brand text */
+[data-asb-root] [data-asb-brand-e]    { color: #f1f5f9 !important; }
+[data-asb-root] [data-asb-brand-blue] { color: #3b82f6 !important; }
+[data-asb-root] [data-asb-brand-sub]  { color: #64748b !important; }
+[data-asb-root] [data-asb-section]    { color: #64748b !important; }
