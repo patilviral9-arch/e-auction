@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 const AUTH_API_BASE = String(
-  import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL || "http://localhost:3000"
+  import.meta.env.VITE_API_URL || "https://your-railway-link.up.railway.app"
 ).replace(/\/+$/, "");
 const authUrl = (path) => `${AUTH_API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
 
@@ -153,10 +153,10 @@ const OtpModal = ({ email, onVerified, onClose, pendingPayload }) => {
     setVerifying(true);
     try {
       // Step 1 — verify OTP
-      await axios.post(authUrl("/user/verify-otp"), { email, otp }, { timeout: 60000 });
+      await axios.post(authUrl("/user/verify-otp"), { email, otp }, { timeout: 75000 });
 
       // Step 2 — register the user now that email is verified
-      const res = await axios.post(authUrl("/user/register"), pendingPayload, { timeout: 60000 });
+      const res = await axios.post(authUrl("/user/register"), pendingPayload, { timeout: 75000 });
       if (res.status === 201) {
         setSuccess(true);
         setTimeout(() => onVerified(), 1800);
@@ -175,7 +175,7 @@ const OtpModal = ({ email, onVerified, onClose, pendingPayload }) => {
     setOtpError("");
     setOtp("");
     try {
-      await axios.post(authUrl("/user/send-otp"), { email }, { timeout: 60000 });
+      await axios.post(authUrl("/user/send-otp"), { email }, { timeout: 75000 });
       start();
       toast.success("OTP resent to your email!");
     } catch (err) {
@@ -376,7 +376,7 @@ export const Signup = () => {
       }
 
       // Send OTP to the email first
-      await axios.post(authUrl("/user/send-otp"), { email: data.email }, { timeout: 60000 });
+      await axios.post(authUrl("/user/send-otp"), { email: data.email }, { timeout: 75000 });
 
       // Store form payload and open OTP modal
       setPendingData(payload);

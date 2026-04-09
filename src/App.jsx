@@ -7,7 +7,8 @@ import axios from 'axios'
 // import './App.css'
 
 function App() {
-  axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL
+  axios.defaults.baseURL = import.meta.env.VITE_API_URL || "https://your-railway-link.up.railway.app";
+  axios.defaults.timeout = 75000;
   
   return (
     <>
