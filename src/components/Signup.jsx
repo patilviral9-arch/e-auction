@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 const AUTH_API_BASE = String(
-  import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://localhost:3000"
+  import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL || "http://localhost:3000"
 ).replace(/\/+$/, "");
 const authUrl = (path) => `${AUTH_API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
 
