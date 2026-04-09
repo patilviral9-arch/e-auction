@@ -13,7 +13,7 @@ const BidsList = () => {
 
   const fetchBids = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/bid/bids");
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/bid/bids`);
       const data = res.data?.bids || res.data?.data || res.data || [];
       setBids(data);
       setLoading(false);
@@ -34,7 +34,7 @@ const BidsList = () => {
     if (result.isConfirmed) {
       try {
         // Backend now automatically recalculates auction's currentBid + totalBids
-        await axios.delete(`http://localhost:3000/bid/bid/${id}`);
+        await axios.delete(`${import.meta.env.VITE_API_URL}/bid/bid/${id}`);
         setBids((prev) => prev.filter((b) => b._id !== id));
         Swal.fire("Deleted!", "", "success");
       } catch (err) {
@@ -177,3 +177,4 @@ const BidsList = () => {
 };
 
 export default BidsList;
+

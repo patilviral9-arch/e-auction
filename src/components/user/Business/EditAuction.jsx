@@ -69,7 +69,7 @@ export default function EditAuction() {
   useEffect(() => {
     if (!id) return;
     setFetching(true);
-    fetch(`http://localhost:3000/auction/auctions/${id}`)
+    fetch(`${import.meta.env.VITE_API_URL}/auction/auctions/${id}`)
       .then(r => { if (!r.ok) throw new Error(`Server error: ${r.status}`); return r.json(); })
       .then(data => {
         const a = data.auction ?? data.data ?? data;
@@ -171,7 +171,7 @@ export default function EditAuction() {
 
       // Delete from Cloudinary server-side (non-blocking — errors are non-fatal)
       if (img.public_id) {
-        fetch("http://localhost:3000/auction/auction/image", {
+        fetch(`${import.meta.env.VITE_API_URL}/auction/auction/image`, {
           method:  "DELETE",
           headers: { "Content-Type": "application/json" },
           body:    JSON.stringify({ public_id: img.public_id }),
@@ -245,7 +245,7 @@ export default function EditAuction() {
     setLoading(true);
     try {
       // 1. Save the updated auction
-      const res = await fetch(`http://localhost:3000/auction/auction/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/auction/auction/${id}`, {
         method:  "PUT",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify(payload),
@@ -256,7 +256,7 @@ export default function EditAuction() {
 
       // 2. Delete all existing bids for this auction (runs in background — errors are non-fatal)
       try {
-        await fetch(`http://localhost:3000/bid/bids/auction/${id}`, { method: "DELETE" });
+        await fetch(`${import.meta.env.VITE_API_URL}/bid/bids/auction/${id}`, { method: "DELETE" });
         console.log("🗑️ Bids cleared for auction", id);
       } catch (bidErr) {
         console.warn("⚠️ Could not clear bids:", bidErr.message);
@@ -264,7 +264,7 @@ export default function EditAuction() {
 
       // 3. Release all locked deposits back to every bidder (runs in background — non-fatal)
       try {
-        await fetch(`http://localhost:3000/wallet/auction/${id}/release-all-bids`, {
+        await fetch(`${import.meta.env.VITE_API_URL}/wallet/auction/${id}/release-all-bids`, {
           method:  "POST",
           headers: { "Content-Type": "application/json" },
           body:    JSON.stringify({ auctionTitle: form.title }),
@@ -667,3 +667,4 @@ function SectionTitle({ title, sub, t }) {
     </div>
   );
 }
+

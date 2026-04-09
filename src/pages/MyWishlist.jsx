@@ -4,7 +4,7 @@ import { useThemeStyles } from "../utils/themeStyles";
 import { useAuth } from "../context/AuthContext";
 import FooterComponent from "../components/user/FooterComponent";
 
-const API = "http://localhost:3000/wish";
+const API = `${import.meta.env.VITE_API_URL}/wish`;
 
 // ── inline helpers ────────────────────────────────────────────────────────────
 const formatINR = (n) =>
@@ -59,7 +59,7 @@ function normalise(a) {
 // ── Mark auction Completed in DB when timer hits zero ─────────────────────────
 async function markCompleted(auctionId, onDone) {
   try {
-    const res = await fetch(`http://localhost:3000/auction/auction/${auctionId}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/auction/auction/${auctionId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "Completed" }),
@@ -310,7 +310,7 @@ export default function MyWishlist() {
         // Enrich each auction's currentBid from bids endpoint (source of truth)
         const enriched = await Promise.all(normalised.map(async (auction) => {
           try {
-            const r = await fetch(`http://localhost:3000/bid/bids/auction/${auction.id}`);
+            const r = await fetch(`${import.meta.env.VITE_API_URL}/bid/bids/auction/${auction.id}`);
             if (!r.ok) return auction;
             const bidData = await r.json();
             const bids = bidData.data ?? [];
@@ -475,3 +475,4 @@ export default function MyWishlist() {
     </div>
   );
 }
+

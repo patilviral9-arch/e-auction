@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { toast, Toaster } from "react-hot-toast";
 import FooterComponent from "../components/user/FooterComponent";
 
-const BASE = "http://localhost:3000";
+const BASE = String(import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
 
 /* ── Icon helper ── */
 const Icon = ({ d, size = 18, strokeWidth = 1.75, fill = "none" }) => (
@@ -480,3 +480,4 @@ export default function Wallet() {
     </>
   );
 }
+

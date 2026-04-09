@@ -18,7 +18,7 @@ async function uploadToCloudinary(file) {
 }
 
 async function saveToMongo(userId, payload) {
-  const res = await fetch(`http://localhost:3000/user/updateuser/${userId}`, {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/user/updateuser/${userId}`, {
     method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
   });
   return res.json();
@@ -50,7 +50,7 @@ export default function PersonalProfile() {
 
   useEffect(() => {
     if (!userId) return;
-    fetch(`http://localhost:3000/user/getuser/${userId}`)
+    fetch(`${import.meta.env.VITE_API_URL}/user/getuser/${userId}`)
       .then(r => r.json())
       .then(({ data }) => {
         if (!data) return;
@@ -69,7 +69,7 @@ export default function PersonalProfile() {
 
   useEffect(() => {
     if (!userId) return;
-    fetch(`http://localhost:3000/bid/bids/bidder/${userId}`)
+    fetch(`${import.meta.env.VITE_API_URL}/bid/bids/bidder/${userId}`)
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(data => {
         const list = Array.isArray(data.data) ? data.data : Array.isArray(data) ? data : [];
@@ -370,7 +370,7 @@ export default function PersonalProfile() {
                   });
                   if (!result.isConfirmed) return;
                   try {
-                    const res = await fetch(`http://localhost:3000/user/deleteuser/${userId}`, { method: "DELETE" });
+                    const res = await fetch(`${import.meta.env.VITE_API_URL}/user/deleteuser/${userId}`, { method: "DELETE" });
                     if (!res.ok) throw new Error("Delete failed");
                     await Swal.fire({ title: "Deleted!", text: "Your account has been deleted.", icon: "success", background: isLight ? "#ffffff" : "#1e293b", color: isLight ? "#0f172a" : "#f1f5f9", confirmButtonColor: "#38bdf8", timer: 2000, showConfirmButton: false, allowOutsideClick: false });
                     logout(); navigate("/");
@@ -404,4 +404,5 @@ function Toggle({ label, defaultOn, isLight }) {
     </div>
   );
 }
+
 

@@ -291,7 +291,7 @@ export function TabSettings({ biz, setBiz, lockedName, lockedEmail, openModal, h
           });
           if (!result.isConfirmed) return;
           try {
-            const res = await fetch(`http://localhost:3000/user/deleteuser/${userId}`, { method:"DELETE" });
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/user/deleteuser/${userId}`, { method:"DELETE" });
             if (!res.ok) throw new Error("Delete failed");
             await Swal.fire({ title:"Deleted!", text:"Your account has been deleted.", icon:"success", background: isDark ? "#0f172a" : "#ffffff", color: isDark ? "#f1f5f9" : "#0f172a", confirmButtonColor:"#38bdf8", timer:2000, showConfirmButton:false, allowOutsideClick:false });
             logout(); navigate("/");
@@ -306,3 +306,4 @@ export function TabSettings({ biz, setBiz, lockedName, lockedEmail, openModal, h
     </div>
   );
 }
+

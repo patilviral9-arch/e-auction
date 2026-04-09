@@ -126,7 +126,7 @@ export const UserNavbar = ({
   const { userId } = authCtx;
   useEffect(() => {
     if (!userId || role === "guest") return;
-    fetch(`http://localhost:3000/notification/${userId}/unread-count`)
+    fetch(`${import.meta.env.VITE_API_URL}/notification/${userId}/unread-count`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data) setNotifCount(data.count ?? data.unread ?? 0);
@@ -625,3 +625,4 @@ const DropItem = ({ to, icon, label, onClick, isLight }) => (
 );
 
 export default UserNavbar;
+

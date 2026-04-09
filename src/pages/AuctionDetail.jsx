@@ -11,7 +11,7 @@ const formatINR = (n) =>
 // ── Mark auction Completed in DB when timer hits zero ─────────────────────────
 async function markCompleted(auctionId) {
   try {
-    await fetch(`http://localhost:3000/auction/auction/${auctionId}`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/auction/auction/${auctionId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "Completed" }),
@@ -119,7 +119,7 @@ function SellerRatingSummary({ auctionId, t }) {
 
   useEffect(() => {
     if (!auctionId) return;
-    fetch(`http://localhost:3000/auction/reviews/${auctionId}`)
+    fetch(`${import.meta.env.VITE_API_URL}/auction/reviews/${auctionId}`)
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => {
         const list = Array.isArray(data) ? data : data.reviews ?? [];
@@ -146,7 +146,7 @@ function SellerRatingSummary({ auctionId, t }) {
 
 // ── Reviews Section ───────────────────────────────────────────────────────────
 function ReviewsSection({ auctionId, role, userId, t }) {
-  const API = `http://localhost:3000/auction/reviews/${auctionId}`;
+  const API = `${import.meta.env.VITE_API_URL}/auction/reviews/${auctionId}`;
 
   const [reviews,      setReviews]      = useState([]);
   const [loadingList,  setLoadingList]  = useState(true);
@@ -166,7 +166,7 @@ function ReviewsSection({ auctionId, role, userId, t }) {
     const fetchAvatar = async (userId) => {
       if (!userId) return "";
       try {
-        const r = await fetch(`http://localhost:3000/user/getuser/${userId}`);
+        const r = await fetch(`${import.meta.env.VITE_API_URL}/user/getuser/${userId}`);
         if (!r.ok) return "";
         const d = await r.json();
         return d?.data?.avatar || "";
@@ -425,7 +425,7 @@ export default function AuctionDetail() {
   useEffect(() => {
     setLoading(true);
     setFetchError("");
-    fetch(`http://localhost:3000/auction/auctions/${id}`)
+    fetch(`${import.meta.env.VITE_API_URL}/auction/auctions/${id}`)
       .then(res => {
         if (!res.ok) throw new Error(`Server error: ${res.status}`);
         return res.json();
@@ -522,14 +522,14 @@ export default function AuctionDetail() {
     if (watched) {
       // Remove
       try {
-        await fetch(`http://localhost:3000/wish/wishlist/${userId}/remove/${auction.id}`, { method: "DELETE" });
+        await fetch(`${import.meta.env.VITE_API_URL}/wish/wishlist/${userId}/remove/${auction.id}`, { method: "DELETE" });
         setWatched(false);
         setWatchMsg("removed");
       } catch { setWatchMsg("error"); }
     } else {
       // Add
       try {
-        const res = await fetch(`http://localhost:3000/wish/wishlist/${userId}/add`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/wish/wishlist/${userId}/add`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ auctionId: auction.id }),
@@ -545,7 +545,7 @@ export default function AuctionDetail() {
   // ── Pre-check if already in watchlist ────────────────────────────────────
   useEffect(() => {
     if (!userId || !auction?.id) return;
-    fetch(`http://localhost:3000/wish/wishlist/${userId}`)
+    fetch(`${import.meta.env.VITE_API_URL}/wish/wishlist/${userId}`)
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => {
         const ids = (data.auctions || []).map(a => String(a._id || a.id || a));
@@ -559,7 +559,7 @@ export default function AuctionDetail() {
     if (!userId || !auction?.id || role === "guest" || !role) return;
     const computed = +(auction.startingBid * 0.05).toFixed(2);
     setLockAmount(computed);
-    fetch(`http://localhost:3000/wallet/${userId}/wallet/lock-status/${auction.id}`)
+    fetch(`${import.meta.env.VITE_API_URL}/wallet/${userId}/wallet/lock-status/${auction.id}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data) {
@@ -577,7 +577,7 @@ export default function AuctionDetail() {
     setLockError("");
     try {
       // Fetch current balance first
-      const wRes = await fetch(`http://localhost:3000/wallet/${userId}/wallet`);
+      const wRes = await fetch(`${import.meta.env.VITE_API_URL}/wallet/${userId}/wallet`);
       const wData = wRes.ok ? await wRes.json() : null;
       const balance = wData?.balance ?? 0;
       setWalletBalance(balance);
@@ -588,7 +588,7 @@ export default function AuctionDetail() {
         return;
       }
 
-      const res = await fetch(`http://localhost:3000/wallet/${userId}/wallet/lock`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/wallet/${userId}/wallet/lock`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -632,14 +632,14 @@ export default function AuctionDetail() {
     const fetchAvatar = async (userId) => {
       if (!userId) return "";
       try {
-        const r = await fetch(`http://localhost:3000/user/getuser/${userId}`);
+        const r = await fetch(`${import.meta.env.VITE_API_URL}/user/getuser/${userId}`);
         if (!r.ok) return "";
         const d = await r.json();
         return d?.data?.avatar || "";
       } catch { return ""; }
     };
 
-    fetch(`http://localhost:3000/bid/bids/auction/${id}`)
+    fetch(`${import.meta.env.VITE_API_URL}/bid/bids/auction/${id}`)
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(async data => {
         const list = data.data ?? [];
@@ -762,7 +762,7 @@ export default function AuctionDetail() {
 
       if (myExistingBidId) {
         // ── User already has a bid — UPDATE it via PUT ──────────────────────
-        res = await fetch(`http://localhost:3000/bid/bid/${myExistingBidId}`, {
+        res = await fetch(`${import.meta.env.VITE_API_URL}/bid/bid/${myExistingBidId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -772,7 +772,7 @@ export default function AuctionDetail() {
         });
       } else {
         // ── First bid from this user — CREATE via POST ──────────────────────
-        res = await fetch("http://localhost:3000/bid/bid", {
+        res = await fetch(`${import.meta.env.VITE_API_URL}/bid/bid`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -813,7 +813,7 @@ export default function AuctionDetail() {
 
       // Re-fetch to confirm from server
       setTimeout(() => {
-        fetch(`http://localhost:3000/bid/bids/auction/${id}`)
+        fetch(`${import.meta.env.VITE_API_URL}/bid/bids/auction/${id}`)
           .then(r => r.ok ? r.json() : null)
           .then(async bidData => {
             if (!bidData) return;
@@ -826,7 +826,7 @@ export default function AuctionDetail() {
             setRawBids(list);
             const fetchAvatar = async (uid) => {
               if (!uid) return "";
-              try { const r = await fetch(`http://localhost:3000/user/getuser/${uid}`); if (!r.ok) return ""; const d = await r.json(); return d?.data?.avatar || ""; } catch { return ""; }
+              try { const r = await fetch(`${import.meta.env.VITE_API_URL}/user/getuser/${uid}`); if (!r.ok) return ""; const d = await r.json(); return d?.data?.avatar || ""; } catch { return ""; }
             };
             const formatted = await Promise.all(list.map(async (b, i) => {
               let displayName = b.userName || "";
@@ -1176,3 +1176,4 @@ export default function AuctionDetail() {
   );
 }
 const ts = (color, bg) => ({ display: "inline-block", padding: "4px 10px", borderRadius: "50px", background: bg, color, fontSize: "11px", fontWeight: 700, border: `1px solid ${color}40` });
+

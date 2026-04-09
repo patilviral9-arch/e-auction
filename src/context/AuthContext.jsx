@@ -72,7 +72,7 @@ export function AuthProvider({ children }) {
 
     // Avatar edge-case: if the JWT doesn't carry avatar, fetch it once
     if (!userData.avatar && userData.userId) {
-      fetch(`http://localhost:3000/user/getuser/${userData.userId}`, {
+      fetch(`${import.meta.env.VITE_API_URL}/user/getuser/${userData.userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then(r => r.ok ? r.json() : null)
@@ -124,3 +124,4 @@ export function useAuth() {
   if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
   return ctx;
 }
+

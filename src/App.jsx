@@ -7,7 +7,7 @@ import axios from 'axios'
 // import './App.css'
 
 function App() {
-  axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/'
+  axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL
   
   return (
     <>
@@ -30,3 +30,4 @@ function App() {
 }
 
 export default App
+

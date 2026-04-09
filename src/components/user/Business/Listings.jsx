@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 // ── Mark auction Completed in DB when timer hits zero ─────────────────────────
 async function markCompleted(auctionId, onStatusChange) {
   try {
-    const res = await fetch(`http://localhost:3000/auction/auction/${auctionId}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/auction/auction/${auctionId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "Completed" }),
@@ -132,7 +132,7 @@ function StatusChanger({ auction, onStatusChange }) {
     if (newStatus === auction.status) return;
     setSaving(true);
     try {
-      const res = await fetch(`http://localhost:3000/auction/auction/${auction.id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/auction/auction/${auction.id}`, {
         method:  "PUT",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ status: newStatus }), // send exact API value
@@ -245,7 +245,7 @@ export default function Listings() {
     if (!userId) return;
     setLoading(true);
     setError("");
-    fetch("http://localhost:3000/auction/auctions")
+    fetch(`${import.meta.env.VITE_API_URL}/auction/auctions`)
       .then(r => { if (!r.ok) throw new Error(`Server error: ${r.status}`); return r.json(); })
       .then(async data => {
         const list = Array.isArray(data) ? data : data.auctions ?? data.data ?? [];
@@ -260,7 +260,7 @@ export default function Listings() {
         // Enrich each auction's currentBid and totalBids from the bids endpoint
         const enriched = await Promise.all(normalised.map(async (auction) => {
           try {
-            const r = await fetch(`http://localhost:3000/bid/bids/auction/${auction.id}`);
+            const r = await fetch(`${import.meta.env.VITE_API_URL}/bid/bids/auction/${auction.id}`);
             if (!r.ok) return auction;
             const bidData = await r.json();
             const bids = bidData.data ?? [];
@@ -326,7 +326,7 @@ export default function Listings() {
     });
     if (!result.isConfirmed) return;
     try {
-      const res = await fetch(`http://localhost:3000/auction/auction/${auction.id}`, { method: "DELETE" });
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/auction/auction/${auction.id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
       setAll(prev => prev.filter(a => a.id !== auction.id));
       Swal.fire({ title:"Deleted!", icon:"success", timer:1500, showConfirmButton:false, background:swalBg, color:swalColor });
@@ -582,3 +582,4 @@ export default function Listings() {
     </div>
   );
 }
+

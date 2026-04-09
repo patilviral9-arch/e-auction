@@ -162,7 +162,7 @@ export default function AddAuction() {
     setLoading(true);
     try {
       const payload = buildPayload();
-      const res = await axios.post("http://localhost:3000/auction/auction", payload);
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auction/auction`, payload);
       if (res.status === 201) {
         setPublished(true);
         setTimeout(() => navigate("/Business/Listings"), 2200);
@@ -626,5 +626,6 @@ function SectionTitle({ title, sub, t }) {
     </div>
   );
 }
+
 
 

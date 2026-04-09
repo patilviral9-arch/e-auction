@@ -25,12 +25,9 @@ const isHtmlLike = (response) => {
 const getApiBaseCandidates = () =>
   uniq([
     resolvedApiBase,
+    import.meta.env.VITE_API_URL,
     import.meta.env.VITE_API_BASE_URL,
     axios.defaults.baseURL,
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://localhost:5000',
-    'http://127.0.0.1:5000',
     typeof window !== 'undefined' ? window.location.origin : null,
   ]);
 
@@ -700,3 +697,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

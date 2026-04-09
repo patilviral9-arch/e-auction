@@ -1,7 +1,7 @@
 import React from "react";
 import { styles } from "./bizConstants";
 
-const API_BASE = "http://localhost:3000/user";
+const API_BASE = `${import.meta.env.VITE_API_URL}/user`;
 
 export async function updateUserAPI(userId, data) {
   try {
@@ -201,3 +201,4 @@ export function EditModal({ title, fields, values, onSave, onClose, userId }) {
     </div>
   );
 }
+

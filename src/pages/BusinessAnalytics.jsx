@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useThemeStyles } from "../utils/themeStyles";
 import Footercomponent from "../components/user/FooterComponent";
 
-const AUCTIONS_ENDPOINT = "http://localhost:3000/auction/auctions";
+const AUCTIONS_ENDPOINT = `${import.meta.env.VITE_API_URL}/auction/auctions`;
 
 const formatINR = (value) =>
   "₹" + Number(value || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
@@ -104,7 +104,7 @@ export default function BusinessAnalytics() {
       const enriched = await Promise.all(
         mine.map(async (auction) => {
           try {
-            const bidRes = await fetch(`http://localhost:3000/bid/bids/auction/${auction.id}`);
+            const bidRes = await fetch(`${import.meta.env.VITE_API_URL}/bid/bids/auction/${auction.id}`);
             if (!bidRes.ok) return auction;
             const bidData = await bidRes.json();
             const bids = bidData?.data ?? [];
@@ -619,3 +619,4 @@ export default function BusinessAnalytics() {
     </div>
   );
 }
+

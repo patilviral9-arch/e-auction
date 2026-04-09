@@ -8,12 +8,12 @@ import FooterComponent from "../components/user/FooterComponent";
 const formatINR = (n) =>
   "₹" + Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
 
-const WISHLIST_API = "http://localhost:3000/wish";
+const WISHLIST_API = `${import.meta.env.VITE_API_URL}/wish`;
 
 // ── Mark auction Completed in DB when timer hits zero ─────────────────────────
 async function markCompleted(auctionId, onDone) {
   try {
-    const res = await fetch(`http://localhost:3000/auction/auction/${auctionId}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/auction/auction/${auctionId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "Completed" }),
@@ -308,7 +308,7 @@ export default function LiveAuctions() {
 
   const fetchLive = () => {
     setFetchError("");
-    fetch("http://localhost:3000/auction/auctions")
+    fetch(`${import.meta.env.VITE_API_URL}/auction/auctions`)
       .then(r => { if (!r.ok) throw new Error(`Server error: ${r.status}`); return r.json(); })
       .then(async data => {
         const list = Array.isArray(data) ? data : data.auctions ?? data.data ?? [];
@@ -322,7 +322,7 @@ export default function LiveAuctions() {
 
         const enriched = await Promise.all(live.map(async (auction) => {
           try {
-            const r = await fetch(`http://localhost:3000/bid/bids/auction/${auction.id}`);
+            const r = await fetch(`${import.meta.env.VITE_API_URL}/bid/bids/auction/${auction.id}`);
             if (!r.ok) return auction;
             const bidData = await r.json();
             const bids = bidData.data ?? [];
@@ -544,3 +544,4 @@ export default function LiveAuctions() {
     </div>
   );
 }
+

@@ -4,7 +4,7 @@ import { useThemeStyles } from "../utils/themeStyles";
 import { useAuth } from "../context/AuthContext";
 import FooterComponent from "../components/user/FooterComponent";
 
-const API = "http://localhost:3000/wish";
+const API = `${import.meta.env.VITE_API_URL}/wish`;
 
 const formatINR = (n) =>
   "₹" + Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
@@ -46,7 +46,7 @@ const matchesActiveCategory = (auctionCategory = "", activeCategory = "All") => 
 // ── Mark auction Completed in DB when timer hits zero ─────────────────────────
 async function markCompleted(auctionId, onDone) {
   try {
-    const res = await fetch(`http://localhost:3000/auction/auction/${auctionId}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/auction/auction/${auctionId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "Completed" }),
@@ -106,7 +106,7 @@ function BidModal({ auction, onClose, onBid }) {
           || storedUser.name || userName || "Anonymous";
       } catch { bidderName = userName || "Anonymous"; }
 
-      const res = await fetch("http://localhost:3000/bid/bid", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/bid/bid`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ auction: auction.id, auctionTitle: auction.title, bidder: userId, userName: bidderName, bidAmount: amount }),
@@ -454,7 +454,7 @@ export default function BrowseAuctions() {
     if (showLoader) setLoading(true);
     setFetchError("");
     try {
-      const res = await fetch("http://localhost:3000/auction/auctions");
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/auction/auctions`);
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
       const data = await res.json();
       const list = Array.isArray(data) ? data : data.auctions ?? data.data ?? [];
@@ -465,7 +465,7 @@ export default function BrowseAuctions() {
       // Enrich currentBid from bids endpoint (source of truth)
       const enriched = await Promise.all(normalised.map(async (auction) => {
         try {
-          const r = await fetch(`http://localhost:3000/bid/bids/auction/${auction.id}`);
+          const r = await fetch(`${import.meta.env.VITE_API_URL}/bid/bids/auction/${auction.id}`);
           if (!r.ok) return auction;
           const bidData = await r.json();
           const bids = bidData.data ?? [];
@@ -524,7 +524,7 @@ export default function BrowseAuctions() {
   const handleBid = (id, amount) => {
     setAuctions(prev => prev.map(a => a.id === id ? { ...a, currentBid: amount, totalBids: a.totalBids + 1 } : a));
     setTimeout(() => {
-      fetch(`http://localhost:3000/bid/bids/auction/${id}`)
+      fetch(`${import.meta.env.VITE_API_URL}/bid/bids/auction/${id}`)
         .then(r => r.ok ? r.json() : null)
         .then(bidData => {
           if (!bidData) return;
@@ -662,3 +662,4 @@ export default function BrowseAuctions() {
     </div>
   );
 }
+

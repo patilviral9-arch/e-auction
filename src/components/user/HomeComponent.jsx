@@ -4,7 +4,7 @@ import FooterComponent from "./FooterComponent";
 import { useThemeStyles } from "../../utils/themeStyles";
 import { useAuth } from "../../context/AuthContext";
 
-const WISH_API = "http://localhost:3000/wish";
+const WISH_API = `${import.meta.env.VITE_API_URL}/wish`;
 
 /* ─────────── SVG ICONS ─────────── */
 const Ico = ({ d, size = 16, sw = 1.75, fill = "none", vb = "0 0 24 24", children, ...p }) => (
@@ -336,8 +336,8 @@ function StatsSection() {
 
     const fetchStats = async () => {
       const [auctionPayload, userPayload] = await Promise.all([
-        fetchJson("http://localhost:3000/auction/auctions"),
-        fetchJson("http://localhost:3000/user/getusers"),
+        fetchJson(`${import.meta.env.VITE_API_URL}/auction/auctions`),
+        fetchJson(`${import.meta.env.VITE_API_URL}/user/getusers`),
       ]);
 
       if (cancelled) return;
@@ -506,7 +506,7 @@ export const HomeComponent = () => {
   useEffect(() => {
     const fetchAuctions = async () => {
       try {
-        const res = await fetch("http://localhost:3000/auction/auctions");
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/auction/auctions`);
         if (!res.ok) throw new Error("Failed to fetch auctions");
         const data = await res.json();
         const list = Array.isArray(data) ? data : data.data ?? data.auctions ?? [];
@@ -516,7 +516,7 @@ export const HomeComponent = () => {
         const enriched = await Promise.all(list.map(async (auction) => {
           const id = auction._id ?? auction.id;
           try {
-            const r = await fetch(`http://localhost:3000/bid/bids/auction/${id}`);
+            const r = await fetch(`${import.meta.env.VITE_API_URL}/bid/bids/auction/${id}`);
             if (!r.ok) return auction;
             const bidData = await r.json();
             const bids = bidData.data ?? [];
@@ -677,4 +677,5 @@ export const HomeComponent = () => {
 };
 
 export default HomeComponent;
+
 

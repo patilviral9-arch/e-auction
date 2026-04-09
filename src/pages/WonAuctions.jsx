@@ -114,7 +114,7 @@ function WonCard({ result, t, loadRazorpay, walletBalance, refetchWallet, userId
     const auctionId = getAuctionId(auction);
 
     try {
-      const res = await fetch(`http://localhost:3000/payout/credit/${sellerId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/payout/credit/${sellerId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -134,7 +134,7 @@ function WonCard({ result, t, loadRazorpay, walletBalance, refetchWallet, userId
 
   // ✅ Shared handler: call verify-payment, credit seller, and mark as paid
   const handleVerifyAndSave = async (razorpayResponse) => {
-    const verifyRes = await fetch("http://localhost:3000/payment/verify-payment", {
+    const verifyRes = await fetch(`${import.meta.env.VITE_API_URL}/payment/verify-payment`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -306,7 +306,7 @@ function WonCard({ result, t, loadRazorpay, walletBalance, refetchWallet, userId
                   try {
                     const auctionId = getAuctionId(auction);
                     if (!auctionId) throw new Error("Auction id missing");
-                    const res = await fetch(`http://localhost:3000/wallet/${userId}/wallet/debit`, {
+                    const res = await fetch(`${import.meta.env.VITE_API_URL}/wallet/${userId}/wallet/debit`, {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({
@@ -350,7 +350,7 @@ function WonCard({ result, t, loadRazorpay, walletBalance, refetchWallet, userId
                   const loaded = await loadRazorpay();
                   if (!loaded) { toast.error("Failed to load Razorpay."); setPaying(false); return; }
 
-                  const res = await fetch("http://localhost:3000/payment/create-order", {
+                  const res = await fetch(`${import.meta.env.VITE_API_URL}/payment/create-order`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -459,7 +459,7 @@ export default function WonAuctions() {
   const fetchWallet = async () => {
     if (!userId) return;
     try {
-      const res = await fetch(`http://localhost:3000/wallet/${userId}/wallet`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/wallet/${userId}/wallet`);
       if (res.ok) {
         const json = await res.json();
         const w = json.data ?? json;
@@ -489,7 +489,7 @@ export default function WonAuctions() {
 
   const loadAndSyncWonAuctions = async () => {
     try {
-      const bidsRes = await fetch(`http://localhost:3000/bid/bids/bidder/${userId}`);
+      const bidsRes = await fetch(`${import.meta.env.VITE_API_URL}/bid/bids/bidder/${userId}`);
       if (!bidsRes.ok) throw new Error(`Server error: ${bidsRes.status}`);
       const bidsData = await bidsRes.json();
       const allBids  = bidsData.data ?? bidsData ?? [];
@@ -503,7 +503,7 @@ export default function WonAuctions() {
       const highestByAuction = {};
       await Promise.all(auctionIds.map(async (aid) => {
         try {
-          const r = await fetch(`http://localhost:3000/bid/bids/auction/${aid}`);
+          const r = await fetch(`${import.meta.env.VITE_API_URL}/bid/bids/auction/${aid}`);
           if (!r.ok) return;
           const d = await r.json();
           const all = d.data ?? [];
@@ -530,7 +530,7 @@ export default function WonAuctions() {
           ? String(b.auction?._id || b.auction?.id)
           : String(b.auction);
         try {
-          await fetch("http://localhost:3000/auctionres/auction", {
+          await fetch(`${import.meta.env.VITE_API_URL}/auctionres/auction`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -542,7 +542,7 @@ export default function WonAuctions() {
         } catch {}
       }));
 
-      const resultsRes = await fetch(`http://localhost:3000/auctionres/auctions/winner/${userId}`);
+      const resultsRes = await fetch(`${import.meta.env.VITE_API_URL}/auctionres/auctions/winner/${userId}`);
       if (!resultsRes.ok) throw new Error(`Server error: ${resultsRes.status}`);
       const resultsData = await resultsRes.json();
       setWonResults(Array.isArray(resultsData) ? resultsData : resultsData.data ?? []);
@@ -710,3 +710,4 @@ export default function WonAuctions() {
     </div>
   );
 }
+

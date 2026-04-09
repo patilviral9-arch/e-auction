@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-const AUCTIONS_ENDPOINT = "http://localhost:3000/auction/auctions";
+const AUCTIONS_ENDPOINT = `${import.meta.env.VITE_API_URL}/auction/auctions`;
 const BROWSE_CATEGORIES = [
   "Electronics",
   "Vehicles",
@@ -268,3 +268,4 @@ const Categories = () => {
 };
 
 export default Categories;
+

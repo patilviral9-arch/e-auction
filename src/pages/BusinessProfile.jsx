@@ -24,7 +24,7 @@ async function uploadToCloudinary(file) {
 }
 
 async function saveToMongo(userId, payload) {
-  await fetch(`http://localhost:3000/user/updateuser/${userId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+  await fetch(`${import.meta.env.VITE_API_URL}/user/updateuser/${userId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
 }
 
 export default function BusinessProfile() {
@@ -49,7 +49,7 @@ export default function BusinessProfile() {
 
   useEffect(() => {
     if (!userId) return;
-    fetch(`http://localhost:3000/user/getuser/${userId}`)
+    fetch(`${import.meta.env.VITE_API_URL}/user/getuser/${userId}`)
       .then(r => r.json())
       .then(data => {
         if (data.data) {
@@ -89,7 +89,7 @@ export default function BusinessProfile() {
   useEffect(() => {
     if (!userId) return;
     setListingsLoading(true);
-    fetch("http://localhost:3000/auction/auctions")
+    fetch(`${import.meta.env.VITE_API_URL}/auction/auctions`)
       .then(r => { if (!r.ok) throw new Error("Failed"); return r.json(); })
       .then(data => {
         const list = Array.isArray(data) ? data : data.auctions ?? data.data ?? [];
@@ -255,3 +255,4 @@ export default function BusinessProfile() {
     </div>
   );
 }
+

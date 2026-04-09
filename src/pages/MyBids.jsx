@@ -150,7 +150,7 @@ function BidCard({ bid, navigate, t, walletBalance, refetchWallet, userId, onMar
     const sellerId = resolveSellerId(bid);
     if (!sellerId) return;
     try {
-      const res = await fetch(`http://localhost:3000/payout/credit/${sellerId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/payout/credit/${sellerId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -328,7 +328,7 @@ function BidCard({ bid, navigate, t, walletBalance, refetchWallet, userId, onMar
                   setPaying(true);
                   try {
                     if (!auctionId) throw new Error("Auction id missing");
-                    const res = await fetch(`http://localhost:3000/wallet/${userId}/wallet/debit`, {
+                    const res = await fetch(`${import.meta.env.VITE_API_URL}/wallet/${userId}/wallet/debit`, {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({
@@ -367,7 +367,7 @@ function BidCard({ bid, navigate, t, walletBalance, refetchWallet, userId, onMar
                   if (!auctionId) throw new Error("Auction id missing");
                   const loaded = await loadRazorpay();
                   if (!loaded) { toast.error("Failed to load Razorpay."); setPaying(false); return; }
-                  const res = await fetch("http://localhost:3000/payment/create-order", {
+                  const res = await fetch(`${import.meta.env.VITE_API_URL}/payment/create-order`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ amount: bid.bidAmount, auctionId, bidId: bid._id }),
@@ -388,7 +388,7 @@ function BidCard({ bid, navigate, t, walletBalance, refetchWallet, userId, onMar
                     handler: async (response) => {
                       try {
                         if (!auctionId) throw new Error("Auction id missing");
-                        const verifyRes = await fetch("http://localhost:3000/payment/verify-payment", {
+                        const verifyRes = await fetch(`${import.meta.env.VITE_API_URL}/payment/verify-payment`, {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({
@@ -506,7 +506,7 @@ export default function MyBids() {
   const fetchWallet = async () => {
     if (!userId) return;
     try {
-      const res = await fetch(`http://localhost:3000/wallet/${userId}/wallet`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/wallet/${userId}/wallet`);
       if (res.ok) {
         const json = await res.json();
         const w = json.data ?? json;
@@ -548,7 +548,7 @@ export default function MyBids() {
     setError("");
     fetchWallet();
 
-    fetch(`http://localhost:3000/bid/bids/bidder/${userId}`)
+    fetch(`${import.meta.env.VITE_API_URL}/bid/bids/bidder/${userId}`)
       .then(r => { if (!r.ok) throw new Error(`Server error: ${r.status}`); return r.json(); })
       .then(async data => {
         const list = data.data ?? data ?? [];
@@ -572,7 +572,7 @@ export default function MyBids() {
         const bidCountByAuction = {};
         await Promise.all(auctionIds.map(async (aid) => {
           try {
-            const r = await fetch(`http://localhost:3000/bid/bids/auction/${aid}`);
+            const r = await fetch(`${import.meta.env.VITE_API_URL}/bid/bids/auction/${aid}`);
             if (!r.ok) return;
             const d = await r.json();
             const allBids = d.data ?? [];
@@ -583,7 +583,7 @@ export default function MyBids() {
 
         const paymentByAuction = {};
         try {
-          const resultsRes = await fetch(`http://localhost:3000/auctionres/auctions/winner/${userId}`);
+          const resultsRes = await fetch(`${import.meta.env.VITE_API_URL}/auctionres/auctions/winner/${userId}`);
           if (resultsRes.ok) {
             const resultsJson = await resultsRes.json();
             const resultsList = Array.isArray(resultsJson) ? resultsJson : resultsJson.data ?? [];
@@ -755,3 +755,4 @@ export default function MyBids() {
     </div>
   );
 }
+

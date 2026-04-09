@@ -36,7 +36,7 @@ const UsersList = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/user/getusers");
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/user/getusers`);
       const data = res.data?.users || res.data?.data || res.data || [];
       const normalized = Array.isArray(data)
         ? data.map((user) => ({ ...user, status: normalizeStatus(user.status) }))
@@ -181,7 +181,7 @@ const UsersList = () => {
 
     if (formValues) {
       try {
-        const res = await axios.post("http://localhost:3000/user/register", formValues);
+        const res = await axios.post(`${import.meta.env.VITE_API_URL}/user/register`, formValues);
         if (res.status === 201 || res.status === 200) {
           Swal.fire({
             icon: "success",
@@ -199,7 +199,7 @@ const UsersList = () => {
 
   const updateStatus = async (id, newStatus) => {
     try {
-      const res = await axios.put(`http://localhost:3000/user/updateuser/${id}`, {
+      const res = await axios.put(`${import.meta.env.VITE_API_URL}/user/updateuser/${id}`, {
         status: uiToApiStatus(newStatus),
       });
 
@@ -233,7 +233,7 @@ const UsersList = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:3000/user/deleteuser/${id}`);
+        await axios.delete(`${import.meta.env.VITE_API_URL}/user/deleteuser/${id}`);
         setUsers((prev) => prev.filter((user) => user._id !== id));
         Swal.fire("Deleted!", "", "success");
       } catch (err) {
@@ -380,3 +380,4 @@ const UsersList = () => {
 };
 
 export default UsersList;
+

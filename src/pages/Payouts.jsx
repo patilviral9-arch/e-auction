@@ -4,7 +4,7 @@ import { useThemeStyles } from "../utils/themeStyles";
 import { useAuth } from "../context/AuthContext";
 import FooterComponent from "../components/user/FooterComponent";
 
-const API = "http://localhost:3000";
+const API = import.meta.env.VITE_API_URL
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 const formatINR = (n) =>

@@ -53,7 +53,7 @@ const AddUser = () => {
     }
 
     try {
-      const res = await axios.post("http://localhost:3000/user/register", payload);
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/user/register`, payload);
       if (res.status === 201 || res.status === 200) {
         await Swal.fire("Created", "User added successfully.", "success");
         navigate("/admin/Users/UsersList");
@@ -200,3 +200,4 @@ const AddUser = () => {
 };
 
 export default AddUser;
+
