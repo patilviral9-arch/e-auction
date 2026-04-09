@@ -139,6 +139,7 @@ const OtpModal = ({ email, onVerified, onClose, pendingPayload }) => {
 
   const getApiError = (err, fallback) =>
     err?.response?.data?.message ||
+    err?.response?.data?.err ||
     err?.response?.data?.error ||
     (err?.request ? "Cannot reach server. Check backend URL/server status." : null) ||
     fallback;
@@ -152,10 +153,10 @@ const OtpModal = ({ email, onVerified, onClose, pendingPayload }) => {
     setVerifying(true);
     try {
       // Step 1 — verify OTP
-      await axios.post(authUrl("/user/verify-otp"), { email, otp });
+      await axios.post(authUrl("/user/verify-otp"), { email, otp }, { timeout: 15000 });
 
       // Step 2 — register the user now that email is verified
-      const res = await axios.post(authUrl("/user/register"), pendingPayload);
+      const res = await axios.post(authUrl("/user/register"), pendingPayload, { timeout: 15000 });
       if (res.status === 201) {
         setSuccess(true);
         setTimeout(() => onVerified(), 1800);
@@ -174,7 +175,7 @@ const OtpModal = ({ email, onVerified, onClose, pendingPayload }) => {
     setOtpError("");
     setOtp("");
     try {
-      await axios.post(authUrl("/user/send-otp"), { email });
+      await axios.post(authUrl("/user/send-otp"), { email }, { timeout: 15000 });
       start();
       toast.success("OTP resent to your email!");
     } catch (err) {
@@ -355,6 +356,7 @@ export const Signup = () => {
 
   const getApiError = (err, fallback) =>
     err?.response?.data?.message ||
+    err?.response?.data?.err ||
     err?.response?.data?.error ||
     (err?.request ? "Cannot reach server. Check backend URL/server status." : null) ||
     fallback;
@@ -374,7 +376,7 @@ export const Signup = () => {
       }
 
       // Send OTP to the email first
-      await axios.post(authUrl("/user/send-otp"), { email: data.email });
+      await axios.post(authUrl("/user/send-otp"), { email: data.email }, { timeout: 15000 });
 
       // Store form payload and open OTP modal
       setPendingData(payload);
