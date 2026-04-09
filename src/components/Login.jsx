@@ -361,7 +361,7 @@ export const Login = () => {
           {/* Sign up link */}
           <div style={{ textAlign: "center" }}>
             <span style={{ color: T.textMuted, fontSize: "14px" }}>Don't have an account? </span>
-            <Link to="/ignup" style={{ color: "#38bdf8", fontSize: "14px", fontWeight: 700, textDecoration: "none" }}>
+            <Link to="/Signup" style={{ color: "#38bdf8", fontSize: "14px", fontWeight: 700, textDecoration: "none" }}>
               Sign Up
             </Link>
           </div>
