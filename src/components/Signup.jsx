@@ -153,10 +153,10 @@ const OtpModal = ({ email, onVerified, onClose, pendingPayload }) => {
     setVerifying(true);
     try {
       // Step 1 — verify OTP
-      await axios.post(authUrl("/user/verify-otp"), { email, otp }, { timeout: 15000 });
+      await axios.post(authUrl("/user/verify-otp"), { email, otp }, { timeout: 60000 });
 
       // Step 2 — register the user now that email is verified
-      const res = await axios.post(authUrl("/user/register"), pendingPayload, { timeout: 15000 });
+      const res = await axios.post(authUrl("/user/register"), pendingPayload, { timeout: 60000 });
       if (res.status === 201) {
         setSuccess(true);
         setTimeout(() => onVerified(), 1800);
@@ -175,7 +175,7 @@ const OtpModal = ({ email, onVerified, onClose, pendingPayload }) => {
     setOtpError("");
     setOtp("");
     try {
-      await axios.post(authUrl("/user/send-otp"), { email }, { timeout: 15000 });
+      await axios.post(authUrl("/user/send-otp"), { email }, { timeout: 60000 });
       start();
       toast.success("OTP resent to your email!");
     } catch (err) {
@@ -376,7 +376,7 @@ export const Signup = () => {
       }
 
       // Send OTP to the email first
-      await axios.post(authUrl("/user/send-otp"), { email: data.email }, { timeout: 15000 });
+      await axios.post(authUrl("/user/send-otp"), { email: data.email }, { timeout: 60000 });
 
       // Store form payload and open OTP modal
       setPendingData(payload);
