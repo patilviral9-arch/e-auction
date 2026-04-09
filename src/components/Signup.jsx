@@ -142,10 +142,10 @@ const OtpModal = ({ email, onVerified, onClose, pendingPayload }) => {
     setVerifying(true);
     try {
       // Step 1 — verify OTP
-      await axios.post("/user/verify-otp", { email, otp });
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/user/verify-otp`, { email, otp });
 
       // Step 2 — register the user now that email is verified
-      const res = await axios.post("/user/register", pendingPayload);
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/user/register`, pendingPayload);
       if (res.status === 201) {
         setSuccess(true);
         setTimeout(() => onVerified(), 1800);
@@ -164,7 +164,7 @@ const OtpModal = ({ email, onVerified, onClose, pendingPayload }) => {
     setOtpError("");
     setOtp("");
     try {
-      await axios.post("/user/send-otp", { email });
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/user/send-otp`, { email });
       start();
       toast.success("OTP resent to your email!");
     } catch {
@@ -358,7 +358,7 @@ export const Signup = () => {
       }
 
       // Send OTP to the email first
-      await axios.post("/user/send-otp", { email: data.email });
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/user/send-otp`, { email: data.email });
 
       // Store form payload and open OTP modal
       setPendingData(payload);
