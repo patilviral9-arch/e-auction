@@ -138,8 +138,8 @@ const OtpModal = ({ email, onVerified, onClose, pendingPayload }) => {
   const { seconds, start } = useCountdown(60);
 
   const getApiError = (err, fallback) =>
-    err?.response?.data?.message ||
     err?.response?.data?.err ||
+    err?.response?.data?.message ||
     err?.response?.data?.error ||
     (err?.request ? "Cannot reach server. Check backend URL/server status." : null) ||
     fallback;
@@ -355,8 +355,8 @@ export const Signup = () => {
   const navigate = useNavigate();
 
   const getApiError = (err, fallback) =>
-    err?.response?.data?.message ||
     err?.response?.data?.err ||
+    err?.response?.data?.message ||
     err?.response?.data?.error ||
     (err?.request ? "Cannot reach server. Check backend URL/server status." : null) ||
     fallback;
