@@ -175,7 +175,7 @@ const OtpModal = ({ email, onVerified, onClose, pendingPayload }) => {
     setOtpError("");
     setOtp("");
     try {
-      await axios.post(authUrl("/user/send-otp"), { email }, { timeout: 75000 });
+      await axios.post(authUrl("/user/send-otp"), { email }, { timeout: 80000 });
       start();
       toast.success("OTP resent to your email!");
     } catch (err) {
