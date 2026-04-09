@@ -33,10 +33,11 @@ import LiveAuctions from "../pages/LiveAuctions"
 import MyBids from "../pages/MyBids"
 import WonAuctions from "../pages/WonAuctions"
 import Notifications from "../pages/Notifications";
-import AboutUs from "../pages/AboutUs";
+
 import Payouts from "../pages/Payouts";
 import Wallet from "../pages/Wallet";
 import BusinessAnalytics from "../pages/BusinessAnalytics";
+import AboutUs from "../pages/AboutUs"
 import { useMaintenanceMode } from "../hooks/useMaintenanceMode";
 
 
@@ -149,7 +150,7 @@ const router = createBrowserRouter([
           { path: "/edit-auction/:id",  element:<ProtectedRoutes userRoles={["business"]}><EditAuction/></ProtectedRoutes>},
           { path: "MyWishlist", element:<MyWishlist/>},
           { path: "notifications", element: <Notifications />},
-          { path: "aboutus", element: <AboutUs/ > },
+          { path: "aboutus", element:<AboutUs/>},
         ],
       },
 
