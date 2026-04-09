@@ -164,8 +164,11 @@ export default function Wallet() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: finalAmount }),
       });
-      if (!res.ok) throw new Error(`Server error: ${res.status}`);
-      const responseJson = await res.json();
+      const responseJson = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const serverMessage = responseJson?.message || responseJson?.error;
+        throw new Error(serverMessage || `Server error: ${res.status}`);
+      }
       const order = responseJson.data || responseJson;
       const razorpayKey = responseJson.key || order.key || order.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID;
       const orderId = order.id || order.order_id;
@@ -237,7 +240,7 @@ export default function Wallet() {
 
     } catch (err) {
       setPaying(false);
-      toast.error("Payment initiation failed. Please try again.");
+      toast.error(err?.message || "Payment initiation failed. Please try again.");
     }
   };
 
