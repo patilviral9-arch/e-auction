@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useThemeStyles } from '../../utils/themeStyles';
 import Swal from 'sweetalert2';
@@ -48,6 +48,21 @@ const FooterComponent = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    const onChange = (e) => setIsMobile(e.matches);
+    setIsMobile(mql.matches);
+
+    if (mql.addEventListener) mql.addEventListener('change', onChange);
+    else mql.addListener(onChange);
+
+    return () => {
+      if (mql.removeEventListener) mql.removeEventListener('change', onChange);
+      else mql.removeListener(onChange);
+    };
+  }, []);
 
   // Navigate to /aboutus then scroll to section after a tick
   const goToSection = (sectionId) => (e) => {
@@ -63,7 +78,12 @@ const FooterComponent = () => {
     if (email.includes('@')) { setSubscribed(true); setEmail(''); }
   };
 
-  const col = { display: 'flex', flexDirection: 'column', gap: '10px' };
+  const col = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+    alignItems: isMobile ? 'center' : 'flex-start',
+  };
 
   const linkBase = {
     color: '#ffffff',
@@ -72,6 +92,8 @@ const FooterComponent = () => {
     transition: 'color 0.2s',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: isMobile ? 'center' : 'flex-start',
+    textAlign: isMobile ? 'center' : 'left',
     gap: '8px',
     flexWrap: 'wrap',
     wordBreak: 'break-word',
@@ -105,10 +127,10 @@ const FooterComponent = () => {
 
       {/* Top section */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: 'clamp(28px, 7vw, 64px) clamp(14px, 4vw, 40px) clamp(26px, 6vw, 48px)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '24px', justifyItems: isMobile ? 'center' : 'stretch', textAlign: isMobile ? 'center' : 'left' }}>
 
           {/* Brand */}
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: isMobile ? 'center' : 'flex-start' }}>
             <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', marginBottom: '18px' }}>
               <div style={{ width: '36px', height: '36px', background: 'linear-gradient(135deg, #38bdf8, #6366f1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
                 {Icons.Gavel}
@@ -117,10 +139,10 @@ const FooterComponent = () => {
                 <span style={{ color: '#ffffff' }}>E-</span><span style={{ color: '#38bdf8' }}>Auction</span>
               </span>
             </Link>
-            <p style={{ color: '#ffffff', fontSize: '14px', lineHeight: 1.7, marginBottom: '20px', maxWidth: '260px' }}>
+            <p style={{ color: '#ffffff', fontSize: '14px', lineHeight: 1.7, marginBottom: '20px', maxWidth: '260px', marginLeft: isMobile ? 'auto' : 0, marginRight: isMobile ? 'auto' : 0 }}>
               The world's most trusted marketplace for premium collectibles, industrial assets, and luxury goods. Secure, transparent, and lightning-fast.
             </p>
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: isMobile ? 'center' : 'flex-start' }}>
               {socials.map((s, i) => (
                 <a key={i} href={s.href} target="_blank" rel="noreferrer" style={{ width: '36px', height: '36px', borderRadius: '10px', background: s.bg, border: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.color, textDecoration: 'none', transition: 'all 0.2s' }}
                   onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
@@ -212,14 +234,14 @@ const FooterComponent = () => {
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} />
 
       {/* Bottom bar */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px clamp(14px, 4vw, 40px)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', alignItems: 'center', gap: '12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px 20px', flexWrap: 'wrap' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px clamp(14px, 4vw, 40px)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', alignItems: 'center', gap: '12px', textAlign: isMobile ? 'center' : 'left' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px 20px', flexWrap: 'wrap', justifyContent: isMobile ? 'center' : 'flex-start' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#34d399', fontSize: '12px', fontWeight: 600 }}>
             {Icons.SSL} SSL Encrypted
           </div>
           <p style={{ color: '#ffffff', fontSize: '12px', margin: 0 }}>© 2026 E-Auction Inc. All rights reserved.</p>
         </div>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: isMobile ? 'center' : 'flex-start' }}>
           {['VISA','MC','STRIPE','PAYPAL','UPI'].map(p => (
             <div key={p} style={{ height: '24px', minWidth: '44px', padding: '0 8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px', fontWeight: 800, color: '#ffffff', letterSpacing: '0.04em' }}>{p}</div>
           ))}
