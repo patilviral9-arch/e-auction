@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -44,312 +44,11 @@ const IconShield      = ({ size = 40, color = "#38bdf8" })      => (<svg width={
 const IconCheck       = ({ size = 48, color = "#22c55e" })      => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>);
 const IconX           = ({ size = 18, color = "currentColor" }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>);
 
-// ── OTP Input: 6 individual boxes ────────────────────────────────────────────
-const OtpInput = ({ value, onChange, disabled }) => {
-  const refs = useRef([]);
-  const digits = (value || "").split("").concat(Array(6).fill("")).slice(0, 6);
-
-  const handleKey = (e, i) => {
-    if (e.key === "Backspace") {
-      e.preventDefault();
-      const next = digits.map((d, idx) => idx === i ? "" : d).join("");
-      onChange(next);
-      if (i > 0) refs.current[i - 1]?.focus();
-    } else if (e.key === "ArrowLeft" && i > 0) {
-      refs.current[i - 1]?.focus();
-    } else if (e.key === "ArrowRight" && i < 5) {
-      refs.current[i + 1]?.focus();
-    }
-  };
-
-  const handleChange = (e, i) => {
-    const char = e.target.value.replace(/\D/g, "").slice(-1);
-    const next = digits.map((d, idx) => idx === i ? char : d).join("");
-    onChange(next);
-    if (char && i < 5) refs.current[i + 1]?.focus();
-  };
-
-  const handlePaste = (e) => {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    onChange(pasted.padEnd(6, "").slice(0, 6).trimEnd());
-    const focusIdx = Math.min(pasted.length, 5);
-    refs.current[focusIdx]?.focus();
-  };
-
-  return (
-    <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-      {digits.map((d, i) => (
-        <input
-          key={i}
-          ref={el => refs.current[i] = el}
-          type="text"
-          inputMode="numeric"
-          maxLength={1}
-          value={d}
-          disabled={disabled}
-          onChange={e => handleChange(e, i)}
-          onKeyDown={e => handleKey(e, i)}
-          onPaste={handlePaste}
-          style={{
-            width: "48px", height: "56px",
-            textAlign: "center", fontSize: "22px", fontWeight: 800,
-            borderRadius: "12px", outline: "none",
-            border: d ? "2px solid #38bdf8" : "1.5px solid #cbd5e1",
-            background: d ? "rgba(56,189,248,0.07)" : "#f1f5f9",
-            color: "#0f172a",
-            transition: "all 0.15s",
-            caretColor: "transparent",
-            boxSizing: "border-box",
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
-// ── Countdown timer hook ─────────────────────────────────────────────────────
-function useCountdown(initial = 60) {
-  const [seconds, setSeconds] = useState(0);
-  const timerRef = useRef(null);
-
-  const start = useCallback(() => {
-    setSeconds(initial);
-    clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setSeconds(s => {
-        if (s <= 1) { clearInterval(timerRef.current); return 0; }
-        return s - 1;
-      });
-    }, 1000);
-  }, [initial]);
-
-  useEffect(() => () => clearInterval(timerRef.current), []);
-  return { seconds, start };
-}
-
-// ── OTP Modal ────────────────────────────────────────────────────────────────
-const OtpModal = ({ email, onVerified, onClose, pendingPayload }) => {
-  const [otp,          setOtp]          = useState("");
-  const [verifying,    setVerifying]    = useState(false);
-  const [resending,    setResending]    = useState(false);
-  const [otpError,     setOtpError]     = useState("");
-  const [success,      setSuccess]      = useState(false);
-  const { seconds, start } = useCountdown(60);
-
-  const getApiError = (err, fallback) =>
-    err?.response?.data?.err ||
-    err?.response?.data?.message ||
-    err?.response?.data?.error ||
-    (err?.request ? "Cannot reach server. Check backend URL/server status." : null) ||
-    fallback;
-
-  // Auto-start countdown when modal mounts
-  useEffect(() => { start(); }, []);
-
-  const handleVerify = async () => {
-    if (otp.length < 6) { setOtpError("Please enter the complete 6-digit OTP."); return; }
-    setOtpError("");
-    setVerifying(true);
-    try {
-      // Step 1 — verify OTP
-      await axios.post(authUrl("/user/verify-otp"), { email, otp }, { timeout: 75000 });
-
-      // Step 2 — register the user now that email is verified
-      const res = await axios.post(authUrl("/user/register"), pendingPayload, { timeout: 75000 });
-      if (res.status === 201) {
-        setSuccess(true);
-        setTimeout(() => onVerified(), 1800);
-      }
-    } catch (err) {
-      setOtpError(getApiError(err, "Invalid OTP. Please try again."));
-      setOtp("");
-    } finally {
-      setVerifying(false);
-    }
-  };
-
-  const handleResend = async () => {
-    if (seconds > 0) return;
-    setResending(true);
-    setOtpError("");
-    setOtp("");
-    try {
-      await axios.post(authUrl("/user/send-otp"), { email }, { timeout: 80000 });
-      start();
-      toast.success("OTP resent to your email!");
-    } catch (err) {
-      setOtpError(getApiError(err, "Failed to resend OTP. Please try again."));
-    } finally {
-      setResending(false);
-    }
-  };
-
-  return (
-    // Backdrop
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 9999,
-      background: "rgba(15,23,42,0.55)",
-      backdropFilter: "blur(4px)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      padding: "20px",
-      animation: "fadeIn .2s ease",
-    }}>
-      {/* Modal card */}
-      <div style={{
-        width: "100%", maxWidth: "420px",
-        background: "#ffffff",
-        borderRadius: "24px",
-        padding: "40px 36px",
-        boxShadow: "0 24px 64px rgba(0,0,0,0.18)",
-        position: "relative",
-        animation: "popIn .35s cubic-bezier(.34,1.56,.64,1)",
-      }}>
-
-        {/* Close button */}
-        {!success && (
-          <button onClick={onClose} style={{
-            position: "absolute", top: "16px", right: "16px",
-            background: "#f1f5f9", border: "none", borderRadius: "8px",
-            width: "32px", height: "32px", cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            color: "#94a3b8", transition: "all 0.15s",
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = "#e2e8f0"; e.currentTarget.style.color = "#0f172a"; }}
-          onMouseLeave={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#94a3b8"; }}
-          >
-            <IconX size={16} />
-          </button>
-        )}
-
-        {success ? (
-          // ── Success state ──────────────────────────────────────────────────
-          <div style={{ textAlign: "center", padding: "8px 0" }}>
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px", animation: "popIn .4s cubic-bezier(.34,1.56,.64,1)" }}>
-              <IconCheck size={64} />
-            </div>
-            <h2 style={{ color: "#0f172a", fontSize: "22px", fontWeight: 900, margin: "0 0 10px", letterSpacing: "-0.02em" }}>
-              Registration Successful!
-            </h2>
-            <p style={{ color: "#64748b", fontSize: "14px", margin: "0 0 6px", lineHeight: 1.6 }}>
-              Your account has been created and a confirmation email has been sent to
-            </p>
-            <p style={{ color: "#38bdf8", fontWeight: 700, fontSize: "14px", margin: 0 }}>{email}</p>
-            <div style={{ marginTop: "24px", display: "flex", justifyContent: "center" }}>
-              <div style={{
-                display: "inline-flex", gap: "6px", alignItems: "center",
-                background: "rgba(56,189,248,0.1)", border: "1px solid rgba(56,189,248,0.3)",
-                borderRadius: "20px", padding: "6px 14px",
-                color: "#38bdf8", fontSize: "13px", fontWeight: 600,
-              }}>
-                <IconLoader size={13} color="#38bdf8" /> Redirecting to login…
-              </div>
-            </div>
-          </div>
-        ) : (
-          // ── OTP entry state ────────────────────────────────────────────────
-          <>
-            {/* Icon + heading */}
-            <div style={{ textAlign: "center", marginBottom: "24px" }}>
-              <div style={{
-                display: "inline-flex", alignItems: "center", justifyContent: "center",
-                width: "72px", height: "72px", borderRadius: "20px",
-                background: "linear-gradient(135deg, rgba(56,189,248,0.15), rgba(99,102,241,0.15))",
-                border: "1.5px solid rgba(56,189,248,0.3)",
-                marginBottom: "16px",
-              }}>
-                <IconShield size={34} />
-              </div>
-              <h2 style={{ color: "#0f172a", fontSize: "20px", fontWeight: 900, margin: "0 0 8px", letterSpacing: "-0.02em" }}>
-                Verify your email
-              </h2>
-              <p style={{ color: "#64748b", fontSize: "13.5px", margin: 0, lineHeight: 1.6 }}>
-                We've sent a 6-digit code to
-              </p>
-              <p style={{
-                color: "#0f172a", fontWeight: 700, fontSize: "14px",
-                margin: "4px 0 0",
-                background: "#f1f5f9", borderRadius: "8px",
-                padding: "5px 12px", display: "inline-block",
-              }}>{email}</p>
-            </div>
-
-            {/* OTP boxes */}
-            <div style={{ marginBottom: "20px" }}>
-              <OtpInput value={otp} onChange={v => { setOtp(v); setOtpError(""); }} disabled={verifying} />
-            </div>
-
-            {/* Error */}
-            {otpError && (
-              <div style={{
-                background: "rgba(244,63,94,.08)", border: "1px solid rgba(244,63,94,.25)",
-                borderRadius: "10px", padding: "10px 14px",
-                color: "#f43f5e", fontSize: "13px", fontWeight: 600,
-                marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px",
-              }}>
-                <IconWarning size={13} color="#f43f5e" /> {otpError}
-              </div>
-            )}
-
-            {/* Verify button */}
-            <button
-              onClick={handleVerify}
-              disabled={verifying || otp.length < 6}
-              style={{
-                width: "100%", padding: "14px", borderRadius: "12px", border: "none",
-                background: (verifying || otp.length < 6)
-                  ? "#f1f5f9"
-                  : "linear-gradient(135deg,#38bdf8,#6366f1)",
-                color: (verifying || otp.length < 6) ? "#94a3b8" : "white",
-                fontWeight: 800, fontSize: "15px",
-                cursor: (verifying || otp.length < 6) ? "not-allowed" : "pointer",
-                boxShadow: (verifying || otp.length < 6) ? "none" : "0 6px 20px rgba(56,189,248,.35)",
-                transition: "all .2s", marginBottom: "16px",
-                display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-              }}
-            >
-              {verifying
-                ? <><IconLoader size={17} color="#94a3b8" /> Verifying…</>
-                : <>Verify & Create Account <IconArrowRight size={16} color="white" /></>
-              }
-            </button>
-
-            {/* Resend */}
-            <div style={{ textAlign: "center" }}>
-              {seconds > 0 ? (
-                <p style={{ color: "#94a3b8", fontSize: "13px", margin: 0 }}>
-                  Resend OTP in{" "}
-                  <span style={{ color: "#38bdf8", fontWeight: 700 }}>{seconds}s</span>
-                </p>
-              ) : (
-                <button
-                  onClick={handleResend}
-                  disabled={resending}
-                  style={{
-                    background: "none", border: "none", cursor: resending ? "default" : "pointer",
-                    color: resending ? "#94a3b8" : "#38bdf8",
-                    fontSize: "13px", fontWeight: 700, padding: 0,
-                    display: "inline-flex", alignItems: "center", gap: "5px",
-                  }}
-                >
-                  {resending ? <><IconLoader size={13} color="#94a3b8" /> Sending…</> : "Resend OTP"}
-                </button>
-              )}
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  );
-};
-
 // ── Main Signup component ────────────────────────────────────────────────────
 export const Signup = () => {
   const [loading,      setLoading]      = useState(false);
   const [accountType,  setAccountType]  = useState("personal");
   const [showPwd,      setShowPwd]      = useState(false);
-  const [showOtp,      setShowOtp]      = useState(false);
-  const [pendingData,  setPendingData]  = useState(null); // form payload held until OTP verified
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
   const navigate = useNavigate();
@@ -375,56 +74,18 @@ export const Signup = () => {
         payload.lastName  = data.lastName;
       }
 
-      // Send OTP to the email first
-      await axios.post(authUrl("/user/send-otp"), { email: data.email }, { timeout: 75000 });
+      const res = await axios.post(authUrl("/user/register"), payload, { timeout: 30000 });
 
-      // Store form payload and open OTP modal
-      setPendingData(payload);
-      setShowOtp(true);
+      if (res.status === 201) {
+        reset();
+        toast.success("Account created successfully. Please sign in.");
+        navigate("/Login");
+      }
     } catch (err) {
-      toast.error(getApiError(err, "Failed to send OTP. Please try again."));
+      toast.error(getApiError(err, "Failed to create account. Please try again."));
     } finally {
       setLoading(false);
     }
-  };
-
-  // Called by OtpModal after successful verify + register
-  const handleVerified = () => {
-    setShowOtp(false);
-    reset();
-    toast(
-      <div style={{ display: "flex", alignItems: "center", gap: "14px", padding: "4px 2px" }}>
-        <div style={{
-          width: "44px", height: "44px", borderRadius: "12px", flexShrink: 0,
-          background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 4px 12px rgba(34,197,94,0.35)",
-        }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-          <span style={{ fontWeight: 700, fontSize: "14px", color: "#0f172a", letterSpacing: "-0.01em" }}>
-            Account Created Successfully!
-          </span>
-          <span style={{ fontSize: "12px", color: "#64748b", fontWeight: 500 }}>
-            A confirmation email has been sent to you.
-          </span>
-        </div>
-      </div>,
-      {
-        position: "top-right", autoClose: 4000,
-        hideProgressBar: true, closeButton: false, icon: false,
-        style: {
-          background: "#ffffff", border: "1px solid #e2e8f0",
-          borderRadius: "16px",
-          boxShadow: "0 12px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
-          padding: "12px 16px", minWidth: "300px",
-        },
-      }
-    );
-    navigate("/Login");
   };
 
   return (
@@ -436,15 +97,6 @@ export const Signup = () => {
       padding: "20px",
     }}>
 
-      {/* ── OTP Modal overlay ── */}
-      {showOtp && pendingData && (
-        <OtpModal
-          email={pendingData.email}
-          pendingPayload={pendingData}
-          onVerified={handleVerified}
-          onClose={() => setShowOtp(false)}
-        />
-      )}
 
       {/* ── Card ── */}
       <div style={{
@@ -589,7 +241,7 @@ export const Signup = () => {
             onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; }}
           >
             {loading
-              ? <><IconLoader size={18} color={T.textMuted} /> Sending OTP…</>
+              ? <><IconLoader size={18} color={T.textMuted} /> Creating Account…</>
               : <>Create Account <IconArrowRight size={17} color="white" /></>
             }
           </button>
@@ -620,4 +272,6 @@ export const Signup = () => {
     </div>
   );
 };
+
+
 
