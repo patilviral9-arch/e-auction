@@ -147,22 +147,22 @@ const Auctions = () => {
   if (loading) return <div className="text-center py-10 text-gray-500">Loading...</div>;
 
   return (
-    <div className="p-6 w-full">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">Auction Management</h1>
+    <div className="p-4 sm:p-6 w-full">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8">Auction Management</h1>
 
       {/* Filter Row */}
-      <div className="flex flex-wrap items-center gap-3 mb-6">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 mb-6">
         <input
           type="text"
           placeholder="Search auctions..."
-          className="min-w-[220px] flex-1 border border-black rounded-lg px-4 py-2.5 outline-none text-sm"
+          className="w-full min-w-0 sm:min-w-[220px] flex-1 border border-black rounded-lg px-4 py-2.5 outline-none text-sm"
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
         <select
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value)}
-          className="min-w-[160px] border border-black rounded-lg px-4 py-2.5 bg-white outline-none text-sm"
+          className="w-full sm:w-auto sm:min-w-[160px] border border-black rounded-lg px-4 py-2.5 bg-white outline-none text-sm"
         >
           {existingStatuses.map(s => (
             <option key={s} value={s}>{s === "All" ? "All Status" : s}</option>
@@ -171,7 +171,7 @@ const Auctions = () => {
         <select
           value={categoryFilter}
           onChange={e => setCategoryFilter(e.target.value)}
-          className="min-w-[160px] border border-black rounded-lg px-4 py-2.5 bg-white outline-none text-sm"
+          className="w-full sm:w-auto sm:min-w-[160px] border border-black rounded-lg px-4 py-2.5 bg-white outline-none text-sm"
         >
           {categories.map(c => (
             <option key={c} value={c}>{c === "All" ? "All Categories" : c}</option>
@@ -179,16 +179,16 @@ const Auctions = () => {
         </select>
         <button
           onClick={() => setModal({ mode:"add" })}
-          className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-indigo-700 whitespace-nowrap"
+          className="w-full sm:w-auto bg-indigo-600 text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-indigo-700 whitespace-nowrap"
         >
           + New Auction
         </button>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-[20px] border border-black shadow-sm overflow-visible">
+      <div className="bg-white rounded-[20px] border border-black shadow-sm overflow-hidden">
         <div className="overflow-x-auto" style={{ borderRadius:"20px" }}>
-          <table className="w-full text-sm table-fixed">
+          <table className="w-full min-w-[980px] text-sm table-auto">
             <thead className="border-b border-black">
               <tr className="text-left text-gray-500 font-bold uppercase tracking-wider">
                 <th className="px-3 py-4">Item</th>

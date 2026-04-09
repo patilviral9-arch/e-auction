@@ -91,6 +91,10 @@ export const UserNavbar = ({
   const [scrolled,    setScrolled]    = useState(false);
   const [activeHover, setActiveHover] = useState(null);
   const [notifCount,  setNotifCount]  = useState(0);
+  const [isMobile,    setIsMobile]    = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth <= 1024;
+  });
 
   // FIX 2: Track broken image so we fall back to the initial-letter avatar
   const [avatarError, setAvatarError] = useState(false);
@@ -105,6 +109,12 @@ export const UserNavbar = ({
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 1024);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   // Reset avatar error when avatar URL changes
@@ -131,24 +141,48 @@ export const UserNavbar = ({
 
   const handleLogout = () => { logout(); navigate("/"); };
   const isActive = (path) => location.pathname === path;
+  const navItems = [
+    { to: "/", icon: Icons.Home, label: "Home" },
+    { to: "/browse", icon: Icons.Browse, label: "Browse" },
+    { to: "/LiveAuctions", icon: Icons.Live, label: "Live" },
+    ...(role === "personal"
+      ? [
+          { to: "/wallet", icon: Icons.CreditCard, label: "Wallet" },
+          { to: "/my-bids", icon: Icons.Bids, label: "My Bids" },
+          { to: "/MyWishlist", icon: Icons.Wishlist, label: "Wishlist" },
+          { to: "/won", icon: Icons.Won, label: "Won" },
+        ]
+      : []),
+    ...(role === "business"
+      ? [
+          { to: "/add-auction", icon: Icons.NewAuction, label: "New Auction" },
+          { to: "/Business/Listings", icon: Icons.MyAuctions, label: "My Auctions" },
+          { to: "/MyWishlist", icon: Icons.Wishlist, label: "Wishlist" },
+          { to: "/payouts", icon: Icons.Payouts, label: "Payouts" },
+        ]
+      : []),
+  ];
 
   /* Ã¢â€â‚¬Ã¢â€â‚¬ shared link renderer Ã¢â€â‚¬Ã¢â€â‚¬ */
-  const NavLink = ({ to, children, icon }) => (
+  const NavLink = ({ to, label, icon }) => (
     <Link
       to={to}
       onMouseEnter={() => setActiveHover(to)}
       onMouseLeave={() => setActiveHover(null)}
       style={{
         position: "relative",
-        display: "flex", alignItems: "center", gap: "6px",
-        padding: "6px 12px", borderRadius: "8px",
+        display: "flex", alignItems: "center", justifyContent: isMobile ? "center" : "flex-start", gap: isMobile ? "4px" : "6px",
+        padding: isMobile ? "8px 6px" : "6px 12px", borderRadius: "8px",
         color: isActive(to)
           ? "var(--accent-blue)"
           : activeHover === to
             ? "var(--text-primary)"
             : "var(--text-secondary)",
-        textDecoration: "none", fontWeight: 600, fontSize: "14px",
-        letterSpacing: "0.01em", transition: "all 0.2s",
+        textDecoration: "none", fontWeight: 600, fontSize: isMobile ? "12px" : "14px",
+        letterSpacing: "0.01em", transition: "all 0.2s", whiteSpace: "nowrap", flexShrink: 0,
+        width: isMobile ? "100%" : "auto",
+        minWidth: 0,
+        overflow: "hidden",
         background: isActive(to)
           ? "rgba(56,189,248,0.08)"
           : activeHover === to
@@ -158,7 +192,7 @@ export const UserNavbar = ({
       }}
     >
       {icon && <span style={{ display: "flex", alignItems: "center" }}>{icon}</span>}
-      {children}
+      <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{label}</span>
     </Link>
   );
 
@@ -195,7 +229,8 @@ export const UserNavbar = ({
       <nav style={{
         position: "sticky", top: 0, zIndex: 999,
         display: "flex", alignItems: "center", justifyContent: "flex-start",
-        padding: "0 32px", height: "64px",
+        flexWrap: isMobile ? "wrap" : "nowrap",
+        padding: isMobile ? "8px 12px" : "0 32px", minHeight: "64px",
         background: isLight
           ? scrolled ? "rgba(255,255,255,0.98)" : "rgba(255,255,255,0.95)"
           : scrolled ? "rgba(15,23,42,0.97)"    : "rgba(15,23,42,0.95)",
@@ -226,21 +261,32 @@ export const UserNavbar = ({
           </span>
         ) : (
           <Link to="/" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none", flexShrink: 0 }}>
-            <span style={{ color: "var(--text-primary)", fontWeight: 800, fontSize: "20px", letterSpacing: "-0.02em" }}>
+            <span style={{ color: "var(--text-primary)", fontWeight: 800, fontSize: isMobile ? "18px" : "20px", letterSpacing: "-0.02em" }}>
               E-<span style={{ color: "var(--accent-blue)" }}>Auction</span>
             </span>
           </Link>
         )}
 
         {/* CENTER: Nav links */}
-        <div style={{ display: "flex", alignItems: "center", gap: "4px", marginLeft: "32px" }}>
+        <div style={{
+          display: isMobile ? "grid" : "flex",
+          gridTemplateColumns: isMobile ? "repeat(4, minmax(0, 1fr))" : undefined,
+          alignItems: "center",
+          gap: isMobile ? "6px" : "4px",
+          marginLeft: isMobile ? 0 : "32px",
+          width: isMobile ? "100%" : "auto",
+          overflowX: "visible",
+          paddingTop: isMobile ? "8px" : 0,
+          paddingBottom: isMobile ? "6px" : 0,
+          order: isMobile ? 3 : 2,
+        }}>
           {isMaintenanceLock ? (
             <>
               {Array.from({ length: maintenanceSlotCount }, (_, index) => index).map((item) => (
                 <span
                   key={item}
                   style={{
-                    padding: "6px 10px",
+                    padding: "6px 8px",
                     borderRadius: "8px",
                     background: "rgba(245,158,11,0.12)",
                     border: "1px solid rgba(245,158,11,0.25)",
@@ -248,6 +294,10 @@ export const UserNavbar = ({
                     fontSize: "12px",
                     fontWeight: 700,
                     whiteSpace: "nowrap",
+                    width: isMobile ? "100%" : "auto",
+                    textAlign: "center",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
                   }}
                 >
                   {maintenanceMessage}
@@ -256,33 +306,15 @@ export const UserNavbar = ({
             </>
           ) : (
             <>
-              <NavLink to="/"            icon={Icons.Home}>Home</NavLink>
-              <NavLink to="/browse"      icon={Icons.Browse}>Browse</NavLink>
-              <NavLink to="/LiveAuctions" icon={Icons.Live}>Live</NavLink>
-
-              {role === "personal" && (
-                <>
-                  <NavLink to="/wallet" icon={Icons.CreditCard}>Wallet</NavLink>
-                  <NavLink to="/my-bids"    icon={Icons.Bids}>My Bids</NavLink>
-                  <NavLink to="/MyWishlist" icon={Icons.Wishlist}>My Wishlist</NavLink>
-                  <NavLink to="/won"        icon={Icons.Won}>Won</NavLink>
-                </>
-              )}
-
-              {role === "business" && (
-                <>
-                  <NavLink to="/add-auction"       icon={Icons.NewAuction}>New Auction</NavLink>
-                  <NavLink to="/Business/Listings" icon={Icons.MyAuctions}>My Auctions</NavLink>
-                  <NavLink to="/MyWishlist"        icon={Icons.Wishlist}>My Wishlist</NavLink>
-                  <NavLink to="/payouts"           icon={Icons.Payouts}>Payouts</NavLink>
-                </>
-              )}
+              {navItems.map((item) => (
+                <NavLink key={item.to} to={item.to} icon={item.icon} label={item.label} />
+              ))}
             </>
           )}
         </div>
 
         {/* RIGHT: Theme + Auth / Profile */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginLeft: "auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: isMobile ? "8px" : "12px", marginLeft: "auto", order: 2 }}>
           {isMaintenanceLock && (
             <span style={{
               padding: "6px 10px",
@@ -384,7 +416,7 @@ export const UserNavbar = ({
           )}
 
           {/* Search icon */}
-          {!isMaintenanceLock && (
+          {!isMaintenanceLock && !isMobile && (
             <button style={{
               background: isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)",
               border: isLight ? "1px solid rgba(0,0,0,0.1)" : "1px solid rgba(255,255,255,0.1)",
@@ -406,13 +438,13 @@ export const UserNavbar = ({
               <button onClick={() => navigate("/Login")} style={{
                 color: "var(--text-secondary)", background: "transparent",
                 border: "1px solid var(--border-input)",
-                borderRadius: "8px", padding: "7px 16px",
-                fontSize: "14px", fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
+                borderRadius: "8px", padding: isMobile ? "7px 12px" : "7px 16px",
+                fontSize: isMobile ? "13px" : "14px", fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
               }}
               onMouseEnter={e => { e.currentTarget.style.color = "var(--text-primary)"; e.currentTarget.style.borderColor = "rgba(56,189,248,0.5)"; }}
               onMouseLeave={e => { e.currentTarget.style.color = "var(--text-secondary)"; e.currentTarget.style.borderColor = "var(--border-input)"; }}
               >{isMaintenanceLock ? "Admin Login" : "Log in"}</button>
-              {!isMaintenanceLock && (
+              {!isMaintenanceLock && !isMobile && (
                 <button onClick={() => navigate("/Signup")} style={{
                   background: "linear-gradient(135deg, #38bdf8, #6366f1)",
                   color: "white", border: "none", borderRadius: "8px", padding: "7px 18px",
@@ -452,7 +484,7 @@ export const UserNavbar = ({
                 display: "flex", alignItems: "center", gap: "10px",
                 background: isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.06)",
                 border: isLight ? "1px solid rgba(0,0,0,0.1)" : "1px solid rgba(255,255,255,0.12)",
-                borderRadius: "12px", padding: "5px 12px 5px 5px",
+                borderRadius: "12px", padding: isMobile ? "5px" : "5px 12px 5px 5px",
                 cursor: "pointer", transition: "all 0.2s",
               }}
               onMouseEnter={e => e.currentTarget.style.background = isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)"}
@@ -460,15 +492,17 @@ export const UserNavbar = ({
               >
                 {/* FIX: Use AvatarDisplay which handles null/broken URLs gracefully */}
                 <AvatarDisplay size={32} borderRadius="8px" />
-                <div style={{ textAlign: "left" }}>
-                  <div style={{ color: "var(--text-primary)", fontSize: "13px", fontWeight: 700 }}>{displayName}</div>
-                  <div style={{ color: "var(--accent-blue)", fontSize: "10px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", display: "flex", alignItems: "center", gap: "4px" }}>
-                    <span style={{ display: "flex", alignItems: "center" }}>
-                      {role === "business" ? Icons.Building : Icons.User}
-                    </span>
-                    {role === "business" ? "Business" : "Personal"}
+                {!isMobile && (
+                  <div style={{ textAlign: "left" }}>
+                    <div style={{ color: "var(--text-primary)", fontSize: "13px", fontWeight: 700 }}>{displayName}</div>
+                    <div style={{ color: "var(--accent-blue)", fontSize: "10px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", display: "flex", alignItems: "center", gap: "4px" }}>
+                      <span style={{ display: "flex", alignItems: "center" }}>
+                        {role === "business" ? Icons.Building : Icons.User}
+                      </span>
+                      {role === "business" ? "Business" : "Personal"}
+                    </div>
                   </div>
-                </div>
+                )}
                 <span style={{ color: "var(--text-muted)", display: "flex", alignItems: "center", transform: profileOpen ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s" }}>
                   {Icons.ChevronDown}
                 </span>
@@ -559,7 +593,7 @@ export const UserNavbar = ({
           fontSize: "13px",
           fontWeight: 700,
           letterSpacing: "0.02em",
-          padding: "8px 32px",
+          padding: isMobile ? "8px 12px" : "8px 32px",
         }}>
           {maintenanceMessage}
         </div>

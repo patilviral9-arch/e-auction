@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -34,6 +34,13 @@ const Icons = {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M14.5 2.5 9 8l-6 6 3 3 6-6 5.5-5.5-3-3z"/>
       <path d="m16 6 2 2"/><path d="m7 17-4.5 4.5"/><path d="m21 15-5 5"/>
+    </svg>
+  ),
+  Categories: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2H3V7z"/>
+      <path d="M3 9h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/>
+      <path d="M10 13h4"/>
     </svg>
   ),
   Bids: () => (
@@ -76,6 +83,12 @@ const Icons = {
       <polyline points="9 18 15 12 9 6"/>
     </svg>
   ),
+  Close: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"/>
+      <line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  ),
 };
 
 // ─── Nav config ───────────────────────────────────────────────────────────────
@@ -84,6 +97,7 @@ const navSections = [
   { title: 'Management', items: [
     { to: '/admin/Users/UsersList',   label: 'Users',    icon: 'Users'    },
     { to: '/admin/Auctions/Auctions', label: 'Auctions', icon: 'Auctions' },
+    { to: '/admin/Categories/Categories', label: 'Categories', icon: 'Categories' },
   ]},
   { title: 'Bidding',   items: [{ to: '/admin/bids',     label: 'Bids',     icon: 'Bids'     }] },
   { title: 'Analytics', items: [{ to: '/admin/reports',  label: 'Reports',  icon: 'Reports'  }] },
@@ -91,7 +105,7 @@ const navSections = [
 ];
 
 // ─── NavItem with hover state ──────────────────────────────────────────────────
-function NavItem({ item, collapsed }) {
+function NavItem({ item, collapsed, onNavigate }) {
   const [hovered, setHovered] = useState(false);
   const Icon = Icons[item.icon];
 
@@ -121,6 +135,7 @@ function NavItem({ item, collapsed }) {
         transform: hovered && !isActive ? 'translateX(2px)' : 'none',
         boxSizing: 'border-box',
       })}
+      onClick={onNavigate}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -135,7 +150,7 @@ function NavItem({ item, collapsed }) {
 }
 
 // ─── Main component ────────────────────────────────────────────────────────────
-export default function AdminSidebar() {
+export default function AdminSidebar({ isMobile = false, onNavigate, onRequestClose }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [collapsed, setCollapsed]   = useState(false);
@@ -143,23 +158,40 @@ export default function AdminSidebar() {
   const [outHover, setOutHover]     = useState(false);
   const [colHover, setColHover]     = useState(false);
 
-  const handleLogout = () => { logout(); navigate('/login'); };
+  useEffect(() => {
+    if (isMobile) setCollapsed(false);
+  }, [isMobile]);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+    onNavigate?.();
+  };
+
+  const handleWebsiteNav = () => {
+    navigate('/');
+    onNavigate?.();
+  };
+
+  const expandedWidth = isMobile ? 260 : 240;
+  const sidebarWidth = collapsed ? 60 : expandedWidth;
 
   return (
     <div style={{
-      position: 'sticky',
+      position: isMobile ? 'relative' : 'sticky',
       top: 0,
       height: '100vh',
       display: 'flex',
       flexDirection: 'column',
-      width: collapsed ? '60px' : '240px',
-      minWidth: collapsed ? '60px' : '240px',
+      width: `${sidebarWidth}px`,
+      minWidth: `${sidebarWidth}px`,
+      maxWidth: `${sidebarWidth}px`,
       backgroundColor: C.bg,
       color: C.text,
       fontFamily: "'Segoe UI', system-ui, sans-serif",
       transition: 'width 0.3s cubic-bezier(.4,0,.2,1)',
       zIndex: 2000,
-      boxShadow: '4px 0 24px rgba(0,0,0,0.4)',
+      boxShadow: isMobile ? '10px 0 32px rgba(0,0,0,0.45)' : '4px 0 24px rgba(0,0,0,0.4)',
       borderRight: `1px solid ${C.border}`,
       overflow: 'hidden',
       boxSizing: 'border-box',
@@ -172,11 +204,11 @@ export default function AdminSidebar() {
         borderBottom: `1px solid ${C.border}`,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: collapsed ? 'center' : 'space-between',
+        justifyContent: collapsed && !isMobile ? 'center' : 'space-between',
         flexShrink: 0,
         boxSizing: 'border-box',
       }}>
-        {!collapsed && (
+        {(!collapsed || isMobile) && (
           <div style={{ backgroundColor: C.bg }}>
             <div style={{ backgroundColor: C.bg }}>
               <span style={{ backgroundColor: C.bg, color: '#ffffff', fontSize: '20px', fontWeight: 900, letterSpacing: '-0.5px' }}>E-</span>
@@ -188,7 +220,7 @@ export default function AdminSidebar() {
           </div>
         )}
         <button
-          onClick={() => setCollapsed(c => !c)}
+          onClick={isMobile ? onRequestClose : () => setCollapsed(c => !c)}
           onMouseEnter={() => setColHover(true)}
           onMouseLeave={() => setColHover(false)}
           style={{
@@ -205,7 +237,7 @@ export default function AdminSidebar() {
             boxSizing: 'border-box',
           }}
         >
-          {collapsed ? <Icons.ChevronRight /> : <Icons.Menu />}
+          {isMobile ? <Icons.Close /> : collapsed ? <Icons.ChevronRight /> : <Icons.Menu />}
         </button>
       </div>
 
@@ -221,7 +253,7 @@ export default function AdminSidebar() {
       }}>
         {navSections.map(section => (
           <div key={section.title} style={{ backgroundColor: C.bg }}>
-            {!collapsed && (
+            {(!collapsed || isMobile) && (
               <span style={{
                 backgroundColor: C.bg,
                 color: C.textMid,
@@ -237,7 +269,7 @@ export default function AdminSidebar() {
               </span>
             )}
             {section.items.map(item => (
-              <NavItem key={item.to} item={item} collapsed={collapsed} />
+              <NavItem key={item.to} item={item} collapsed={collapsed && !isMobile} onNavigate={onNavigate} />
             ))}
           </div>
         ))}
@@ -256,7 +288,7 @@ export default function AdminSidebar() {
       }}>
         {/* Go to Website */}
         <button
-          onClick={() => navigate('/')}
+          onClick={handleWebsiteNav}
           onMouseEnter={() => setWebHover(true)}
           onMouseLeave={() => setWebHover(false)}
           style={{
@@ -276,7 +308,7 @@ export default function AdminSidebar() {
           }}
         >
           <Icons.Globe />
-          {!collapsed && (
+          {(!collapsed || isMobile) && (
             <span style={{ background: 'none', backgroundColor: 'inherit', color: 'inherit', display: 'inline' }}>
               Go to Website
             </span>
@@ -305,7 +337,7 @@ export default function AdminSidebar() {
           }}
         >
           <Icons.Logout />
-          {!collapsed && (
+          {(!collapsed || isMobile) && (
             <span style={{ background: 'none', backgroundColor: 'inherit', color: 'inherit', display: 'inline' }}>
               Logout
             </span>

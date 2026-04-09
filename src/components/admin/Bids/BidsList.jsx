@@ -92,52 +92,53 @@ const BidsList = () => {
   if (loading) return <div className="text-center py-10">Loading...</div>;
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">Bid Management</h1>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8">Bid Management</h1>
 
-      <div className="flex items-center gap-4 mb-8">
+      <div className="flex items-center gap-4 mb-6 sm:mb-8">
         <input
           type="text"
           placeholder="Search by bidder or auction..."
-          className="flex-1 border border-black rounded-lg px-4 py-2.5 outline-none"
+          className="w-full flex-1 border border-black rounded-lg px-4 py-2.5 outline-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      <div className="bg-white rounded-[20px] border border-black overflow-visible shadow-sm">
-        <table className="w-full text-sm">
+      <div className="bg-white rounded-[20px] border border-black overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[800px] text-sm">
           <thead className="border-b border-black">
             <tr className="text-left text-gray-500 font-bold uppercase tracking-wider">
-              <th className="px-8 py-5">Bidder</th>
-              <th className="px-8 py-5">Auction Title</th>
-              <th className="px-8 py-5 text-center">Bid Amount</th>
-              <th className="px-8 py-5">Placed At</th>
-              <th className="px-8 py-5 text-center">Actions</th>
+              <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">Bidder</th>
+              <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">Auction Title</th>
+              <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-center">Bid Amount</th>
+              <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">Placed At</th>
+              <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-center">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-black/10">
             {filteredBids.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-8 py-10 text-center text-gray-400">
+                <td colSpan={5} className="px-4 sm:px-6 lg:px-8 py-10 text-center text-gray-400">
                   No bids found.
                 </td>
               </tr>
             ) : (
               filteredBids.map((b) => (
                 <tr key={b._id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-8 py-5 font-bold text-gray-900 text-base">
+                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 font-bold text-gray-900 text-base">
                     {b.userName || "—"}
                   </td>
-                  <td className="px-8 py-5 text-gray-500 text-base">
+                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-gray-500 text-base">
                     {b.auctionTitle || "—"}
                   </td>
-                  <td className="px-8 py-5 text-center">
+                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-center">
                     <span className="px-4 py-1.5 rounded-full text-xs font-bold inline-block bg-indigo-100 text-indigo-700">
                       ₹{Number(b.bidAmount).toLocaleString()}
                     </span>
                   </td>
-                  <td className="px-8 py-5 text-gray-500 text-sm">
+                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-gray-500 text-sm">
                     {b.createdAt
                       ? new Date(b.createdAt).toLocaleDateString("en-US", {
                           year: "numeric",
@@ -148,7 +149,7 @@ const BidsList = () => {
                         })
                       : "—"}
                   </td>
-                  <td className="px-8 py-5">
+                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
                     <div className="flex justify-center gap-3">
                       <button
                         onClick={() => viewBidDetails(b)}
@@ -169,6 +170,7 @@ const BidsList = () => {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

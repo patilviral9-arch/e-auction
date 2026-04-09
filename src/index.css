@@ -152,3 +152,160 @@ html, body, #root {
 [data-asb-root] [data-asb-brand-blue] { color: #3b82f6 !important; }
 [data-asb-root] [data-asb-brand-sub]  { color: #64748b !important; }
 [data-asb-root] [data-asb-section]    { color: #64748b !important; }
+
+/* Responsive foundation */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+html,
+body,
+#root {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img,
+video,
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+:where(input, select, textarea, button) {
+  max-width: 100%;
+}
+
+@media (max-width: 1200px) {
+  [style*="max-width: 1600px"],
+  [style*="max-width: 1400px"],
+  [style*="max-width: 1200px"],
+  [style*="max-width: 1100px"],
+  [style*="max-width: 900px"],
+  [style*="max-width: 860px"] {
+    max-width: 100% !important;
+  }
+
+  [style*="grid-template-columns: 1.8fr 1fr 1fr 1fr 1fr 1.4fr"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  [style*="grid-template-columns: repeat(5, 1fr)"],
+  [style*="grid-template-columns: repeat(5,1fr)"],
+  [style*="grid-template-columns: repeat(4, 1fr)"],
+  [style*="grid-template-columns: repeat(4,1fr)"],
+  [style*="grid-template-columns: repeat(3, 1fr)"],
+  [style*="grid-template-columns: repeat(3,1fr)"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  [style*="max-width: 1400px"],
+  [style*="max-width: 1200px"],
+  [style*="max-width: 1100px"],
+  [style*="max-width: 900px"],
+  [style*="max-width: 860px"] {
+    max-width: 100% !important;
+  }
+
+  [style*="grid-template-columns: 280px 1fr"],
+  [style*="grid-template-columns: 1fr 420px"],
+  [style*="grid-template-columns: 1fr 340px"],
+  [style*="grid-template-columns: 1fr 320px"],
+  [style*="grid-template-columns: 1fr 280px"],
+  [style*="grid-template-columns: 1fr 1.5fr"],
+  [style*="grid-template-columns: 1fr 1.4fr"],
+  [style*="grid-template-columns: 1fr 1fr"],
+  [style*="grid-template-columns: 1fr auto"],
+  [style*="grid-template-columns: 1fr 120px 110px 90px 90px"],
+  [style*="grid-template-columns: 1fr 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  [style*="position: sticky"]:not([data-asb-root] *):not(nav) {
+    position: static !important;
+    top: auto !important;
+  }
+}
+
+@media (max-width: 768px) {
+  [style*="padding: 80px 40px"],
+  [style*="padding: 72px 40px"],
+  [style*="padding: 64px 40px 48px"],
+  [style*="padding: 60px 40px"],
+  [style*="padding: 36px 32px 80px"],
+  [style*="padding: 24px 32px 60px"],
+  [style*="padding: 20px 32px 0"],
+  [style*="padding: 32px 40px"],
+  [style*="padding: 40px"] {
+    padding: 16px 12px !important;
+  }
+
+  [style*="padding: 0 32px"] {
+    padding: 0 12px !important;
+  }
+
+  [style*="margin-left: 32px"] {
+    margin-left: 0 !important;
+  }
+
+  [style*="width: 420px"],
+  [style*="width: 340px"],
+  [style*="width: 320px"],
+  [style*="width: 300px"] {
+    width: 100% !important;
+  }
+
+  [style*="min-width: 300px"] {
+    min-width: 0 !important;
+  }
+
+  [style*="minmax(320px, 1fr)"],
+  [style*="minmax(260px,1fr)"],
+  [style*="minmax(260px, 1fr)"],
+  [style*="minmax(240px, 1fr)"] {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+  }
+
+  [style*="grid-template-columns: repeat(2, minmax(0, 1fr))"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  [style*="font-size: 40px"] {
+    font-size: 28px !important;
+  }
+
+  [style*="font-size: 36px"] {
+    font-size: 26px !important;
+  }
+
+  [style*="font-size: 32px"] {
+    font-size: 26px !important;
+  }
+
+  [style*="font-size: 30px"] {
+    font-size: 24px !important;
+  }
+
+  [style*="font-size: 28px"] {
+    font-size: 22px !important;
+  }
+
+  [style*="min-height: 88vh"] {
+    min-height: 72vh !important;
+  }
+}
+
+@media (max-width: 560px) {
+  [style*="grid-template-columns: repeat(2,1fr)"],
+  [style*="grid-template-columns: repeat(2, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  [style*="padding: 14px 32px"],
+  [style*="padding: 12px 32px"] {
+    padding: 12px 14px !important;
+  }
+}

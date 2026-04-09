@@ -16,6 +16,7 @@ import Reports     from "../components/admin/Reports/Reports";
 import UsersList   from "../components/admin/Users/UsersList";
 import Auctions from "../components/admin/Auctions/Auctions";
 import BidsList from "../components/admin/Bids/BidsList";
+import Categories from "../components/admin/Categories/Categories";
 
 import BrowseAuctions  from "../pages/BrowseAuctions";
 import AddAuction      from "../components/user/Business/AddAuction";
@@ -35,6 +36,7 @@ import Notifications from "../pages/Notifications";
 import Aboutus from "../pages/Aboutus";
 import Payouts from "../pages/Payouts";
 import Wallet from "../pages/Wallet";
+import BusinessAnalytics from "../pages/BusinessAnalytics";
 import { useMaintenanceMode } from "../hooks/useMaintenanceMode";
 
 
@@ -119,6 +121,7 @@ const router = createBrowserRouter([
           { index: true,               element: <Dashboard /> },
           { path: "Users/UsersList",   element: <UsersList /> },
           { path: "Auctions/Auctions", element: <Auctions/>},
+          { path: "Categories/Categories", element: <Categories /> },
           { path: "bids",              element:<BidsList/>},
           { path: "reports",           element: <Reports /> },
           { path: "Reports/Reports",   element: <Reports /> },
@@ -138,7 +141,7 @@ const router = createBrowserRouter([
           { path: "add-auction",     element:<ProtectedRoutes userRoles={["business"]}> <AddAuction /></ProtectedRoutes> },
           { path: "profile",         element: <ProfileSwitch /> },
           { path: "my-listings",     element: <ProfileSwitch /> },
-          { path: "analytics",       element: <ProfileSwitch /> },
+          { path: "analytics",       element: <ProtectedRoutes userRoles={["business"]}><BusinessAnalytics /></ProtectedRoutes> },
           { path: "payouts",         element: <ProtectedRoutes userRoles={["business"]}><Payouts/></ProtectedRoutes> },
           { path: "won",             element:<ProtectedRoutes userRoles={["personal"]}> <WonAuctions/> </ProtectedRoutes> },
           { path: "wallet", element: <Wallet/> },

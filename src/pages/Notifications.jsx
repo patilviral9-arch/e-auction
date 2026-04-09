@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
+﻿import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useThemeStyles } from "../utils/themeStyles";
 
 const API = "http://localhost:3000";
 
-// ── SVG Icon Components ───────────────────────────────────────────────────────
+// â”€â”€ SVG Icon Components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const Icon = {
   Hourglass: ({ size = 20, color = "currentColor" }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -128,11 +128,21 @@ const TYPE_ICON = {
   ending_3h:   Icon.Hourglass,
   ending_2h:   Icon.Flame,
   ending_1h:   Icon.Siren,
+  starting_24h: Icon.Calendar,
   starting_3h: Icon.Calendar,
   starting_2h: Icon.Bell,
   starting_1h: Icon.Play,
   starting:    Icon.Play,
   won:         Icon.Trophy,
+  outbid:      Icon.Siren,
+  lost:        Icon.Warning,
+  payment_success: Icon.CreditCard,
+  payment_failed:  Icon.Warning,
+  auction_created: Icon.Gavel,
+  reserve_reached: Icon.Flame,
+  auction_sold:    Icon.Trophy,
+  no_bids_or_reserve_not_met: Icon.Info,
+  buyer_completed_payment: Icon.CheckCheck,
 };
 const DEFAULT_ICON = Icon.Bell;
 
@@ -142,35 +152,83 @@ const FILTER_ICON = {
   ending:   Icon.Hourglass,
   starting: Icon.Play,
   won:      Icon.Trophy,
+  outbid:   Icon.Siren,
+  lost:     Icon.Warning,
+  payment:  Icon.CreditCard,
+  created:  Icon.Gavel,
+  reserve:  Icon.Flame,
+  sales:    Icon.Trophy,
 };
 
-// ── Milestone config ──────────────────────────────────────────────────────────
+// Milestone config
 const WINDOW_MS        = 20 * 60 * 1000;
 const END_MILESTONES   = [3, 2, 1];
-const START_MILESTONES = [3, 2, 1];
+const START_MILESTONES = [24, 3, 2, 1];
 
-// ── Notification type metadata (no icon — SVG used instead) ───────────────────
+// Notification type metadata
 const TYPE_META = {
   ending_3h:   { label: "Ending in 3 Hours",   accent: "#f59e0b", bg: "rgba(245,158,11,.08)",  border: "rgba(245,158,11,.22)",  urgency: 1 },
   ending_2h:   { label: "Ending in 2 Hours",   accent: "#f97316", bg: "rgba(249,115,22,.08)",  border: "rgba(249,115,22,.22)",  urgency: 2 },
   ending_1h:   { label: "Ending in 1 Hour!",   accent: "#f43f5e", bg: "rgba(244,63,94,.08)",   border: "rgba(244,63,94,.22)",   urgency: 3 },
+  starting_24h:{ label: "Starting in 24 Hours",accent: "#6366f1", bg: "rgba(99,102,241,.09)",  border: "rgba(99,102,241,.22)",  urgency: 1 },
   starting_3h: { label: "Starting in 3 Hours", accent: "#a78bfa", bg: "rgba(167,139,250,.08)", border: "rgba(167,139,250,.22)", urgency: 1 },
   starting_2h: { label: "Starting in 2 Hours", accent: "#38bdf8", bg: "rgba(56,189,248,.08)",  border: "rgba(56,189,248,.22)",  urgency: 2 },
   starting_1h: { label: "Starting in 1 Hour!", accent: "#34d399", bg: "rgba(52,211,153,.08)",  border: "rgba(52,211,153,.22)",  urgency: 3 },
   starting:    { label: "Started Now",          accent: "#34d399", bg: "rgba(52,211,153,.08)",  border: "rgba(52,211,153,.22)",  urgency: 3 },
   won:         { label: "You Won!",             accent: "#38bdf8", bg: "rgba(56,189,248,.08)",  border: "rgba(56,189,248,.22)",  urgency: 3 },
+  outbid:      { label: "You Were Outbid",      accent: "#f97316", bg: "rgba(249,115,22,.08)",  border: "rgba(249,115,22,.22)",  urgency: 3 },
+  lost:        { label: "Auction Lost",         accent: "#ef4444", bg: "rgba(239,68,68,.08)",   border: "rgba(239,68,68,.22)",   urgency: 2 },
+  payment_success: { label: "Payment Successful", accent: "#22c55e", bg: "rgba(34,197,94,.08)", border: "rgba(34,197,94,.22)", urgency: 2 },
+  payment_failed:  { label: "Payment Failed",     accent: "#ef4444", bg: "rgba(239,68,68,.08)", border: "rgba(239,68,68,.22)", urgency: 3 },
+  auction_created: { label: "Auction Created",    accent: "#3b82f6", bg: "rgba(59,130,246,.08)", border: "rgba(59,130,246,.22)", urgency: 1 },
+  reserve_reached: { label: "Reserve Reached",    accent: "#f59e0b", bg: "rgba(245,158,11,.08)", border: "rgba(245,158,11,.22)", urgency: 2 },
+  auction_sold:    { label: "Auction Sold",       accent: "#14b8a6", bg: "rgba(20,184,166,.08)", border: "rgba(20,184,166,.22)", urgency: 3 },
+  no_bids_or_reserve_not_met: { label: "No Sale", accent: "#64748b", bg: "rgba(100,116,139,.08)", border: "rgba(100,116,139,.22)", urgency: 1 },
+  buyer_completed_payment: { label: "Buyer Paid", accent: "#22c55e", bg: "rgba(34,197,94,.08)", border: "rgba(34,197,94,.22)", urgency: 2 },
 };
 const DEFAULT_META = { label: "Notification", accent: "#38bdf8", bg: "rgba(56,189,248,.08)", border: "rgba(56,189,248,.22)", urgency: 1 };
 
-// ── Filter tabs ───────────────────────────────────────────────────────────────
-const FILTER_TABS = [
+// Filter tabs
+const PERSONAL_FILTER_TABS = [
   { key: "all",      label: "All"      },
   { key: "ending",   label: "Ending"   },
   { key: "starting", label: "Starting" },
   { key: "won",      label: "Won"      },
+  { key: "outbid",   label: "Outbid"   },
+  { key: "lost",     label: "Lost"     },
+  { key: "payment",  label: "Payment"  },
+];
+const BUSINESS_FILTER_TABS = [
+  { key: "all",      label: "All"      },
+  { key: "created",  label: "Created"  },
+  { key: "reserve",  label: "Reserve"  },
+  { key: "sales",    label: "Sales"    },
+  { key: "payment",  label: "Payment"  },
 ];
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+const FILTER_MATCH = {
+  ending:   (n) => n.type?.startsWith("ending"),
+  starting: (n) => n.type?.startsWith("starting") || n.type === "starting",
+  won:      (n) => n.type === "won",
+  outbid:   (n) => n.type === "outbid",
+  lost:     (n) => n.type === "lost",
+  payment:  (n) => ["payment_success", "payment_failed", "buyer_completed_payment"].includes(n.type),
+  created:  (n) => n.type === "auction_created",
+  reserve:  (n) => n.type === "reserve_reached",
+  sales:    (n) => ["auction_sold", "no_bids_or_reserve_not_met"].includes(n.type),
+};
+
+function matchesFilterKey(notification, key) {
+  if (key === "all") return true;
+  const matcher = FILTER_MATCH[key];
+  if (matcher) return matcher(notification);
+  return notification.type === key || notification.filterKey === key;
+}
+
+function countByFilter(notifications, key) {
+  return notifications.filter((n) => matchesFilterKey(n, key)).length;
+}
+
 function timeAgo(date) {
   const diff = Date.now() - new Date(date).getTime();
   const m = Math.floor(diff / 60000);
@@ -193,7 +251,7 @@ function formatPrice(n) {
   return "\u20B9" + Number(n || 0).toLocaleString("en-IN");
 }
 
-// ── Build notifications from wishlist data ─────────────────────────────────────
+// â”€â”€ Build notifications from wishlist data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function buildNotifications(wishlistAuctions, wonAuctions) {
   const now  = Date.now();
   const list = [];
@@ -245,7 +303,7 @@ function buildNotifications(wishlistAuctions, wonAuctions) {
       id: `won-${result._id ?? a._id}`, type: "won", filterKey: "won", auction: a, result,
       timestamp: result.createdAt ?? result.updatedAt ?? new Date().toISOString(),
       timeLabel: timeAgo(result.createdAt ?? new Date()),
-      body: `Congratulations! You won "${a.title ?? "an auction"}" with a bid of ${formatPrice(result.winningBid ?? result.finalPrice)}. Complete your payment now.`,
+      body: `Congratulations! You won "${a.title ?? "an auction"}" with a bid of ${formatPrice(result.winningBid ?? result.finalPrice)}. Please pay within 24 hours.`,
     });
   });
 
@@ -257,11 +315,12 @@ function buildNotifications(wishlistAuctions, wonAuctions) {
   });
 }
 
-// ── Main Component ────────────────────────────────────────────────────────────
+// â”€â”€ Main Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function NotificationsPage() {
   const navigate   = useNavigate();
   const t          = useThemeStyles();
-  const { userId } = useAuth();
+  const { userId, role } = useAuth();
+  const isBusiness = role === "business";
 
   const [notifications, setNotifications] = useState([]);
   const [loading,       setLoading]       = useState(true);
@@ -273,8 +332,9 @@ export default function NotificationsPage() {
     try { return new Set(JSON.parse(localStorage.getItem("noti_read") || "[]")); }
     catch { return new Set(); }
   });
+  const filterTabs = isBusiness ? BUSINESS_FILTER_TABS : PERSONAL_FILTER_TABS;
 
-  // ── Fetch ─────────────────────────────────────────────────────────────────
+  // â”€â”€ Fetch â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const fetchNotifications = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
@@ -297,7 +357,13 @@ export default function NotificationsPage() {
     return () => clearInterval(id);
   }, [fetchNotifications]);
 
-  // ── Actions ───────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!filterTabs.some(tab => tab.key === filter)) {
+      setFilter("all");
+    }
+  }, [filterTabs, filter]);
+
+  // â”€â”€ Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const markRead = async (id) => {
     setRead(prev => {
       const next = new Set(prev);
@@ -339,28 +405,57 @@ export default function NotificationsPage() {
     finally { setClearingAll(false); }
   };
 
-  // ── Derived ───────────────────────────────────────────────────────────────
-  const matchesFilter = (n) => {
-    if (filter === "all")      return true;
-    if (filter === "ending")   return n.type?.startsWith("ending");
-    if (filter === "starting") return n.type?.startsWith("starting") || n.type === "starting";
-    return n.type === filter || n.filterKey === filter;
-  };
-  const visible     = notifications.filter(matchesFilter);
+  // â”€â”€ Derived â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const visible     = notifications.filter((n) => matchesFilterKey(n, filter));
   const unreadCount = notifications.filter(n => !read.has(n._id ?? n.id)).length;
-  const countOf = (key) => {
-    if (key === "all")      return notifications.length;
-    if (key === "ending")   return notifications.filter(n => n.type?.startsWith("ending")).length;
-    if (key === "starting") return notifications.filter(n => n.type?.startsWith("starting") || n.type === "starting").length;
-    return notifications.filter(n => n.type === key || n.filterKey === key).length;
-  };
+  const countOf = (key) => countByFilter(notifications, key);
+  const overviewStats = isBusiness
+    ? [
+        { label: "Total",   value: notifications.length,       color: t.textPri,   Ic: Icon.Bell },
+        { label: "Unread",  value: unreadCount,                color: "#f43f5e",   Ic: Icon.Siren },
+        { label: "Created", value: countOf("created"),         color: "#3b82f6",   Ic: Icon.Gavel },
+        { label: "Reserve", value: countOf("reserve"),         color: "#f59e0b",   Ic: Icon.Flame },
+        { label: "Sales",   value: countOf("sales"),           color: "#14b8a6",   Ic: Icon.Trophy },
+        { label: "Payment", value: countOf("payment"),         color: "#22c55e",   Ic: Icon.CreditCard },
+      ]
+    : [
+        { label: "Total",    value: notifications.length,      color: t.textPri,   Ic: Icon.Bell },
+        { label: "Unread",   value: unreadCount,               color: "#f43f5e",   Ic: Icon.Siren },
+        { label: "Ending",   value: countOf("ending"),         color: "#f59e0b",   Ic: Icon.Hourglass },
+        { label: "Starting", value: countOf("starting"),       color: "#34d399",   Ic: Icon.Play },
+        { label: "Won",      value: countOf("won"),            color: "#38bdf8",   Ic: Icon.Trophy },
+        { label: "Outbid",   value: countOf("outbid"),         color: "#f97316",   Ic: Icon.Siren },
+        { label: "Payment",  value: countOf("payment"),        color: "#22c55e",   Ic: Icon.CreditCard },
+      ];
+  const breakdownItems = isBusiness
+    ? [
+        { type: "auction_created", label: "Auction Created" },
+        { type: "reserve_reached", label: "Reserve Reached" },
+        { type: "auction_sold", label: "Auction Sold" },
+        { type: "no_bids_or_reserve_not_met", label: "No Sale" },
+        { type: "buyer_completed_payment", label: "Buyer Paid" },
+      ]
+    : [
+        { type: "ending_3h", label: "Ending in 3h" },
+        { type: "ending_2h", label: "Ending in 2h" },
+        { type: "ending_1h", label: "Ending in 1h" },
+        { type: "starting_24h", label: "Starting in 24h" },
+        { type: "starting_3h", label: "Starting in 3h" },
+        { type: "starting_2h", label: "Starting in 2h" },
+        { type: "starting_1h", label: "Starting in 1h" },
+        { type: "won", label: "Wins" },
+        { type: "outbid", label: "Outbid" },
+        { type: "lost", label: "Lost" },
+        { type: "payment_success", label: "Payment OK" },
+        { type: "payment_failed", label: "Payment Failed" },
+      ];
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <div style={{ background: t.bg, minHeight: "100vh", fontFamily: "system-ui, sans-serif", transition: "background .25s" }}>
       <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "36px 32px 80px" }}>
 
-        {/* ── Page Header ── */}
+        {/* â”€â”€ Page Header â”€â”€ */}
         <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "32px", paddingBottom: "24px", borderBottom: `1px solid ${t.border}` }}>
           <button onClick={() => navigate(-1)}
             style={{ width: "42px", height: "42px", borderRadius: "12px", border: `1px solid ${t.border}`, background: t.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all .15s" }}
@@ -378,7 +473,7 @@ export default function NotificationsPage() {
                 </span>
               )}
             </div>
-            <p style={{ color: t.textMut, fontSize: "14px", margin: "3px 0 0" }}>Wishlisted auctions · milestones · wins</p>
+            <p style={{ color: t.textMut, fontSize: "14px", margin: "3px 0 0" }}>{isBusiness ? "Auction creation · reserve · sales · buyer payments" : "Wishlist milestones · wins · outbid · payments"}</p>
           </div>
 
           <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
@@ -410,10 +505,10 @@ export default function NotificationsPage() {
           </div>
         </div>
 
-        {/* ── Two-column layout ── */}
+        {/* â”€â”€ Two-column layout â”€â”€ */}
         <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: "28px", alignItems: "start" }}>
 
-          {/* ════ LEFT SIDEBAR ════ */}
+          {/* â•â•â•â• LEFT SIDEBAR â•â•â•â• */}
           <div style={{ position: "sticky", top: "24px", display: "flex", flexDirection: "column", gap: "16px" }}>
 
             {/* Stats */}
@@ -421,13 +516,7 @@ export default function NotificationsPage() {
               <div style={{ padding: "14px 18px", borderBottom: `1px solid ${t.border}` }}>
                 <span style={{ color: t.textMut, fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em" }}>Overview</span>
               </div>
-              {[
-                { label: "Total",    value: notifications.length,                                                                                       color: t.textPri, Ic: Icon.Bell      },
-                { label: "Unread",   value: unreadCount,                                                                                                color: "#f43f5e", Ic: Icon.Siren     },
-                { label: "Ending",   value: notifications.filter(n => n.type?.startsWith("ending")).length,                                            color: "#f59e0b", Ic: Icon.Hourglass },
-                { label: "Starting", value: notifications.filter(n => n.type?.startsWith("starting") || n.type === "starting").length,                 color: "#34d399", Ic: Icon.Play      },
-                { label: "Won",      value: notifications.filter(n => n.type === "won").length,                                                        color: "#38bdf8", Ic: Icon.Trophy    },
-              ].map(({ label, value, color, Ic }, i, arr) => (
+              {overviewStats.map(({ label, value, color, Ic }, i, arr) => (
                 <div key={label} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "13px 18px", borderBottom: i < arr.length - 1 ? `1px solid ${t.border}` : "none" }}>
                   <div style={{ width: "30px", height: "30px", borderRadius: "8px", background: `${color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <Ic size={15} color={color} />
@@ -444,7 +533,7 @@ export default function NotificationsPage() {
                 <span style={{ color: t.textMut, fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em" }}>Filter</span>
               </div>
               <div style={{ padding: "10px" }}>
-                {FILTER_TABS.map(({ key, label }) => {
+                {filterTabs.map(({ key, label }) => {
                   const cnt    = countOf(key);
                   const active = filter === key;
                   const FIc    = FILTER_ICON[key] ?? Icon.Bell;
@@ -473,15 +562,7 @@ export default function NotificationsPage() {
                   <span style={{ color: t.textMut, fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em" }}>Breakdown</span>
                 </div>
                 <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: "7px" }}>
-                  {[
-                    { type: "ending_3h",   label: "Ending in 3h"   },
-                    { type: "ending_2h",   label: "Ending in 2h"   },
-                    { type: "ending_1h",   label: "Ending in 1h"   },
-                    { type: "starting_3h", label: "Starting in 3h" },
-                    { type: "starting_2h", label: "Starting in 2h" },
-                    { type: "starting_1h", label: "Starting in 1h" },
-                    { type: "won",         label: "Wins"           },
-                  ].map(({ type, label }) => {
+                  {breakdownItems.map(({ type, label }) => {
                     const meta  = TYPE_META[type] ?? DEFAULT_META;
                     const BIc   = TYPE_ICON[type]  ?? DEFAULT_ICON;
                     const count = notifications.filter(n => n.type === type).length;
@@ -505,12 +586,14 @@ export default function NotificationsPage() {
                 <span style={{ color: "#38bdf8", fontSize: "12px", fontWeight: 700 }}>How it works</span>
               </div>
               <div style={{ color: t.textMut, fontSize: "12px", lineHeight: 1.7 }}>
-                Notified at <b style={{ color: t.textSec }}>3h, 2h and 1h</b> before wishlisted auctions <b style={{ color: t.textSec }}>start</b> or <b style={{ color: t.textSec }}>end</b>. Auto-refreshes every <b style={{ color: t.textSec }}>60s</b>.
+                {isBusiness
+                  ? <>Business alerts include auction creation, reserve hit, sale outcome and buyer payment. Auto-refreshes every <b style={{ color: t.textSec }}>60s</b>.</>
+                  : <>Wishlisted auctions notify at <b style={{ color: t.textSec }}>24h, 3h, 2h and 1h</b> before start, plus ending and payment updates. Auto-refreshes every <b style={{ color: t.textSec }}>60s</b>.</>}
               </div>
             </div>
           </div>
 
-          {/* ════ RIGHT FEED ════ */}
+          {/* â•â•â•â• RIGHT FEED â•â•â•â• */}
           <div>
 
             {/* Skeleton */}
@@ -548,23 +631,25 @@ export default function NotificationsPage() {
             {!loading && !error && visible.length === 0 && (
               <div style={{ textAlign: "center", padding: "100px 0 80px" }}>
                 <div style={{ width: "88px", height: "88px", borderRadius: "24px", background: t.bgCard, border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 22px" }}>
-                  {filter === "won"       ? <Icon.Trophy    size={38} color={t.textFaint} />
-                   : filter === "ending"  ? <Icon.Hourglass size={38} color={t.textFaint} />
-                   : filter === "starting"? <Icon.Play      size={38} color={t.textFaint} />
-                   :                        <Icon.Bell      size={38} color={t.textFaint} />}
+                  {(() => {
+                    const EmptyIc = FILTER_ICON[filter] ?? Icon.Bell;
+                    return <EmptyIc size={38} color={t.textFaint} />;
+                  })()}
                 </div>
                 <div style={{ color: t.textPri, fontWeight: 800, fontSize: "22px", marginBottom: "10px" }}>
                   {filter === "all" ? "All caught up!" : "No " + filter + " notifications"}
                 </div>
                 <div style={{ color: t.textMut, fontSize: "15px", lineHeight: 1.7, maxWidth: "380px", margin: "0 auto 28px" }}>
                   {filter === "all"
-                    ? "Wishlist some auctions and we will alert you at 3h, 2h, and 1h before they start or end."
-                    : "Nothing here right now — notifications fire at 3h, 2h, and 1h milestones."}
+                    ? (isBusiness
+                        ? "Create auctions and start receiving reserve, sale and buyer-payment updates here."
+                        : "Wishlist auctions and we will alert you at 24h, 3h, 2h, and 1h before they start.")
+                    : "Nothing here right now — new alerts will appear here soon."}
                 </div>
                 {filter === "all" && (
-                  <button onClick={() => navigate("/auctions")}
+                  <button onClick={() => navigate(isBusiness ? "/business/Listings" : "/browse")}
                     style={{ padding: "13px 32px", borderRadius: "12px", background: "linear-gradient(135deg,#38bdf8,#6366f1)", border: "none", color: "white", fontWeight: 700, fontSize: "15px", cursor: "pointer", boxShadow: "0 4px 16px rgba(56,189,248,.35)", display: "inline-flex", alignItems: "center", gap: "9px" }}>
-                    <Icon.Gavel size={18} color="white" /> Browse Auctions
+                    <Icon.Gavel size={18} color="white" /> {isBusiness ? "View Listings" : "Browse Auctions"}
                   </button>
                 )}
               </div>
@@ -589,7 +674,8 @@ export default function NotificationsPage() {
                     <div key={nId}
                       onClick={() => {
                         markRead(nId);
-                        if (n.type === "won") navigate(`/payment/${n.result?._id ?? auction?._id}`);
+                        if (n.type === "won" || n.type === "payment_success" || n.type === "payment_failed") navigate("/won");
+                        else if (n.type === "buyer_completed_payment") navigate("/payouts");
                         else if (auction?._id) navigate(`/auction/${auction._id}`);
                       }}
                       style={{
@@ -620,7 +706,7 @@ export default function NotificationsPage() {
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px", flexWrap: "wrap" }}>
                             <span style={{ fontSize: "11px", fontWeight: 800, color: meta.accent, textTransform: "uppercase", letterSpacing: ".08em" }}>{meta.label}</span>
-                            <span style={{ color: t.textFaint, fontSize: "11px" }}>·</span>
+                            <span style={{ color: t.textFaint, fontSize: "11px" }}>Â·</span>
                             <span style={{ color: t.textFaint, fontSize: "12px" }}>{n.timeLabel ?? timeAgo(n.createdAt ?? n.timestamp)}</span>
                             {meta.urgency === 3 && !isRead && (
                               <span style={{ fontSize: "10px", fontWeight: 800, color: meta.accent, background: meta.bg, border: `1px solid ${meta.border}`, borderRadius: "999px", padding: "2px 9px", animation: "urgentPulse 1.5s infinite", letterSpacing: ".05em" }}>
@@ -647,13 +733,13 @@ export default function NotificationsPage() {
                               )}
                               <div style={{ flex: 1, minWidth: 0 }}>
                                 <div style={{ color: t.textPri, fontSize: "14px", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                  {auction.title ?? "—"}
+                                  {auction.title ?? "â€”"}
                                 </div>
                                 <div style={{ color: t.textMut, fontSize: "12px", marginTop: "3px" }}>
                                   {n.type === "won"
                                     ? "Won for: " + formatPrice(n.result?.winningBid ?? n.result?.finalPrice)
                                     : "Starting bid: " + formatPrice(auction.startingBid)}
-                                  {auction.category && <span style={{ marginLeft: "10px", opacity: .65 }}>· {auction.category}</span>}
+                                  {auction.category && <span style={{ marginLeft: "10px", opacity: .65 }}>Â· {auction.category}</span>}
                                 </div>
                               </div>
                               <Icon.ArrowRight size={18} color={meta.accent} />
@@ -662,7 +748,7 @@ export default function NotificationsPage() {
 
                           {n.type === "won" && (
                             <button
-                              onClick={(e) => { e.stopPropagation(); markRead(nId); navigate(`/payment/${n.result?._id ?? auction?._id}`); }}
+                              onClick={(e) => { e.stopPropagation(); markRead(nId); navigate("/won"); }}
                               style={{ marginTop: "14px", padding: "11px 24px", borderRadius: "10px", background: "linear-gradient(135deg,#38bdf8,#6366f1)", border: "none", color: "white", fontWeight: 700, fontSize: "14px", cursor: "pointer", boxShadow: "0 3px 14px rgba(56,189,248,.35)", display: "inline-flex", alignItems: "center", gap: "8px" }}>
                               <Icon.CreditCard size={17} color="white" /> Pay Now
                             </button>
@@ -699,3 +785,7 @@ export default function NotificationsPage() {
     </div>
   );
 }
+
+
+
+

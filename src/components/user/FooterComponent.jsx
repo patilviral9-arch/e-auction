@@ -65,7 +65,17 @@ const FooterComponent = () => {
 
   const col = { display: 'flex', flexDirection: 'column', gap: '10px' };
 
-  const linkBase = { color: '#ffffff', fontSize: '14px', textDecoration: 'none', transition: 'color 0.2s', display: 'flex', alignItems: 'center', gap: '8px' };
+  const linkBase = {
+    color: '#ffffff',
+    fontSize: '14px',
+    textDecoration: 'none',
+    transition: 'color 0.2s',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    flexWrap: 'wrap',
+    wordBreak: 'break-word',
+  };
 
   const SLink = ({ href, children, icon, onClick }) => {
   const [hov, setHov] = useState(false);
@@ -94,8 +104,8 @@ const FooterComponent = () => {
     <footer style={{ background: '#060d1a', borderTop: '1px solid rgba(255,255,255,0.06)', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
 
       {/* Top section */}
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '64px 40px 48px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr 1fr 1fr 1fr 1.4fr', gap: '40px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: 'clamp(28px, 7vw, 64px) clamp(14px, 4vw, 40px) clamp(26px, 6vw, 48px)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '24px' }}>
 
           {/* Brand */}
           <div>
@@ -152,7 +162,7 @@ const FooterComponent = () => {
             <h4 style={{ color: '#ffffff', fontWeight: 700, fontSize: '14px', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 1 }}>Categories</h4>
             <div style={col}>
               {['Electronics','Vehicles','Collectibles','Luxury','Real Estate','Industrial'].map(c => (
-                <SLink key={c} href={`/category/${c.toLowerCase()}`}>{c}</SLink>
+                <SLink key={c} href={`/browse?category=${encodeURIComponent(c)}`}>{c}</SLink>
               ))}
             </div>
           </div>
@@ -202,14 +212,14 @@ const FooterComponent = () => {
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} />
 
       {/* Bottom bar */}
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '20px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px clamp(14px, 4vw, 40px)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px 20px', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#34d399', fontSize: '12px', fontWeight: 600 }}>
             {Icons.SSL} SSL Encrypted
           </div>
           <p style={{ color: '#ffffff', fontSize: '12px', margin: 0 }}>© 2026 E-Auction Inc. All rights reserved.</p>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
           {['VISA','MC','STRIPE','PAYPAL','UPI'].map(p => (
             <div key={p} style={{ height: '24px', minWidth: '44px', padding: '0 8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px', fontWeight: 800, color: '#ffffff', letterSpacing: '0.04em' }}>{p}</div>
           ))}

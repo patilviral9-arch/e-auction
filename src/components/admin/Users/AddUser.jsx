@@ -64,8 +64,8 @@ const AddUser = () => {
   };
 
   return (
-    <div className="max-w-2xl">
-      <div className="flex items-center gap-3 mb-6">
+    <div className="max-w-2xl px-1 sm:px-0">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
         <button
           onClick={() => navigate("/admin/Users/UsersList")}
           className="text-sm text-gray-500 hover:text-gray-700 border border-gray-200 px-3 py-1.5 rounded-lg"
@@ -77,7 +77,7 @@ const AddUser = () => {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             {!isBusiness ? (
               <>
                 <div>
@@ -102,7 +102,7 @@ const AddUser = () => {
                 </div>
               </>
             ) : (
-              <div className="col-span-2">
+              <div className="sm:col-span-2">
                 <label className="block text-sm font-medium text-gray-600 mb-1">Business Name</label>
                 <input
                   type="text"
@@ -114,7 +114,7 @@ const AddUser = () => {
               </div>
             )}
 
-            <div className="col-span-2">
+            <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-600 mb-1">Email Address</label>
               <input
                 type="email"
@@ -178,7 +178,7 @@ const AddUser = () => {
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <button
               type="submit"
               className="bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm hover:bg-indigo-700"

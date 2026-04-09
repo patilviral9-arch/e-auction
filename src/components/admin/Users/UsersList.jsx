@@ -260,21 +260,21 @@ const UsersList = () => {
   if (loading) return <div className="text-center py-10">Loading...</div>;
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">User Management</h1>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8">User Management</h1>
 
-      <div className="flex items-center gap-4 mb-8">
+      <div className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 mb-6 sm:mb-8">
         <input
           type="text"
           placeholder="Search users..."
-          className="flex-1 border border-black rounded-lg px-4 py-2.5 outline-none"
+          className="w-full flex-1 border border-black rounded-lg px-4 py-2.5 outline-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <select
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
-          className="border border-black rounded-lg px-4 py-2.5 bg-white outline-none"
+          className="w-full lg:w-auto border border-black rounded-lg px-4 py-2.5 bg-white outline-none"
         >
           <option value="All">All Roles</option>
           <option value="personal">Personal</option>
@@ -284,7 +284,7 @@ const UsersList = () => {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="border border-black rounded-lg px-4 py-2.5 bg-white outline-none"
+          className="w-full lg:w-auto border border-black rounded-lg px-4 py-2.5 bg-white outline-none"
         >
           <option value="All">All Status</option>
           <option value="active">Active</option>
@@ -293,41 +293,42 @@ const UsersList = () => {
         </select>
         <button
           onClick={handleAddUser}
-          className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-indigo-700 whitespace-nowrap"
+          className="w-full lg:w-auto bg-indigo-600 text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-indigo-700 whitespace-nowrap"
         >
           + Add User
         </button>
       </div>
 
-      <div className="bg-white rounded-[20px] border border-black overflow-visible shadow-sm">
-        <table className="w-full text-sm">
+      <div className="bg-white rounded-[20px] border border-black overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[820px] text-sm">
           <thead className="border-b border-black">
             <tr className="text-left text-gray-500 font-bold uppercase tracking-wider">
-              <th className="px-8 py-5">User</th>
-              <th className="px-8 py-5">Email</th>
-              <th className="px-8 py-5">Role</th>
-              <th className="px-8 py-5 text-center">Status</th>
-              <th className="px-8 py-5 text-center">Actions</th>
+              <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">User</th>
+              <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">Email</th>
+              <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">Role</th>
+              <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-center">Status</th>
+              <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-center">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-black/10">
             {filteredUsers.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-8 py-10 text-center text-gray-400">
+                <td colSpan={5} className="px-4 sm:px-6 lg:px-8 py-10 text-center text-gray-400">
                   No users found.
                 </td>
               </tr>
             ) : (
               filteredUsers.map((user) => (
                 <tr key={user._id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-8 py-5 font-bold text-gray-900 text-base">
+                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 font-bold text-gray-900 text-base">
                     {user.role === "business"
                       ? user.businessName || user.firstName || "-"
                       : `${user.firstName || ""} ${user.lastName || ""}`.trim() || "-"}
                   </td>
-                  <td className="px-8 py-5 text-gray-500 text-base">{user.email}</td>
-                  <td className="px-8 py-5 text-gray-700 capitalize">{user.role}</td>
-                  <td className="px-8 py-5 text-center">
+                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-gray-500 text-base">{user.email}</td>
+                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-gray-700 capitalize">{user.role}</td>
+                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-center">
                     <span
                       className={`px-4 py-1.5 rounded-full text-xs font-bold inline-block ${
                         statusStyle[normalizeStatus(user.status)] || "bg-gray-100"
@@ -336,7 +337,7 @@ const UsersList = () => {
                       {normalizeStatus(user.status)}
                     </span>
                   </td>
-                  <td className="px-8 py-5">
+                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
                     <div className="flex justify-center gap-3">
                       <div className="relative">
                         <button
@@ -372,6 +373,7 @@ const UsersList = () => {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

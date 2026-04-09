@@ -516,11 +516,11 @@ const Dashboard = () => {
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1>
+    <div className="w-full">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         {metrics.map((metric) => (
           <div
             key={metric.label}
@@ -535,7 +535,7 @@ const Dashboard = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-6">
         {/* Bids & Platform Revenue Chart */}
         <div className="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
           <h3 className="text-sm font-semibold text-gray-700 mb-3">Bids & Platform Revenue - Last 7 Days</h3>
@@ -568,8 +568,8 @@ const Dashboard = () => {
         {/* Status Breakdown Chart */}
         <div className="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
           <h3 className="text-sm font-semibold text-gray-700 mb-3">Auction Status Breakdown</h3>
-          <div className="flex items-center justify-around">
-            <div style={{ width: 180, height: 180 }}>
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-6 md:justify-around">
+            <div className="w-full max-w-[220px] mx-auto md:mx-0" style={{ height: 180 }}>
               <Doughnut
                 data={{
                   labels: ['Active', 'Scheduled', 'Completed', 'Cancelled'],
@@ -593,7 +593,7 @@ const Dashboard = () => {
                 }}
               />
             </div>
-            <div className="text-sm space-y-2">
+            <div className="text-sm space-y-2 w-full md:w-auto">
               {[
                 ['#4f46e5', 'Active', auctionStatusCounts.Active],
                 ['#f59e0b', 'Scheduled', auctionStatusCounts.Scheduled],
@@ -614,58 +614,60 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         {/* Recent Auctions Table */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="flex justify-between items-center px-5 py-3 border-b border-gray-100">
             <h3 className="text-sm font-semibold text-gray-700">Recent Auctions</h3>
           </div>
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                {['Item', 'Bid', 'Ends', 'Status'].map((header) => (
-                  <th
-                    key={header}
-                    className="px-4 py-2 text-left text-xs text-gray-500 font-medium"
-                  >
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[540px] text-sm">
+              <thead className="bg-gray-50">
                 <tr>
-                  <td colSpan="4" className="px-4 py-6 text-center text-sm text-gray-400">
-                    Loading...
-                  </td>
+                  {['Item', 'Bid', 'Ends', 'Status'].map((header) => (
+                    <th
+                      key={header}
+                      className="px-4 py-2 text-left text-xs text-gray-500 font-medium"
+                    >
+                      {header}
+                    </th>
+                  ))}
                 </tr>
-              ) : recentAuctions.length === 0 ? (
-                <tr>
-                  <td colSpan="4" className="px-4 py-6 text-center text-sm text-gray-400">
-                    No auctions found
-                  </td>
-                </tr>
-              ) : (
-                recentAuctions.map((auction, index) => (
-                  <tr key={index} className="border-t border-gray-50 hover:bg-gray-50">
-                    <td className="px-4 py-2 font-medium text-gray-800">{auction.item}</td>
-                    <td className="px-4 py-2 text-gray-600">{auction.bid}</td>
-                    <td className="px-4 py-2 text-gray-600">{auction.ends}</td>
-                    <td className="px-4 py-2">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                          statusColors[auction.status] || ''
-                        }`}
-                      >
-                        {auction.status}
-                      </span>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan="4" className="px-4 py-6 text-center text-sm text-gray-400">
+                      Loading...
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : recentAuctions.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" className="px-4 py-6 text-center text-sm text-gray-400">
+                      No auctions found
+                    </td>
+                  </tr>
+                ) : (
+                  recentAuctions.map((auction, index) => (
+                    <tr key={index} className="border-t border-gray-50 hover:bg-gray-50">
+                      <td className="px-4 py-2 font-medium text-gray-800">{auction.item}</td>
+                      <td className="px-4 py-2 text-gray-600">{auction.bid}</td>
+                      <td className="px-4 py-2 text-gray-600">{auction.ends}</td>
+                      <td className="px-4 py-2">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                            statusColors[auction.status] || ''
+                          }`}
+                        >
+                          {auction.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Recent Activity Feed */}
