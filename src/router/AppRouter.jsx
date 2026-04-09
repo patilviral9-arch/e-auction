@@ -149,7 +149,7 @@ const router = createBrowserRouter([
           { path: "/edit-auction/:id",  element:<ProtectedRoutes userRoles={["business"]}><EditAuction/></ProtectedRoutes>},
           { path: "MyWishlist", element:<MyWishlist/>},
           { path: "notifications", element: <Notifications />},
-          { path: "aboutus", element: <AboutUs /> },
+          { path: "aboutus", element: <AboutUs/ > },
         ],
       },
 
