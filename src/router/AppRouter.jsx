@@ -29,11 +29,11 @@ import { Forgetpassword } from "../components/Forgetpassword";
 import { Resetpassword } from "../components/Resetpassword";
 import EditAuction from "../components/user/Business/EditAuction";
 import MyWishlist from "../pages/MyWishlist";
-import LiveAuctions from "../pages/LiveAuctions"
-import MyBids from "../pages/MyBids"
-import WonAuctions from "../pages/WonAuctions"
+import LiveAuctions from "../pages/LiveAuctions";
+import MyBids from "../pages/MyBids";
+import WonAuctions from "../pages/WonAuctions";
 import Notifications from "../pages/Notifications";
-import Aboutus from "../pages/Aboutus";
+import AboutUs from "../pages/AboutUs"; // Capital U
 import Payouts from "../pages/Payouts";
 import Wallet from "../pages/Wallet";
 import BusinessAnalytics from "../pages/BusinessAnalytics";
@@ -149,7 +149,7 @@ const router = createBrowserRouter([
           { path: "/edit-auction/:id",  element:<ProtectedRoutes userRoles={["business"]}><EditAuction/></ProtectedRoutes>},
           { path: "MyWishlist", element:<MyWishlist/>},
           { path: "notifications", element: <Notifications />},
-          { path: "aboutus", element:<Aboutus/>},
+          { path: "aboutus", element:<AboutUs/>},
         ],
       },
 

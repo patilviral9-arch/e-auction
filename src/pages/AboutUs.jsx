@@ -51,11 +51,11 @@ const AboutUs = () => {
     accent:    '#38bdf8',
     accentBg:  isLight ? 'rgba(56,189,248,0.08)' : 'rgba(56,189,248,0.1)',
     shadow:    isLight ? '0 2px 10px rgba(0,0,0,0.06)' : '0 2px 10px rgba(0,0,0,0.3)',
-  };
+  }
 
   const cardHover = (e, enter) => {
     e.currentTarget.style.borderColor = enter ? 'rgba(56,189,248,0.4)' : T.border;
-  };
+  }
 
   const openings = [
     { role: 'Senior Full-Stack Engineer', dept: 'Engineering', loc: 'Remote / Ahmedabad' },
@@ -63,7 +63,7 @@ const AboutUs = () => {
     { role: 'Growth Marketing Manager',   dept: 'Marketing',   loc: 'Ahmedabad' },
     { role: 'Fraud & Trust Analyst',      dept: 'Operations',  loc: 'Hybrid' },
     { role: 'Category Manager — Luxury',  dept: 'Business',    loc: 'Mumbai / Remote' },
-  ];
+  ]
 
   const awards = [
     { icon: Icons.Trophy,  name: 'Best Marketplace Platform',         org: 'India Fintech Forum', year: '2026', color: '#f59e0b' },
