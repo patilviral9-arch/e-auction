@@ -3,6 +3,10 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+const AUTH_API_BASE = String(
+  import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://localhost:3000"
+).replace(/\/+$/, "");
+const authUrl = (path) => `${AUTH_API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
 
 // ── Hardcoded light theme tokens ─────────────────────────────────────────────
 const T = {
@@ -133,6 +137,12 @@ const OtpModal = ({ email, onVerified, onClose, pendingPayload }) => {
   const [success,      setSuccess]      = useState(false);
   const { seconds, start } = useCountdown(60);
 
+  const getApiError = (err, fallback) =>
+    err?.response?.data?.message ||
+    err?.response?.data?.error ||
+    (err?.request ? "Cannot reach server. Check backend URL/server status." : null) ||
+    fallback;
+
   // Auto-start countdown when modal mounts
   useEffect(() => { start(); }, []);
 
@@ -142,16 +152,16 @@ const OtpModal = ({ email, onVerified, onClose, pendingPayload }) => {
     setVerifying(true);
     try {
       // Step 1 — verify OTP
-       await axios.post(`${import.meta.env.VITE_API_URL}/user/verify-otp`, { email, otp });
+      await axios.post(authUrl("/user/verify-otp"), { email, otp });
 
       // Step 2 — register the user now that email is verified
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/user/register`, pendingPayload);
+      const res = await axios.post(authUrl("/user/register"), pendingPayload);
       if (res.status === 201) {
         setSuccess(true);
         setTimeout(() => onVerified(), 1800);
       }
     } catch (err) {
-      setOtpError(err.response?.data?.message || "Invalid OTP. Please try again.");
+      setOtpError(getApiError(err, "Invalid OTP. Please try again."));
       setOtp("");
     } finally {
       setVerifying(false);
@@ -164,11 +174,11 @@ const OtpModal = ({ email, onVerified, onClose, pendingPayload }) => {
     setOtpError("");
     setOtp("");
     try {
-      await axios.post("/user/send-otp", { email });
+      await axios.post(authUrl("/user/send-otp"), { email });
       start();
       toast.success("OTP resent to your email!");
-    } catch {
-      setOtpError("Failed to resend OTP. Please try again.");
+    } catch (err) {
+      setOtpError(getApiError(err, "Failed to resend OTP. Please try again."));
     } finally {
       setResending(false);
     }
@@ -343,6 +353,12 @@ export const Signup = () => {
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
   const navigate = useNavigate();
 
+  const getApiError = (err, fallback) =>
+    err?.response?.data?.message ||
+    err?.response?.data?.error ||
+    (err?.request ? "Cannot reach server. Check backend URL/server status." : null) ||
+    fallback;
+
   // Called when "Create Account" is clicked and form is valid
   const submithandler = async (data) => {
     setLoading(true);
@@ -358,13 +374,13 @@ export const Signup = () => {
       }
 
       // Send OTP to the email first
-     await axios.post(`${import.meta.env.VITE_API_URL}/user/send-otp`, { email: data.email });
+      await axios.post(authUrl("/user/send-otp"), { email: data.email });
 
       // Store form payload and open OTP modal
       setPendingData(payload);
       setShowOtp(true);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to send OTP. Please try again.");
+      toast.error(getApiError(err, "Failed to send OTP. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -602,3 +618,4 @@ export const Signup = () => {
     </div>
   );
 };
+
