@@ -10,7 +10,7 @@ function App() {
   const API_BASE = String(
     import.meta.env.VITE_API_URL ||
     import.meta.env.VITE_API_BASE_URL ||
-    "https://e-auction-backend-production.up.railway.app"
+    "/api"
   ).replace(/\/+$/, "");
   axios.defaults.baseURL = API_BASE;
   axios.defaults.timeout = Number(import.meta.env.VITE_API_TIMEOUT_MS || 600000);
