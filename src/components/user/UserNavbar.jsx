@@ -101,6 +101,7 @@ export const UserNavbar = ({
 
   const profileRef = useRef(null);
   const themeRef   = useRef(null);
+  const lastNavTouchTsRef = useRef(0);
 
   useOutsideClick(profileRef, () => setProfileOpen(false));
   useOutsideClick(themeRef,   () => setThemeOpen(false));
@@ -164,11 +165,37 @@ export const UserNavbar = ({
   ];
 
   /* Ã¢â€â‚¬Ã¢â€â‚¬ shared link renderer Ã¢â€â‚¬Ã¢â€â‚¬ */
+  const activateNav = (to) => {
+    setProfileOpen(false);
+    setThemeOpen(false);
+    setActiveHover(null);
+
+    if (location.pathname === to) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    navigate(to);
+  };
+
   const NavLink = ({ to, label, icon }) => (
     <Link
       to={to}
-      onMouseEnter={() => setActiveHover(to)}
-      onMouseLeave={() => setActiveHover(null)}
+      onMouseEnter={!isMobile ? () => setActiveHover(to) : undefined}
+      onMouseLeave={!isMobile ? () => setActiveHover(null) : undefined}
+      onTouchEnd={(e) => {
+        // Mobile reliability: handle tap on touchend and suppress the synthetic click.
+        lastNavTouchTsRef.current = Date.now();
+        if (e.cancelable) e.preventDefault();
+        activateNav(to);
+      }}
+      onClick={(e) => {
+        // Ignore click fired right after touchend on mobile.
+        if (Date.now() - lastNavTouchTsRef.current < 400) {
+          e.preventDefault();
+          return;
+        }
+        activateNav(to);
+      }}
       style={{
         position: "relative",
         display: "flex", alignItems: "center", justifyContent: isMobile ? "center" : "flex-start", gap: isMobile ? "4px" : "6px",
@@ -183,6 +210,8 @@ export const UserNavbar = ({
         width: isMobile ? "100%" : "auto",
         minWidth: 0,
         overflow: "hidden",
+        touchAction: "manipulation",
+        WebkitTapHighlightColor: "transparent",
         background: isActive(to)
           ? "rgba(56,189,248,0.08)"
           : activeHover === to
