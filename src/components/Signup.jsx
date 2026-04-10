@@ -81,71 +81,34 @@ export const Signup = () => {
     try {
       const payload = buildPayload(data);
 
-      const setupRes = await axios.post(
+      const otpRes = await axios.post(
         authUrl("/user/send-otp"),
         { email: payload.email },
         { timeout: REQUEST_TIMEOUT_MS }
       );
 
-      const totpSetup = setupRes?.data?.totpSetup;
-      if (!totpSetup?.manualEntryKey) {
-        throw new Error("Authenticator setup details were not returned by the server.");
+      const devOtp = String(otpRes?.data?.testOtp || "").trim();
+      if (devOtp) {
+        toast.info(`Development OTP: ${devOtp}`);
       }
 
-      const setupExpiresInMinutes = Math.max(
-        1,
-        Math.ceil((Number(totpSetup.expiresInSeconds) || 0) / 60)
+      const otpInput = window.prompt(
+        devOtp
+          ? `Enter OTP (development mode). Hint: ${devOtp}`
+          : "Enter the 6-digit OTP:"
       );
 
-      window.alert(
-        [
-          "Set up your authenticator app before continuing.",
-          "",
-          `Issuer: ${totpSetup.issuer || "E-Auction"}`,
-          `Account: ${totpSetup.accountName || payload.email}`,
-          `Secret Key: ${totpSetup.manualEntryKey}`,
-          "",
-          `This setup expires in ${setupExpiresInMinutes} minute(s).`,
-        ].join("\n")
-      );
-
-      toast.info("Enter the 6-digit code from your authenticator app.");
-
-      let isTotpVerified = false;
-      for (let attempt = 1; attempt <= 3; attempt += 1) {
-        const otpInput = window.prompt(
-          attempt === 1
-            ? "Enter the 6-digit code from your authenticator app:"
-            : "Code did not match. Enter the latest 6-digit authenticator code:"
-        );
-
-        const otp = String(otpInput || "").trim();
-        if (!otp) {
-          toast.error("Authenticator code is required to complete registration.");
-          return;
-        }
-
-        try {
-          await axios.post(
-            authUrl("/user/verify-otp"),
-            { email: payload.email, otp },
-            { timeout: REQUEST_TIMEOUT_MS }
-          );
-          isTotpVerified = true;
-          break;
-        } catch (verifyErr) {
-          if (verifyErr?.response?.status === 400 && attempt < 3) {
-            toast.error("Incorrect authenticator code. Please try again.");
-            continue;
-          }
-          throw verifyErr;
-        }
-      }
-
-      if (!isTotpVerified) {
-        toast.error("Could not verify your authenticator code.");
+      const otp = String(otpInput || "").trim();
+      if (!otp) {
+        toast.error("OTP is required to complete registration.");
         return;
       }
+
+      await axios.post(
+        authUrl("/user/verify-otp"),
+        { email: payload.email, otp },
+        { timeout: REQUEST_TIMEOUT_MS }
+      );
 
       const res = await axios.post(authUrl("/user/register"), payload, { timeout: REQUEST_TIMEOUT_MS });
 
