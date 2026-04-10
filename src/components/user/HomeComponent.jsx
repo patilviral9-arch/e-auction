@@ -467,8 +467,28 @@ export const HomeComponent = () => {
   const [loading,  setLoading]        = useState(true);
   const [error,    setError]          = useState(null);
   const [watchlistIds, setWatchlistIds] = useState([]);
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => { setTimeout(() => setHeroVisible(true), 100); }, []);
+
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const fetchWithRetry = async (url, options = {}, retries = 2) => {
+    let lastErr = null;
+    for (let attempt = 0; attempt <= retries; attempt += 1) {
+      try {
+        return await fetch(url, options);
+      } catch (err) {
+        lastErr = err;
+        if (attempt < retries) await sleep(1200 * (attempt + 1));
+      }
+    }
+    throw lastErr || new Error("Failed to fetch");
+  };
+  const retryLoadAuctions = () => {
+    setError(null);
+    setLoading(true);
+    setReloadToken((prev) => prev + 1);
+  };
 
   // Load user's wishlist IDs from backend
   useEffect(() => {
@@ -504,9 +524,11 @@ export const HomeComponent = () => {
   };
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchAuctions = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/auction/auctions`);
+        const res = await fetchWithRetry(`${import.meta.env.VITE_API_URL}/auction/auctions`);
         if (!res.ok) throw new Error("Failed to fetch auctions");
         const data = await res.json();
         const list = Array.isArray(data) ? data : data.data ?? data.auctions ?? [];
@@ -516,7 +538,7 @@ export const HomeComponent = () => {
         const enriched = await Promise.all(list.map(async (auction) => {
           const id = auction._id ?? auction.id;
           try {
-            const r = await fetch(`${import.meta.env.VITE_API_URL}/bid/bids/auction/${id}`);
+            const r = await fetchWithRetry(`${import.meta.env.VITE_API_URL}/bid/bids/auction/${id}`);
             if (!r.ok) return auction;
             const bidData = await r.json();
             const bids = bidData.data ?? [];
@@ -524,18 +546,25 @@ export const HomeComponent = () => {
               return { ...auction, currentBid: bids[0].bidAmount, totalBids: bids.length };
             }
             return auction;
-          } catch { return auction; }
+          } catch {
+            return auction;
+          }
         }));
 
+        if (!isMounted) return;
         setAuctions(enriched);
+        setError(null);
       } catch (err) {
-        setError(err.message);
+        if (!isMounted) return;
+        setError(err?.message || "Network error");
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
+
     fetchAuctions();
-  }, []);
+    return () => { isMounted = false; };
+  }, [reloadToken]);
 
   const liveAuctions = useMemo(
     () => shuffleItems(auctions.filter((a) => a.status === "Active")).slice(0, 6),
@@ -565,7 +594,25 @@ export const HomeComponent = () => {
 
   const renderCards = (items, fallbackCount = 6) => {
     if (loading) return Array.from({ length: fallbackCount }, (_, i) => <SkeletonCard key={i} t={t} />);
-    if (error)   return <div style={{ gridColumn: "1/-1", color: "#f43f5e", textAlign: "center", padding: "40px", fontSize: "14px" }}>⚠ Could not load auctions: {error}</div>;
+    if (error) return (
+      <div style={{ gridColumn: "1/-1", color: "#f43f5e", textAlign: "center", padding: "40px", fontSize: "14px" }}>
+        <div style={{ marginBottom: "12px" }}>Could not load auctions: {error}</div>
+        <button
+          onClick={retryLoadAuctions}
+          style={{
+            border: "1px solid rgba(244,63,94,0.35)",
+            background: "rgba(244,63,94,0.12)",
+            color: "#f43f5e",
+            borderRadius: "8px",
+            padding: "8px 14px",
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          Retry
+        </button>
+      </div>
+    );
     if (!items.length) return <div style={{ gridColumn: "1/-1", color: t.textMut, textAlign: "center", padding: "40px", fontSize: "14px" }}>No auctions found.</div>;
     return items.map((item, i) => <AuctionCard key={item._id ?? item.id ?? i} item={item} index={i} watchlist={watchlistIds} toggleWatch={toggleWatch} />);
   };
