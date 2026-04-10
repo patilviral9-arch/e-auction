@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+﻿import React, { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import FooterComponent from "./FooterComponent";
 import { useThemeStyles } from "../../utils/themeStyles";
@@ -136,7 +136,7 @@ const shuffleItems = (items = []) => {
 };
 
 /* ─────────── AuctionCard (API-driven) ─────────── */
-function AuctionCard({ item, index, watchlist = [], toggleWatch }) {
+function AuctionCard({ item, index, watchlist = [], toggleWatch, isMobile = false }) {
   const t = useThemeStyles();
   const [hovered, setHovered] = useState(false);
   const [bidPulse, setBidPulse] = useState(false);
@@ -157,13 +157,14 @@ function AuctionCard({ item, index, watchlist = [], toggleWatch }) {
   const img         = item.images?.[0] ?? item.image ?? item.img ?? "https://placehold.co/400x300/1e293b/38bdf8?text=No+Image";
   const title       = item.title       ?? item.name ?? "Untitled";
   const hot         = item.hot         ?? (totalBids > 20);
+  const compact     = isMobile;
 
   return (
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        background: t.bgCardGrad, borderRadius: "20px", overflow: "hidden",
+        background: t.bgCardGrad, borderRadius: compact ? "16px" : "20px", overflow: "hidden",
         border: hovered ? "1px solid rgba(56,189,248,0.3)" : `1px solid ${t.border}`,
         transform: hovered ? "translateY(-6px)" : "translateY(0)",
         boxShadow: hovered ? `0 24px 48px ${t.shadow}` : `0 4px 20px ${t.shadow}`,
@@ -172,7 +173,7 @@ function AuctionCard({ item, index, watchlist = [], toggleWatch }) {
       }}>
 
       {/* Image */}
-      <div style={{ position: "relative", height: "200px", background: t.bgCardGrad, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ position: "relative", height: compact ? "150px" : "200px", background: t.bgCardGrad, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <img src={img} alt={title}
           style={{ width: "100%", height: "100%", objectFit: "cover", transform: hovered ? "scale(1.07)" : "scale(1)", transition: "transform 0.5s ease" }}
           onError={e => { e.target.src = "https://placehold.co/400x300/1e293b/38bdf8?text=No+Image"; }}
@@ -180,18 +181,18 @@ function AuctionCard({ item, index, watchlist = [], toggleWatch }) {
         <div style={{ position: "absolute", inset: 0, background: hovered ? `linear-gradient(to bottom, transparent 50%, ${t.L ? "rgba(248,250,252,0.8)" : "rgba(15,23,42,0.8)"})` : `linear-gradient(to bottom, transparent 60%, ${t.L ? "rgba(248,250,252,0.5)" : "rgba(15,23,42,0.5)"})`, transition: "all 0.3s" }} />
 
         {live ? (
-          <div style={{ position: "absolute", top: "12px", left: "12px", display: "flex", alignItems: "center", gap: "6px", background: "#f43f5e", color: "white", borderRadius: "8px", padding: "4px 10px", fontSize: "11px", fontWeight: 800 }}>
+          <div style={{ position: "absolute", top: compact ? "8px" : "12px", left: compact ? "8px" : "12px", display: "flex", alignItems: "center", gap: compact ? "5px" : "6px", background: "#f43f5e", color: "white", borderRadius: compact ? "7px" : "8px", padding: compact ? "3px 8px" : "4px 10px", fontSize: compact ? "10px" : "11px", fontWeight: 800 }}>
             <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "white", animation: "pulse 1s infinite" }} />
             LIVE
           </div>
         ) : (
-          <div style={{ position: "absolute", top: "12px", left: "12px", display: "flex", alignItems: "center", gap: "6px", background: "#f59e0b", color: "white", borderRadius: "8px", padding: "4px 10px", fontSize: "11px", fontWeight: 800 }}>
-            {Icons.ComingSoon(11)} SCHEDULED
+          <div style={{ position: "absolute", top: compact ? "8px" : "12px", left: compact ? "8px" : "12px", display: "flex", alignItems: "center", gap: compact ? "5px" : "6px", background: "#f59e0b", color: "white", borderRadius: compact ? "7px" : "8px", padding: compact ? "3px 8px" : "4px 10px", fontSize: compact ? "10px" : "11px", fontWeight: 800 }}>
+            {Icons.ComingSoon(compact ? 10 : 11)} SCHEDULED
           </div>
         )}
         {hot && (
-          <div style={{ position: "absolute", top: "12px", right: "44px", display: "flex", alignItems: "center", justifyContent: "center", background: t.L ? "rgba(255,255,255,0.9)" : "rgba(15,23,42,0.8)", backdropFilter: "blur(8px)", border: `1px solid ${t.borderMd}`, borderRadius: "8px", padding: "4px 8px", color: "#f97316" }}>
-            {Icons.Fire(14)}
+          <div style={{ position: "absolute", top: compact ? "8px" : "12px", right: compact ? "38px" : "44px", display: "flex", alignItems: "center", justifyContent: "center", background: t.L ? "rgba(255,255,255,0.9)" : "rgba(15,23,42,0.8)", backdropFilter: "blur(8px)", border: `1px solid ${t.borderMd}`, borderRadius: compact ? "7px" : "8px", padding: compact ? "3px 7px" : "4px 8px", color: "#f97316" }}>
+            {Icons.Fire(compact ? 12 : 14)}
           </div>
         )}
         {/* Wishlist heart button */}
@@ -200,48 +201,48 @@ function AuctionCard({ item, index, watchlist = [], toggleWatch }) {
             onClick={e => { e.preventDefault(); e.stopPropagation(); toggleWatch(String(id)); }}
             title={watched ? "Remove from wishlist" : "Add to wishlist"}
             style={{
-              position: "absolute", top: "10px", right: "10px",
+              position: "absolute", top: compact ? "8px" : "10px", right: compact ? "8px" : "10px",
               background: watched ? "rgba(244,63,94,0.15)" : t.L ? "rgba(255,255,255,0.85)" : "rgba(15,23,42,0.8)",
               backdropFilter: "blur(8px)",
               border: `1px solid ${watched ? "rgba(244,63,94,0.4)" : t.borderMd}`,
-              borderRadius: "8px", width: "30px", height: "30px",
+              borderRadius: "8px", width: compact ? "28px" : "30px", height: compact ? "28px" : "30px",
               cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
               color: watched ? "#f43f5e" : t.textMut,
               transition: "all 0.2s",
             }}
           >
-            {Icons.Heart(15, watched)}
+            {Icons.Heart(compact ? 14 : 15, watched)}
           </button>
         )}
-        <div style={{ position: "absolute", bottom: "12px", left: "12px", background: t.L ? "rgba(255,255,255,0.85)" : "rgba(15,23,42,0.8)", backdropFilter: "blur(8px)", border: `1px solid ${t.borderMd}`, borderRadius: "6px", padding: "3px 8px", fontSize: "11px", color: t.textSec, fontWeight: 600 }}>
+        <div style={{ position: "absolute", bottom: compact ? "8px" : "12px", left: compact ? "8px" : "12px", background: t.L ? "rgba(255,255,255,0.85)" : "rgba(15,23,42,0.8)", backdropFilter: "blur(8px)", border: `1px solid ${t.borderMd}`, borderRadius: "6px", padding: compact ? "2px 7px" : "3px 8px", fontSize: compact ? "10px" : "11px", color: t.textSec, fontWeight: 600 }}>
           {category}
         </div>
       </div>
 
       {/* Body */}
-      <div style={{ padding: "20px" }}>
-        <h3 style={{ color: t.textPri, fontWeight: 700, fontSize: "15px", margin: "0 0 12px", lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title}</h3>
+      <div style={{ padding: compact ? "12px" : "20px" }}>
+        <h3 style={{ color: t.textPri, fontWeight: 700, fontSize: compact ? "14px" : "15px", margin: `0 0 ${compact ? "9px" : "12px"}`, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title}</h3>
 
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "14px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: compact ? "10px" : "14px" }}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "4px", color: t.textMut, fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "3px" }}>
-              {Icons.Tag(11)}{live ? "Current Bid" : isScheduled ? "Starting Bid" : "Final Bid"}
+            <div style={{ display: "flex", alignItems: "center", gap: "4px", color: t.textMut, fontSize: compact ? "10px" : "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "2px" }}>
+              {Icons.Tag(compact ? 10 : 11)}{live ? "Current Bid" : isScheduled ? "Starting Bid" : "Final Bid"}
             </div>
-            <div style={{ color: "#38bdf8", fontSize: "22px", fontWeight: 800 }}>{formatINR(live ? currentBid : (item.startingBid ?? 0))}</div>
+            <div style={{ color: "#38bdf8", fontSize: compact ? "18px" : "22px", fontWeight: 800 }}>{formatINR(live ? currentBid : (item.startingBid ?? 0))}</div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "4px", color: t.textMut, fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "3px" }}>
-              {Icons.Clock(11)} {live ? "Ends In" : isScheduled ? "Starts In" : "Ended"}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "4px", color: t.textMut, fontSize: compact ? "10px" : "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "2px" }}>
+              {Icons.Clock(compact ? 10 : 11)} {live ? "Ends In" : isScheduled ? "Starts In" : "Ended"}
             </div>
-            <div style={{ color: live ? "#f43f5e" : "#f59e0b", fontSize: "13px", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{countdown}</div>
+            <div style={{ color: live ? "#f43f5e" : "#f59e0b", fontSize: compact ? "12px" : "13px", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{countdown}</div>
           </div>
         </div>
 
         {live && (
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: compact ? "6px" : "8px", marginBottom: compact ? "10px" : "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "4px", color: t.textMut }}>
-              {Icons.Users(13)}
-              <span style={{ color: t.textMut, fontSize: "12px" }}>{totalBids} bids</span>
+              {Icons.Users(compact ? 12 : 13)}
+              <span style={{ color: t.textMut, fontSize: compact ? "11px" : "12px" }}>{totalBids} bids</span>
             </div>
             <div style={{ flex: 1, height: "3px", background: t.L ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)", borderRadius: "2px", overflow: "hidden" }}>
               <div style={{ height: "100%", width: `${Math.min(100, (totalBids / 50) * 100)}%`, background: "linear-gradient(90deg, #38bdf8, #6366f1)", borderRadius: "2px" }} />
@@ -251,13 +252,13 @@ function AuctionCard({ item, index, watchlist = [], toggleWatch }) {
 
         {live ? (
           <Link to={`/auction/${item._id ?? item.id}`} onClick={handleBid}>
-            <button style={{ width: "100%", padding: "12px", background: "linear-gradient(135deg,#f43f5e,#dc2626)", color: "white", border: "none", borderRadius: "12px", fontSize: "14px", fontWeight: 700, cursor: "pointer", transform: bidPulse ? "scale(0.97)" : "scale(1)", transition: "all 0.15s", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
-              {Icons.Live(14)} Place Bid
+            <button style={{ width: "100%", padding: compact ? "10px" : "12px", background: "linear-gradient(135deg,#f43f5e,#dc2626)", color: "white", border: "none", borderRadius: compact ? "10px" : "12px", fontSize: compact ? "13px" : "14px", fontWeight: 700, cursor: "pointer", transform: bidPulse ? "scale(0.97)" : "scale(1)", transition: "all 0.15s", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+              {Icons.Live(compact ? 13 : 14)} Place Bid
             </button>
           </Link>
         ) : (
-          <button disabled style={{ width: "100%", padding: "12px", background: "rgba(245,158,11,0.12)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)", borderRadius: "12px", fontSize: "14px", fontWeight: 700, cursor: "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
-            {Icons.ComingSoon(14)} Not Started Yet
+          <button disabled style={{ width: "100%", padding: compact ? "10px" : "12px", background: "rgba(245,158,11,0.12)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)", borderRadius: compact ? "10px" : "12px", fontSize: compact ? "13px" : "14px", fontWeight: 700, cursor: "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+            {Icons.ComingSoon(compact ? 13 : 14)} Not Started Yet
           </button>
         )}
       </div>
@@ -266,7 +267,7 @@ function AuctionCard({ item, index, watchlist = [], toggleWatch }) {
 }
 
 /* ─────────── Skeleton card ─────────── */
-function SkeletonCard({ t }) {
+function SkeletonCard({ t, compact = false }) {
   const shine = {
     background: t.L
       ? "linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 50%,#e2e8f0 75%)"
@@ -276,13 +277,13 @@ function SkeletonCard({ t }) {
     borderRadius: "8px",
   };
   return (
-    <div style={{ background: t.bgCardGrad, borderRadius: "20px", overflow: "hidden", border: `1px solid ${t.border}` }}>
-      <div style={{ height: "200px", ...shine, borderRadius: 0 }} />
-      <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "10px" }}>
-        <div style={{ height: "14px", width: "80%", ...shine }} />
-        <div style={{ height: "14px", width: "60%", ...shine }} />
-        <div style={{ height: "28px", width: "50%", ...shine }} />
-        <div style={{ height: "40px", ...shine, borderRadius: "12px" }} />
+    <div style={{ background: t.bgCardGrad, borderRadius: compact ? "16px" : "20px", overflow: "hidden", border: `1px solid ${t.border}` }}>
+      <div style={{ height: compact ? "150px" : "200px", ...shine, borderRadius: 0 }} />
+      <div style={{ padding: compact ? "12px" : "20px", display: "flex", flexDirection: "column", gap: compact ? "8px" : "10px" }}>
+        <div style={{ height: compact ? "12px" : "14px", width: "80%", ...shine }} />
+        <div style={{ height: compact ? "12px" : "14px", width: "60%", ...shine }} />
+        <div style={{ height: compact ? "22px" : "28px", width: "50%", ...shine }} />
+        <div style={{ height: compact ? "34px" : "40px", ...shine, borderRadius: compact ? "10px" : "12px" }} />
       </div>
     </div>
   );
@@ -373,7 +374,7 @@ function StatsSection() {
             <div style={{ display: "flex", justifyContent: "center", marginBottom: "8px", color: "#38bdf8" }}>{s.icon}</div>
             <div style={{ fontSize: "clamp(28px, 8vw, 40px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1, background: "linear-gradient(135deg, #38bdf8, #818cf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
               {s.value === null
-                ? <span style={{ fontSize: "28px", opacity: 0.5 }}>�</span>
+                ? <span style={{ fontSize: "28px", opacity: 0.5 }}>�</span>
                 : `${s.prefix || ""}${Number(s.value).toLocaleString("en-IN")}${s.suffix || ""}`
               }
             </div>
@@ -468,8 +469,23 @@ export const HomeComponent = () => {
   const [error,    setError]          = useState(null);
   const [watchlistIds, setWatchlistIds] = useState([]);
   const [reloadToken, setReloadToken] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => (
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 768px)").matches : false
+  ));
 
   useEffect(() => { setTimeout(() => setHeroVisible(true), 100); }, []);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return undefined;
+    const media = window.matchMedia("(max-width: 768px)");
+    const onChange = (event) => setIsMobile(event.matches);
+    setIsMobile(media.matches);
+    if (media.addEventListener) media.addEventListener("change", onChange);
+    else media.addListener(onChange);
+    return () => {
+      if (media.removeEventListener) media.removeEventListener("change", onChange);
+      else media.removeListener(onChange);
+    };
+  }, []);
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const fetchWithRetry = async (url, options = {}, retries = 2) => {
@@ -577,15 +593,15 @@ export const HomeComponent = () => {
   );
 
   const SectionHeader = ({ title, sub, cta, ctaLink, icon }) => (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "32px" }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: isMobile ? "18px" : "32px", flexWrap: "wrap", gap: isMobile ? "10px" : "16px" }}>
       <div>
-        <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#38bdf8", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "6px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#38bdf8", fontSize: isMobile ? "11px" : "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "6px" }}>
           {icon}{sub}
         </div>
-        <h2 style={{ color: t.textPri, fontSize: "32px", fontWeight: 800, margin: 0, letterSpacing: "-0.02em" }}>{title}</h2>
+        <h2 style={{ color: t.textPri, fontSize: isMobile ? "26px" : "32px", fontWeight: 800, margin: 0, letterSpacing: "-0.02em" }}>{title}</h2>
       </div>
       {cta && (
-        <Link to={ctaLink} style={{ display: "flex", alignItems: "center", gap: "4px", color: "#38bdf8", textDecoration: "none", fontSize: "14px", fontWeight: 700, padding: "8px 18px", border: "1px solid rgba(56,189,248,0.3)", borderRadius: "8px", transition: "all 0.2s" }}>
+        <Link to={ctaLink} style={{ display: "flex", alignItems: "center", gap: "4px", color: "#38bdf8", textDecoration: "none", fontSize: isMobile ? "12px" : "14px", fontWeight: 700, padding: isMobile ? "7px 12px" : "8px 18px", border: "1px solid rgba(56,189,248,0.3)", borderRadius: "8px", transition: "all 0.2s" }}>
           {cta} {Icons.ArrowR(14)}
         </Link>
       )}
@@ -593,7 +609,7 @@ export const HomeComponent = () => {
   );
 
   const renderCards = (items, fallbackCount = 6) => {
-    if (loading) return Array.from({ length: fallbackCount }, (_, i) => <SkeletonCard key={i} t={t} />);
+    if (loading) return Array.from({ length: fallbackCount }, (_, i) => <SkeletonCard key={i} t={t} compact={isMobile} />);
     if (error) return (
       <div style={{ gridColumn: "1/-1", color: "#f43f5e", textAlign: "center", padding: "40px", fontSize: "14px" }}>
         <div style={{ marginBottom: "12px" }}>Could not load auctions: {error}</div>
@@ -614,7 +630,7 @@ export const HomeComponent = () => {
       </div>
     );
     if (!items.length) return <div style={{ gridColumn: "1/-1", color: t.textMut, textAlign: "center", padding: "40px", fontSize: "14px" }}>No auctions found.</div>;
-    return items.map((item, i) => <AuctionCard key={item._id ?? item.id ?? i} item={item} index={i} watchlist={watchlistIds} toggleWatch={toggleWatch} />);
+    return items.map((item, i) => <AuctionCard key={item._id ?? item.id ?? i} item={item} index={i} watchlist={watchlistIds} toggleWatch={toggleWatch} isMobile={isMobile} />);
   };
 
   return (
@@ -654,7 +670,7 @@ export const HomeComponent = () => {
       <div style={{ background: t.bg, padding: "clamp(32px, 6vw, 72px) clamp(14px, 4vw, 40px)", borderTop: `1px solid ${t.L ? "rgba(244,63,94,0.08)" : "rgba(244,63,94,0.12)"}` }}>
         <div style={{ maxWidth: "1600px", margin: "0 auto" }}>
           <SectionHeader title="Live Auctions" sub="Happening Now" icon={Icons.Live(14)} cta="View All Live" ctaLink="/LiveAuctions" />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "16px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, minmax(0, 1fr))" : "repeat(auto-fill, minmax(220px, 1fr))", gap: isMobile ? "12px" : "16px" }}>
             {renderCards(liveAuctions)}
           </div>
         </div>
@@ -664,7 +680,7 @@ export const HomeComponent = () => {
       <div style={{ background: t.bgSec, padding: "clamp(32px, 6vw, 72px) clamp(14px, 4vw, 40px)" }}>
         <div style={{ maxWidth: "1600px", margin: "0 auto" }}>
           <SectionHeader title="Scheduled Auctions" sub="Coming Soon" icon={Icons.ComingSoon(14)} cta="Browse All" ctaLink="/browse" />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "16px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, minmax(0, 1fr))" : "repeat(auto-fill, minmax(220px, 1fr))", gap: isMobile ? "12px" : "16px" }}>
             {renderCards(featuredAuctions)}
           </div>
         </div>
@@ -724,5 +740,6 @@ export const HomeComponent = () => {
 };
 
 export default HomeComponent;
+
 
 

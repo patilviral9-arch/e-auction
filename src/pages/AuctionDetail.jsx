@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useThemeStyles } from "../utils/themeStyles";
@@ -415,8 +415,23 @@ export default function AuctionDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { role, userId, userName, name } = useAuth();
+  const [isMobile, setIsMobile] = useState(() => (
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 768px)").matches : false
+  ));
 
    useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, [id]);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return undefined;
+    const media = window.matchMedia("(max-width: 768px)");
+    const onChange = (event) => setIsMobile(event.matches);
+    setIsMobile(media.matches);
+    if (media.addEventListener) media.addEventListener("change", onChange);
+    else media.addListener(onChange);
+    return () => {
+      if (media.removeEventListener) media.removeEventListener("change", onChange);
+      else media.removeListener(onChange);
+    };
+  }, []);
 
   const [auction,    setAuction]   = useState(null);
   const [loading,    setLoading]   = useState(true);
@@ -859,50 +874,50 @@ export default function AuctionDetail() {
     <div style={{ background: t.bg, minHeight: "100vh", fontFamily: "'Segoe UI', system-ui, sans-serif", transition: "background 0.25s" }}>
       {showAuth && <AuthGate onClose={() => setShowAuth(false)} />}
 
-      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px 32px 0" }}>
-        <div style={{ display: "flex", gap: "8px", alignItems: "center", fontSize: "13px", color: t.textFaint }}>
+      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: isMobile ? "12px 14px 0" : "20px 32px 0" }}>
+        <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap", fontSize: isMobile ? "12px" : "13px", color: t.textFaint }}>
           <Link to="/" style={{ color: t.textFaint, textDecoration: "none" }}>Home</Link><span>›</span>
           <Link to="/browse" style={{ color: t.textFaint, textDecoration: "none" }}>Browse</Link><span>›</span>
           <span style={{ color: t.textSec }}>{auction.title}</span>
         </div>
       </div>
 
-      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "24px 32px 60px", display: "grid", gridTemplateColumns: "1fr 420px", gap: "32px" }}>
-        <div>
-          <div style={{ borderRadius: "20px", overflow: "hidden", border: `1px solid ${t.border}`, aspectRatio: "4/3", position: "relative", background: t.bgCard }}>
+      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: isMobile ? "16px 14px 36px" : "24px 32px 60px", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 420px", gap: isMobile ? "18px" : "32px" }}>
+        <div style={{ order: isMobile ? 2 : 1 }}>
+          <div style={{ borderRadius: isMobile ? "16px" : "20px", overflow: "hidden", border: `1px solid ${t.border}`, aspectRatio: "4/3", position: "relative", background: t.bgCard }}>
             <img src={images[selectedImg]} alt={auction.title} style={{ width: "100%", height: "100%", objectFit: "cover", filter: auction.status === "Cancelled" || auction.status === "Completed" ? "grayscale(20%)" : "none", transition: "opacity 0.2s ease" }} />
             {/* ── FIX: Status badge reflects real auction status ── */}
             {auction.status === "Cancelled" ? (
-              <div style={{ position: "absolute", top: "16px", left: "16px", background: "rgba(239,68,68,0.9)", backdropFilter: "blur(8px)", color: "white", fontWeight: 800, fontSize: "12px", padding: "5px 12px", borderRadius: "50px" }}>
+              <div style={{ position: "absolute", top: isMobile ? "10px" : "16px", left: isMobile ? "10px" : "16px", background: "rgba(239,68,68,0.9)", backdropFilter: "blur(8px)", color: "white", fontWeight: 800, fontSize: isMobile ? "10px" : "12px", padding: isMobile ? "4px 9px" : "5px 12px", borderRadius: "50px" }}>
                 🚫 Cancelled
               </div>
             ) : auction.status === "Completed" || (auction.endTime && auction.endTime <= Date.now()) ? (
-              <div style={{ position: "absolute", top: "16px", left: "16px", background: "rgba(100,116,139,0.9)", backdropFilter: "blur(8px)", color: "white", fontWeight: 800, fontSize: "12px", padding: "5px 12px", borderRadius: "50px" }}>
+              <div style={{ position: "absolute", top: isMobile ? "10px" : "16px", left: isMobile ? "10px" : "16px", background: "rgba(100,116,139,0.9)", backdropFilter: "blur(8px)", color: "white", fontWeight: 800, fontSize: isMobile ? "10px" : "12px", padding: isMobile ? "4px 9px" : "5px 12px", borderRadius: "50px" }}>
                 ✓ Ended
               </div>
             ) : auction.status === "Scheduled" ? (
-              <div style={{ position: "absolute", top: "16px", left: "16px", background: "rgba(245,158,11,0.9)", backdropFilter: "blur(8px)", color: "white", fontWeight: 800, fontSize: "12px", padding: "5px 12px", borderRadius: "50px" }}>
+              <div style={{ position: "absolute", top: isMobile ? "10px" : "16px", left: isMobile ? "10px" : "16px", background: "rgba(245,158,11,0.9)", backdropFilter: "blur(8px)", color: "white", fontWeight: 800, fontSize: isMobile ? "10px" : "12px", padding: isMobile ? "4px 9px" : "5px 12px", borderRadius: "50px" }}>
                 📅 Scheduled
               </div>
             ) : auction.status === "Active" ? (
-              <div style={{ position: "absolute", top: "16px", left: "16px", background: "rgba(244,63,94,0.9)", backdropFilter: "blur(8px)", color: "white", fontWeight: 800, fontSize: "12px", padding: "5px 12px", borderRadius: "50px", display: "flex", alignItems: "center", gap: "6px" }}>
+              <div style={{ position: "absolute", top: isMobile ? "10px" : "16px", left: isMobile ? "10px" : "16px", background: "rgba(244,63,94,0.9)", backdropFilter: "blur(8px)", color: "white", fontWeight: 800, fontSize: isMobile ? "10px" : "12px", padding: isMobile ? "4px 9px" : "5px 12px", borderRadius: "50px", display: "flex", alignItems: "center", gap: "6px" }}>
                 <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "white", display: "inline-block", animation: "pulse 1s infinite" }} />LIVE
               </div>
             ) : null}
-            <div style={{ position: "absolute", top: "16px", right: "16px", background: "rgba(0,0,0,0.6)", color: "#ffffff", WebkitTextFillColor: "#ffffff", fontSize: "12px", fontWeight: 700, padding: "5px 12px", borderRadius: "50px" }}>{bids.length} bid{bids.length !== 1 ? "s" : ""}</div>
+            <div style={{ position: "absolute", top: isMobile ? "10px" : "16px", right: isMobile ? "10px" : "16px", background: "rgba(0,0,0,0.6)", color: "#ffffff", WebkitTextFillColor: "#ffffff", fontSize: isMobile ? "10px" : "12px", fontWeight: 700, padding: isMobile ? "4px 9px" : "5px 12px", borderRadius: "50px" }}>{bids.length} bid{bids.length !== 1 ? "s" : ""}</div>
 
             {/* ── Slider prev/next arrows ── */}
             {images.length > 1 && (
               <>
                 <button
                   onClick={() => setSelectedImg(i => (i - 1 + images.length) % images.length)}
-                  style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", width: "38px", height: "38px", borderRadius: "50%", background: "rgba(0,0,0,0.52)", backdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,0.2)", color: "#ffffff", WebkitTextFillColor: "#ffffff", fontSize: "20px", lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2, transition: "background .2s" }}
+                  style={{ position: "absolute", left: isMobile ? "8px" : "12px", top: "50%", transform: "translateY(-50%)", width: isMobile ? "32px" : "38px", height: isMobile ? "32px" : "38px", borderRadius: "50%", background: "rgba(0,0,0,0.52)", backdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,0.2)", color: "#ffffff", WebkitTextFillColor: "#ffffff", fontSize: isMobile ? "18px" : "20px", lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2, transition: "background .2s" }}
                   onMouseEnter={e => e.currentTarget.style.background = "rgba(0,0,0,0.82)"}
                   onMouseLeave={e => e.currentTarget.style.background = "rgba(0,0,0,0.52)"}
                 >‹</button>
                 <button
                   onClick={() => setSelectedImg(i => (i + 1) % images.length)}
-                  style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", width: "38px", height: "38px", borderRadius: "50%", background: "rgba(0,0,0,0.52)", backdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,0.2)", color: "#ffffff", WebkitTextFillColor: "#ffffff", fontSize: "20px", lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2, transition: "background .2s" }}
+                  style={{ position: "absolute", right: isMobile ? "8px" : "12px", top: "50%", transform: "translateY(-50%)", width: isMobile ? "32px" : "38px", height: isMobile ? "32px" : "38px", borderRadius: "50%", background: "rgba(0,0,0,0.52)", backdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,0.2)", color: "#ffffff", WebkitTextFillColor: "#ffffff", fontSize: isMobile ? "18px" : "20px", lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2, transition: "background .2s" }}
                   onMouseEnter={e => e.currentTarget.style.background = "rgba(0,0,0,0.82)"}
                   onMouseLeave={e => e.currentTarget.style.background = "rgba(0,0,0,0.52)"}
                 >›</button>
@@ -926,30 +941,30 @@ export default function AuctionDetail() {
           <div style={{ display: "flex", gap: "10px", marginTop: "12px", overflowX: "auto", paddingBottom: "4px" }}>
             {images.map((img, i) => (
               <div key={i} onClick={() => setSelectedImg(i)}
-                style={{ width: "80px", height: "80px", borderRadius: "12px", overflow: "hidden", border: `2px solid ${selectedImg === i ? "#38bdf8" : t.border}`, cursor: "pointer", flexShrink: 0, boxShadow: selectedImg === i ? "0 0 0 3px rgba(56,189,248,0.25)" : "none", transition: "border-color .2s, box-shadow .2s", opacity: selectedImg === i ? 1 : 0.7 }}>
+                style={{ width: isMobile ? "64px" : "80px", height: isMobile ? "64px" : "80px", borderRadius: "12px", overflow: "hidden", border: `2px solid ${selectedImg === i ? "#38bdf8" : t.border}`, cursor: "pointer", flexShrink: 0, boxShadow: selectedImg === i ? "0 0 0 3px rgba(56,189,248,0.25)" : "none", transition: "border-color .2s, box-shadow .2s", opacity: selectedImg === i ? 1 : 0.7 }}>
                 <img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
             ))}
           </div>
-          <div style={{ marginTop: "28px" }}>
+          <div style={{ marginTop: isMobile ? "18px" : "28px" }}>
             <div style={{ display: "flex", gap: "8px", marginBottom: "12px", flexWrap: "wrap" }}>
               <span style={ts("#818cf8","rgba(99,102,241,0.15)")}>{auction.category}</span>
               <span style={ts("#34d399","rgba(52,211,153,0.1)")}>✓ Verified Seller</span>
               {auction.condition && <span style={ts("#f59e0b","rgba(245,158,11,0.1)")}>{auction.condition}</span>}
             </div>
-            <h1 style={{ color: t.textPri, fontSize: "26px", fontWeight: 900, margin: "0 0 16px", lineHeight: 1.3 }}>{auction.title}</h1>
-            <p style={{ color: t.textMut, fontSize: "15px", lineHeight: 1.7, margin: "0 0 24px" }}>{auction.description || "Premium auction item in excellent condition. Fully inspected and verified by our team."}</p>
-            <div style={{ background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: "16px", padding: "20px", boxShadow: t.shadowCard }}>
+            <h1 style={{ color: t.textPri, fontSize: isMobile ? "22px" : "26px", fontWeight: 900, margin: "0 0 14px", lineHeight: 1.3 }}>{auction.title}</h1>
+            <p style={{ color: t.textMut, fontSize: isMobile ? "14px" : "15px", lineHeight: 1.7, margin: "0 0 20px" }}>{auction.description || "Premium auction item in excellent condition. Fully inspected and verified by our team."}</p>
+            <div style={{ background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: "16px", padding: isMobile ? "16px" : "20px", boxShadow: t.shadowCard }}>
               <div style={{ color: t.textPri, fontWeight: 700, marginBottom: "14px", fontSize: "15px" }}>Item Details</div>
               {[["Category", auction.category],["Condition", auction.condition||"Excellent"],["Location","Mumbai, Maharashtra"],["Seller", auction.seller||"TechVault Pvt Ltd"],["Listed","3 days ago"],["Item ID",`#AUC-${auction.id}`]].map(([label, val]) => (
-                <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: `1px solid ${t.border}`, fontSize: "13px" }}>
+                <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: "10px", padding: "8px 0", borderBottom: `1px solid ${t.border}`, fontSize: isMobile ? "12px" : "13px" }}>
                   <span style={{ color: t.textMut }}>{label}</span>
-                  <span style={{ color: t.textSec, fontWeight: 600 }}>{val}</span>
+                  <span style={{ color: t.textSec, fontWeight: 600, textAlign: "right" }}>{val}</span>
                 </div>
               ))}
             </div>
           </div>
-          <div style={{ marginTop: "28px", background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: "16px", padding: "20px", boxShadow: t.shadowCard }}>
+          <div style={{ marginTop: isMobile ? "18px" : "28px", background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: "16px", padding: isMobile ? "16px" : "20px", boxShadow: t.shadowCard }}>
             <div style={{ color: t.textPri, fontWeight: 700, fontSize: "15px", marginBottom: "16px" }}>Bid History <span style={{ color: t.textMut, fontWeight: 400, fontSize: "13px" }}>({bids.length} bids)</span></div>
             {bids.map((b, i) => <BidRow key={i} {...b} />)}
           </div>
@@ -964,23 +979,23 @@ export default function AuctionDetail() {
           />
         </div>
 
-        <div style={{ position: "sticky", top: "80px", alignSelf: "start" }}>
-          <div style={{ background: t.bgCard, border: `1px solid ${t.borderMd}`, borderRadius: "20px", overflow: "hidden", boxShadow: t.shadowCard }}>
-            <div style={{ background: timer.urgent ? "linear-gradient(135deg,rgba(244,63,94,0.15),rgba(244,63,94,0.05))" : t.L ? "linear-gradient(135deg,rgba(56,189,248,0.08),rgba(99,102,241,0.04))" : "linear-gradient(135deg,rgba(99,102,241,0.1),rgba(56,189,248,0.05))", borderBottom: `1px solid ${t.border}`, padding: "20px", textAlign: "center" }}>
-              <div style={{ color: t.textMut, fontSize: "12px", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "10px" }}>⏱ Auction Ends In</div>
-              <div style={{ display: "flex", justifyContent: "center", gap: "8px" }}>
+        <div style={{ position: isMobile ? "static" : "sticky", top: isMobile ? "auto" : "80px", alignSelf: "start", order: isMobile ? 1 : 2 }}>
+          <div style={{ background: t.bgCard, border: `1px solid ${t.borderMd}`, borderRadius: isMobile ? "16px" : "20px", overflow: "hidden", boxShadow: t.shadowCard }}>
+            <div style={{ background: timer.urgent ? "linear-gradient(135deg,rgba(244,63,94,0.15),rgba(244,63,94,0.05))" : t.L ? "linear-gradient(135deg,rgba(56,189,248,0.08),rgba(99,102,241,0.04))" : "linear-gradient(135deg,rgba(99,102,241,0.1),rgba(56,189,248,0.05))", borderBottom: `1px solid ${t.border}`, padding: isMobile ? "14px" : "20px", textAlign: "center" }}>
+              <div style={{ color: t.textMut, fontSize: isMobile ? "11px" : "12px", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: isMobile ? "8px" : "10px" }}>⏱ Auction Ends In</div>
+              <div style={{ display: "flex", justifyContent: "center", gap: isMobile ? "6px" : "8px" }}>
                 {[["h", timer.h], ["m", timer.m], ["s", timer.s]].map(([unit, val]) => (
                   <div key={unit} style={{ textAlign: "center" }}>
-                    <div style={{ background: t.L ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.08)", borderRadius: "10px", padding: "10px 14px", minWidth: "52px", color: timer.urgent ? "#f43f5e" : t.textPri, fontSize: "28px", fontWeight: 900, lineHeight: 1 }}>{String(val).padStart(2,"0")}</div>
+                    <div style={{ background: t.L ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.08)", borderRadius: "10px", padding: isMobile ? "8px 10px" : "10px 14px", minWidth: isMobile ? "44px" : "52px", color: timer.urgent ? "#f43f5e" : t.textPri, fontSize: isMobile ? "22px" : "28px", fontWeight: 900, lineHeight: 1 }}>{String(val).padStart(2,"0")}</div>
                     <div style={{ color: t.textFaint, fontSize: "10px", marginTop: "4px", textTransform: "uppercase" }}>{unit}</div>
                   </div>
                 ))}
               </div>
             </div>
-            <div style={{ padding: "24px" }}>
-              <div style={{ marginBottom: "20px" }}>
+            <div style={{ padding: isMobile ? "16px" : "24px" }}>
+              <div style={{ marginBottom: isMobile ? "14px" : "20px" }}>
                 <div style={{ color: t.textMut, fontSize: "12px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "4px" }}>Current Bid</div>
-                <div style={{ color: t.textPri, fontSize: "36px", fontWeight: 900 }}>{formatINR(currentBid)}</div>
+                <div style={{ color: t.textPri, fontSize: isMobile ? "30px" : "36px", fontWeight: 900 }}>{formatINR(currentBid)}</div>
                 {auction.status === "Active" && <div style={{ color: t.textFaint, fontSize: "12px", marginTop: "2px" }}>Min next bid: {formatINR(minBid)}</div>}
               </div>
 
@@ -1011,7 +1026,7 @@ export default function AuctionDetail() {
                     <div style={{ position: "relative" }}>
                       <span style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: t.textFaint, fontSize: "15px", fontWeight: 700 }}>₹</span>
                       <input type="number" value={bidAmount} onChange={(e) => { setBidAmount(e.target.value); setBidError(""); }} placeholder={String(minBid)}
-                        style={{ width: "100%", padding: "14px 14px 14px 30px", background: t.bgInput, border: `1px solid ${bidError ? "rgba(244,63,94,0.5)" : t.borderMd}`, borderRadius: "12px", color: t.textPri, fontSize: "18px", fontWeight: 700, outline: "none", boxSizing: "border-box" }} />
+                        style={{ width: "100%", padding: isMobile ? "12px 12px 12px 28px" : "14px 14px 14px 30px", background: t.bgInput, border: `1px solid ${bidError ? "rgba(244,63,94,0.5)" : t.borderMd}`, borderRadius: "12px", color: t.textPri, fontSize: isMobile ? "16px" : "18px", fontWeight: 700, outline: "none", boxSizing: "border-box" }} />
                     </div>
                     {bidError && <div style={{ color: "#f43f5e", fontSize: "12px", marginTop: "6px" }}>{bidError}</div>}
                   </div>
@@ -1021,7 +1036,7 @@ export default function AuctionDetail() {
                     ))}
                   </div>
                   {role === "business" && auction.sellerId === String(userId) ? (
-                    <button disabled style={{ width: "100%", padding: "15px", background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.35)", borderRadius: "12px", color: "#6366f1", fontSize: "16px", fontWeight: 800, cursor: "not-allowed" }}>
+                    <button disabled style={{ width: "100%", padding: isMobile ? "12px" : "15px", background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.35)", borderRadius: "12px", color: "#6366f1", fontSize: isMobile ? "14px" : "16px", fontWeight: 800, cursor: "not-allowed" }}>
                       🚫 You can't bid on your own auction
                     </button>
                   ) : (
@@ -1037,7 +1052,7 @@ export default function AuctionDetail() {
                           </span>
                         </div>
                       )}
-                      <button onClick={handleBid} style={{ width: "100%", padding: "15px", background: "linear-gradient(135deg,#38bdf8,#6366f1)", border: "none", borderRadius: "12px", color: "white", fontSize: "16px", fontWeight: 800, cursor: "pointer", boxShadow: "0 8px 24px rgba(56,189,248,0.25)" }}
+                      <button onClick={handleBid} style={{ width: "100%", padding: isMobile ? "12px" : "15px", background: "linear-gradient(135deg,#38bdf8,#6366f1)", border: "none", borderRadius: "12px", color: "white", fontSize: isMobile ? "14px" : "16px", fontWeight: 800, cursor: "pointer", boxShadow: "0 8px 24px rgba(56,189,248,0.25)" }}
                         onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; }}>
                         {(role === "guest" || !role) ? "🔒 Login to Bid" : depositLocked ? "⚡ Place Bid" : "🔐 Lock Deposit & Bid"}
                       </button>
@@ -1048,14 +1063,14 @@ export default function AuctionDetail() {
                   {watchMsg === "removed" && <div style={{ marginTop: "10px", background: "rgba(100,116,139,0.1)", border: `1px solid ${t.border}`, borderRadius: "10px", padding: "8px 12px", color: t.textMut, fontSize: "12px", fontWeight: 600, textAlign: "center" }}>Removed from wishlist</div>}
                   {watchMsg === "error" && <div style={{ marginTop: "10px", background: "rgba(244,63,94,0.08)", border: "1px solid rgba(244,63,94,0.25)", borderRadius: "10px", padding: "8px 12px", color: "#f43f5e", fontSize: "12px", fontWeight: 600, textAlign: "center" }}>⚠️ Something went wrong, try again</div>}
                   <button onClick={handleWatchlist}
-                    style={{ width: "100%", marginTop: "10px", padding: "12px", background: watched ? "rgba(244,63,94,0.08)" : "transparent", border: `1px solid ${watched ? "rgba(244,63,94,0.4)" : t.border}`, borderRadius: "12px", color: watched ? "#f43f5e" : t.textSec, fontSize: "14px", fontWeight: 600, cursor: "pointer", transition: "all .2s" }}
+                    style={{ width: "100%", marginTop: "10px", padding: isMobile ? "10px" : "12px", background: watched ? "rgba(244,63,94,0.08)" : "transparent", border: `1px solid ${watched ? "rgba(244,63,94,0.4)" : t.border}`, borderRadius: "12px", color: watched ? "#f43f5e" : t.textSec, fontSize: isMobile ? "13px" : "14px", fontWeight: 600, cursor: "pointer", transition: "all .2s" }}
                     onMouseEnter={e => { e.currentTarget.style.background = watched ? "rgba(244,63,94,0.15)" : t.bgHover; }}
                     onMouseLeave={e => { e.currentTarget.style.background = watched ? "rgba(244,63,94,0.08)" : "transparent"; }}>
                     {watched ? "❤️ Wishlisted" : "🤍 Add to Wishlist"}
                   </button>
                 </>
               )}
-              <div style={{ marginTop: "20px", padding: "16px", background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: "12px" }}>
+              <div style={{ marginTop: "20px", padding: isMobile ? "12px" : "16px", background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: "12px" }}>
                 <div style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "12px" }}>
                   <div style={{ width: "40px", height: "40px", borderRadius: "10px", overflow: "hidden", flexShrink: 0, background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" }}>
                     {auction.sellerAvatar
@@ -1073,7 +1088,7 @@ export default function AuctionDetail() {
               </div>
             </div>
           </div>
-          <div style={{ marginTop: "12px", padding: "14px 16px", background: "rgba(52,211,153,0.05)", border: "1px solid rgba(52,211,153,0.15)", borderRadius: "12px" }}>
+          <div style={{ marginTop: "12px", padding: isMobile ? "12px 14px" : "14px 16px", background: "rgba(52,211,153,0.05)", border: "1px solid rgba(52,211,153,0.15)", borderRadius: "12px" }}>
             <div style={{ color: "#34d399", fontSize: "12px", fontWeight: 700, marginBottom: "4px" }}>🛡 Buyer Protection</div>
             <div style={{ color: t.textFaint, fontSize: "12px", lineHeight: 1.5 }}>All transactions secured. Money held in escrow until delivery confirmed.</div>
           </div>
@@ -1176,4 +1191,5 @@ export default function AuctionDetail() {
   );
 }
 const ts = (color, bg) => ({ display: "inline-block", padding: "4px 10px", borderRadius: "50px", background: bg, color, fontSize: "11px", fontWeight: 700, border: `1px solid ${color}40` });
+
 
