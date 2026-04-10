@@ -43,21 +43,12 @@ const IconWarning     = ({ size = 13, color = "#f43f5e" })     => (<svg width={s
 const IconLoader      = ({ size = 18, color = "currentColor" }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: "spin 1s linear infinite" }}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>);
 const IconArrowRight  = ({ size = 17, color = "currentColor" }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>);
 const IconChevronDown = ({ size = 16, color = "currentColor" }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>);
-const IconShield      = ({ size = 40, color = "#38bdf8" })      => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>);
-const IconCheck       = ({ size = 48, color = "#22c55e" })      => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>);
-const IconX           = ({ size = 18, color = "currentColor" }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>);
 
 // ── Main Signup component ────────────────────────────────────────────────────
 export const Signup = () => {
   const [loading,      setLoading]      = useState(false);
   const [accountType,  setAccountType]  = useState("personal");
   const [showPwd,      setShowPwd]      = useState(false);
-  const [otpModalOpen, setOtpModalOpen] = useState(false);
-  const [pendingPayload, setPendingPayload] = useState(null);
-  const [pendingEmail, setPendingEmail] = useState("");
-  const [otpCode, setOtpCode] = useState("");
-  const [otpSubmitting, setOtpSubmitting] = useState(false);
-  const [otpResending, setOtpResending] = useState(false);
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
   const navigate = useNavigate();
@@ -81,93 +72,26 @@ export const Signup = () => {
     return payload;
   };
 
-  const closeOtpModal = () => {
-    setOtpModalOpen(false);
-    setOtpCode("");
-    setOtpSubmitting(false);
-    setOtpResending(false);
-    setPendingPayload(null);
-    setPendingEmail("");
-  };
-
-  const requestOtp = async (email, isResend = false) => {
-    await axios.post(
-      authUrl(isResend ? "/user/resend-otp" : "/user/send-otp"),
-      { email },
-      { timeout: REQUEST_TIMEOUT_MS }
-    );
-    toast.info(isResend ? "OTP resent to your email." : "OTP sent to your email.");
-  };
-
   // Called when "Create Account" is clicked and form is valid
   const submithandler = async (data) => {
     setLoading(true);
     try {
       const payload = buildPayload(data);
-      await requestOtp(payload.email, false);
-      setPendingPayload(payload);
-      setPendingEmail(payload.email);
-      setOtpCode("");
-      setOtpModalOpen(true);
-    } catch (err) {
-      toast.error(getApiError(err, "Failed to send OTP. Please try again."));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const verifyOtpAndRegister = async () => {
-    const otp = String(otpCode || "").trim();
-    if (!pendingPayload || !pendingEmail) {
-      toast.error("Signup session expired. Please create account again.");
-      closeOtpModal();
-      return;
-    }
-    if (!/^\d{6}$/.test(otp)) {
-      toast.error("Enter a valid 6-digit OTP.");
-      return;
-    }
-
-    setOtpSubmitting(true);
-    try {
-      await axios.post(
-        authUrl("/user/verify-otp"),
-        { email: pendingEmail, otp },
-        { timeout: REQUEST_TIMEOUT_MS }
-      );
-
       const res = await axios.post(
         authUrl("/user/register"),
-        pendingPayload,
+        payload,
         { timeout: REQUEST_TIMEOUT_MS }
       );
 
       if (res.status === 201) {
-        closeOtpModal();
         reset();
         toast.success("Account created successfully. Please sign in.");
         navigate("/Login");
       }
     } catch (err) {
-      toast.error(getApiError(err, "OTP verification failed. Please try again."));
+      toast.error(getApiError(err, "Failed to create account. Please try again."));
     } finally {
-      setOtpSubmitting(false);
-    }
-  };
-
-  const resendOtp = async () => {
-    if (!pendingEmail) {
-      toast.error("Email not found for resend.");
-      return;
-    }
-    setOtpResending(true);
-    try {
-      await requestOtp(pendingEmail, true);
-      setOtpCode("");
-    } catch (err) {
-      toast.error(getApiError(err, "Failed to resend OTP. Please try again."));
-    } finally {
-      setOtpResending(false);
+      setLoading(false);
     }
   };
 
@@ -344,119 +268,6 @@ export const Signup = () => {
 
         </form>
       </div>
-
-      {otpModalOpen && (
-        <div style={{
-          position: "fixed",
-          inset: 0,
-          background: "rgba(15,23,42,.55)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 2000,
-          padding: "16px",
-        }}>
-          <div style={{
-            width: "100%",
-            maxWidth: "420px",
-            background: T.bgCard,
-            border: `1px solid ${T.border}`,
-            borderRadius: "18px",
-            boxShadow: "0 18px 50px rgba(2,6,23,.35)",
-            padding: "22px",
-            position: "relative",
-          }}>
-            <button
-              type="button"
-              onClick={closeOtpModal}
-              style={{
-                position: "absolute",
-                right: "12px",
-                top: "12px",
-                border: "none",
-                background: "transparent",
-                color: T.textMuted,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "4px",
-              }}
-            >
-              <IconX size={16} />
-            </button>
-
-            <h3 style={{ margin: "0 0 8px", color: T.textPrimary, fontSize: "20px", fontWeight: 800 }}>
-              Verify Email OTP
-            </h3>
-            <p style={{ margin: "0 0 16px", color: T.textSecondary, fontSize: "14px", lineHeight: 1.5 }}>
-              Enter the latest 6-digit OTP sent to <strong>{pendingEmail}</strong>.
-            </p>
-
-            <input
-              type="text"
-              inputMode="numeric"
-              maxLength={6}
-              value={otpCode}
-              onChange={(e) => setOtpCode(String(e.target.value || "").replace(/\D/g, "").slice(0, 6))}
-              placeholder="Enter 6-digit OTP"
-              style={{ ...T.input, letterSpacing: ".15em", textAlign: "center", fontWeight: 700, marginBottom: "14px" }}
-            />
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "10px" }}>
-              <button
-                type="button"
-                onClick={verifyOtpAndRegister}
-                disabled={otpSubmitting}
-                style={{
-                  border: "none",
-                  borderRadius: "10px",
-                  padding: "11px 12px",
-                  cursor: otpSubmitting ? "not-allowed" : "pointer",
-                  background: otpSubmitting ? T.bgInput : "linear-gradient(135deg,#38bdf8,#6366f1)",
-                  color: otpSubmitting ? T.textMuted : "#fff",
-                  fontWeight: 700,
-                }}
-              >
-                {otpSubmitting ? "Verifying..." : "Verify OTP"}
-              </button>
-              <button
-                type="button"
-                onClick={resendOtp}
-                disabled={otpResending || otpSubmitting}
-                style={{
-                  borderRadius: "10px",
-                  padding: "11px 12px",
-                  cursor: otpResending || otpSubmitting ? "not-allowed" : "pointer",
-                  background: "#e2e8f0",
-                  color: "#0f172a",
-                  border: `1px solid ${T.borderInput}`,
-                  fontWeight: 700,
-                }}
-              >
-                {otpResending ? "Resending..." : "Resend OTP"}
-              </button>
-            </div>
-
-            <button
-              type="button"
-              onClick={closeOtpModal}
-              style={{
-                width: "100%",
-                borderRadius: "10px",
-                padding: "10px 12px",
-                cursor: "pointer",
-                background: "transparent",
-                color: T.textMuted,
-                border: `1px solid ${T.border}`,
-                fontWeight: 600,
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
 
       <style>{`
         @keyframes popIn  { from{opacity:0;transform:scale(.94) translateY(12px)} to{opacity:1;transform:scale(1) translateY(0)} }
