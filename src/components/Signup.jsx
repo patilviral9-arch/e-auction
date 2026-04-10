@@ -7,6 +7,7 @@ const AUTH_API_BASE = String(
   import.meta.env.VITE_API_URL || "https://your-railway-link.up.railway.app"
 ).replace(/\/+$/, "");
 const authUrl = (path) => `${AUTH_API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
+const REQUEST_TIMEOUT_MS = Number(import.meta.env.VITE_API_TIMEOUT_MS || 600000);
 
 // ── Hardcoded light theme tokens ─────────────────────────────────────────────
 const T = {
@@ -81,7 +82,7 @@ export const Signup = () => {
       await axios.post(
         authUrl("/user/send-otp"),
         { email: payload.email },
-        { timeout: 30000 }
+        { timeout: REQUEST_TIMEOUT_MS }
       );
 
       toast.info("OTP sent to your email. Please enter it to continue.");
@@ -96,10 +97,10 @@ export const Signup = () => {
       await axios.post(
         authUrl("/user/verify-otp"),
         { email: payload.email, otp },
-        { timeout: 30000 }
+        { timeout: REQUEST_TIMEOUT_MS }
       );
 
-      const res = await axios.post(authUrl("/user/register"), payload, { timeout: 30000 });
+      const res = await axios.post(authUrl("/user/register"), payload, { timeout: REQUEST_TIMEOUT_MS });
 
       if (res.status === 201) {
         reset();
