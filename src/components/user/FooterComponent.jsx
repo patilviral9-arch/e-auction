@@ -49,6 +49,12 @@ const FooterComponent = () => {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [mobileSectionOpen, setMobileSectionOpen] = useState({
+    auctions: false,
+    categories: false,
+    about: false,
+    contact: false,
+  });
 
   useEffect(() => {
     const mql = window.matchMedia('(max-width: 768px)');
@@ -76,6 +82,10 @@ const FooterComponent = () => {
 
   const handleSub = () => {
     if (email.includes('@')) { setSubscribed(true); setEmail(''); }
+  };
+
+  const toggleSection = (key) => {
+    setMobileSectionOpen((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const col = {
@@ -122,16 +132,26 @@ const FooterComponent = () => {
     { icon: Icons.LinkedIn,  color: '#0077b5', bg: 'rgba(0,119,181,0.1)',   href: 'https://www.linkedin.com/in/viral-patil-b9402334a' },
   ];
 
+  const sectionTitleStyle = {
+    color: '#ffffff',
+    fontWeight: 700,
+    fontSize: '14px',
+    marginBottom: isMobile ? '0' : '16px',
+    textTransform: 'uppercase',
+    letterSpacing: '0.06em',
+    opacity: 1,
+  };
+
   return (
     <footer style={{ background: '#060d1a', borderTop: '1px solid rgba(255,255,255,0.06)', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
 
       {/* Top section */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: 'clamp(28px, 7vw, 64px) clamp(14px, 4vw, 40px) clamp(26px, 6vw, 48px)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '24px', justifyItems: isMobile ? 'center' : 'stretch', textAlign: isMobile ? 'center' : 'left' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: isMobile ? '22px 14px 20px' : 'clamp(28px, 7vw, 64px) clamp(14px, 4vw, 40px) clamp(26px, 6vw, 48px)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(170px, 1fr))', gap: isMobile ? '14px' : '24px', justifyItems: isMobile ? 'center' : 'stretch', textAlign: isMobile ? 'center' : 'left' }}>
 
           {/* Brand */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: isMobile ? 'center' : 'flex-start' }}>
-            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', marginBottom: '18px' }}>
+            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', marginBottom: isMobile ? '12px' : '18px' }}>
               <div style={{ width: '36px', height: '36px', background: 'linear-gradient(135deg, #38bdf8, #6366f1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
                 {Icons.Gavel}
               </div>
@@ -139,12 +159,14 @@ const FooterComponent = () => {
                 <span style={{ color: '#ffffff' }}>E-</span><span style={{ color: '#38bdf8' }}>Auction</span>
               </span>
             </Link>
-            <p style={{ color: '#ffffff', fontSize: '14px', lineHeight: 1.7, marginBottom: '20px', maxWidth: '260px', marginLeft: isMobile ? 'auto' : 0, marginRight: isMobile ? 'auto' : 0 }}>
-              The world's most trusted marketplace for premium collectibles, industrial assets, and luxury goods. Secure, transparent, and lightning-fast.
+            <p style={{ color: '#ffffff', fontSize: isMobile ? '13px' : '14px', lineHeight: isMobile ? 1.55 : 1.7, marginBottom: isMobile ? '14px' : '20px', maxWidth: isMobile ? '300px' : '260px', marginLeft: isMobile ? 'auto' : 0, marginRight: isMobile ? 'auto' : 0 }}>
+              {isMobile
+                ? 'Trusted marketplace for fast, secure auctions.'
+                : "The world's most trusted marketplace for premium collectibles, industrial assets, and luxury goods. Secure, transparent, and lightning-fast."}
             </p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: isMobile ? 'center' : 'flex-start' }}>
               {socials.map((s, i) => (
-                <a key={i} href={s.href} target="_blank" rel="noreferrer" style={{ width: '36px', height: '36px', borderRadius: '10px', background: s.bg, border: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.color, textDecoration: 'none', transition: 'all 0.2s' }}
+                <a key={i} href={s.href} target="_blank" rel="noreferrer" style={{ width: isMobile ? '34px' : '36px', height: isMobile ? '34px' : '36px', borderRadius: '10px', background: s.bg, border: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.color, textDecoration: 'none', transition: 'all 0.2s' }}
                   onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                   onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
                 >{s.icon}</a>
@@ -153,9 +175,16 @@ const FooterComponent = () => {
           </div>
 
           {/* Auctions */}
-          <div>
-            <h4 style={{ color: '#ffffff', fontWeight: 700, fontSize: '14px', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 1 }}>Auctions</h4>
-            <div style={col}>
+          <div style={{ width: '100%' }}>
+            {isMobile ? (
+              <button onClick={() => toggleSection('auctions')} style={{ width: '100%', ...sectionTitleStyle, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', background: 'transparent', border: 'none', borderTop: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>
+                <span>Auctions</span>
+                <span style={{ fontSize: '18px', lineHeight: 1 }}>{mobileSectionOpen.auctions ? '-' : '+'}</span>
+              </button>
+            ) : (
+              <h4 style={sectionTitleStyle}>Auctions</h4>
+            )}
+            {(!isMobile || mobileSectionOpen.auctions) && <div style={{ ...col, marginTop: isMobile ? '10px' : 0 }}>
               <SLink href="/LiveAuctions" icon={Icons.Live}>Live Auctions</SLink>
               <SLink href="/browse"       icon={Icons.Search}>Browse All</SLink>
                 <SLink
@@ -176,35 +205,56 @@ const FooterComponent = () => {
               >
                 Sell an Item
               </SLink>
-            </div>
+            </div>}
           </div>
 
           {/* Categories */}
-          <div>
-            <h4 style={{ color: '#ffffff', fontWeight: 700, fontSize: '14px', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 1 }}>Categories</h4>
-            <div style={col}>
+          <div style={{ width: '100%' }}>
+            {isMobile ? (
+              <button onClick={() => toggleSection('categories')} style={{ width: '100%', ...sectionTitleStyle, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', background: 'transparent', border: 'none', borderTop: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>
+                <span>Categories</span>
+                <span style={{ fontSize: '18px', lineHeight: 1 }}>{mobileSectionOpen.categories ? '-' : '+'}</span>
+              </button>
+            ) : (
+              <h4 style={sectionTitleStyle}>Categories</h4>
+            )}
+            {(!isMobile || mobileSectionOpen.categories) && <div style={{ ...col, marginTop: isMobile ? '10px' : 0 }}>
               {['Electronics','Vehicles','Collectibles','Luxury','Real Estate','Industrial'].map(c => (
                 <SLink key={c} href={`/browse?category=${encodeURIComponent(c)}`}>{c}</SLink>
               ))}
-            </div>
+            </div>}
           </div>
 
           {/* About Us */}
-          <div>
-            <h4 style={{ color: '#ffffff', fontWeight: 700, fontSize: '14px', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 1 }}>About Us</h4>
-            <div style={col}>
+          <div style={{ width: '100%' }}>
+            {isMobile ? (
+              <button onClick={() => toggleSection('about')} style={{ width: '100%', ...sectionTitleStyle, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', background: 'transparent', border: 'none', borderTop: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>
+                <span>About Us</span>
+                <span style={{ fontSize: '18px', lineHeight: 1 }}>{mobileSectionOpen.about ? '-' : '+'}</span>
+              </button>
+            ) : (
+              <h4 style={sectionTitleStyle}>About Us</h4>
+            )}
+            {(!isMobile || mobileSectionOpen.about) && <div style={{ ...col, marginTop: isMobile ? '10px' : 0 }}>
               <SLink href="/aboutus"  onClick={() => { window.scrollTo({ top: 0, behavior: "instant" }); }}    icon={Icons.Info}>Our Story</SLink>
               <SLink href="/aboutus"  onClick={goToSection('careers')}  icon={Icons.Briefcase}>Careers</SLink>
               <SLink href="/aboutus"  onClick={goToSection('awards')}   icon={Icons.Award}>Awards</SLink>
               <SLink href="/aboutus"  onClick={goToSection('blog')}     icon={Icons.FileText}>Blog</SLink>
               <SLink href="/aboutus"  onClick={goToSection('press')}    icon={Icons.MessageSq}>Press</SLink>
-            </div>
+            </div>}
           </div>
 
           {/* Contact Us */}
-            <div>
-              <h4 style={{ color: '#ffffff', fontWeight: 700, fontSize: '14px', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 1 }}>Contact Us</h4>
-              <div style={col}>
+            <div style={{ width: '100%' }}>
+              {isMobile ? (
+                <button onClick={() => toggleSection('contact')} style={{ width: '100%', ...sectionTitleStyle, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', background: 'transparent', border: 'none', borderTop: '1px solid rgba(255,255,255,0.08)', borderBottom: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>
+                  <span>Contact Us</span>
+                  <span style={{ fontSize: '18px', lineHeight: 1 }}>{mobileSectionOpen.contact ? '-' : '+'}</span>
+                </button>
+              ) : (
+                <h4 style={sectionTitleStyle}>Contact Us</h4>
+              )}
+              {(!isMobile || mobileSectionOpen.contact) && <div style={{ ...col, marginTop: isMobile ? '10px' : 0 }}>
                 <a href="mailto:eauction39@gmail.com" style={{ ...linkBase, color: '#ffffff' }}
                   onMouseEnter={e => e.currentTarget.style.color = '#38bdf8'}
                   onMouseLeave={e => e.currentTarget.style.color = '#ffffff'}>
@@ -224,7 +274,7 @@ const FooterComponent = () => {
                   <span style={{ display: 'flex', alignItems: 'center', opacity: 0.7 }}>{Icons.MapPin}</span>
                   Ahmedabad, Gujarat, India
                 </a>
-              </div>
+              </div>}
             </div>
 
         </div>
@@ -234,7 +284,7 @@ const FooterComponent = () => {
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} />
 
       {/* Bottom bar */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px clamp(14px, 4vw, 40px)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', alignItems: 'center', gap: '12px', textAlign: isMobile ? 'center' : 'left' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: isMobile ? '12px 14px' : '16px clamp(14px, 4vw, 40px)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', alignItems: 'center', gap: isMobile ? '8px' : '12px', textAlign: isMobile ? 'center' : 'left' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px 20px', flexWrap: 'wrap', justifyContent: isMobile ? 'center' : 'flex-start' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#34d399', fontSize: '12px', fontWeight: 600 }}>
             {Icons.SSL} SSL Encrypted
