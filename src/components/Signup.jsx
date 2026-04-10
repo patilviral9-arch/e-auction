@@ -60,19 +60,44 @@ export const Signup = () => {
     (err?.request ? "Cannot reach server. Check backend URL/server status." : null) ||
     fallback;
 
+  const buildPayload = (data) => {
+    const payload = { email: data.email, password: data.password, role: accountType };
+    if (accountType === "business") {
+      payload.businessName = data.businessName;
+      payload.businessCountry = data.businessCountry;
+    } else {
+      payload.firstName = data.firstName;
+      payload.lastName = data.lastName;
+    }
+    return payload;
+  };
+
   // Called when "Create Account" is clicked and form is valid
   const submithandler = async (data) => {
     setLoading(true);
     try {
-      // Build the registration payload
-      const payload = { email: data.email, password: data.password, role: accountType };
-      if (accountType === "business") {
-        payload.businessName    = data.businessName;
-        payload.businessCountry = data.businessCountry;
-      } else {
-        payload.firstName = data.firstName;
-        payload.lastName  = data.lastName;
+      const payload = buildPayload(data);
+
+      await axios.post(
+        authUrl("/user/send-otp"),
+        { email: payload.email },
+        { timeout: 30000 }
+      );
+
+      toast.info("OTP sent to your email. Please enter it to continue.");
+
+      const otpInput = window.prompt("Enter the 6-digit OTP sent to your email:");
+      const otp = String(otpInput || "").trim();
+      if (!otp) {
+        toast.error("OTP is required to complete registration.");
+        return;
       }
+
+      await axios.post(
+        authUrl("/user/verify-otp"),
+        { email: payload.email, otp },
+        { timeout: 30000 }
+      );
 
       const res = await axios.post(authUrl("/user/register"), payload, { timeout: 30000 });
 
