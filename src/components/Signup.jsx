@@ -4,7 +4,9 @@ import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 const AUTH_API_BASE = String(
-  import.meta.env.VITE_API_URL || "https://your-railway-link.up.railway.app"
+  import.meta.env.VITE_API_URL ||
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://e-auction-backend-production.up.railway.app"
 ).replace(/\/+$/, "");
 const authUrl = (path) => `${AUTH_API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
 const REQUEST_TIMEOUT_MS = Number(import.meta.env.VITE_API_TIMEOUT_MS || 600000);
@@ -58,7 +60,7 @@ export const Signup = () => {
     err?.response?.data?.err ||
     err?.response?.data?.message ||
     err?.response?.data?.error ||
-    (err?.request ? "Cannot reach server. Check backend URL/server status." : null) ||
+    (err?.request ? `Cannot reach server (${AUTH_API_BASE}).` : null) ||
     fallback;
 
   const buildPayload = (data) => {
