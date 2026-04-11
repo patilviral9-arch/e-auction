@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import Swal from "sweetalert2";
+import { apiPost } from "../../../utils/apiClient";
 
 const AddUser = () => {
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ const AddUser = () => {
     }
 
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/user/register`, payload);
+      const res = await apiPost("/user/register", payload);
       if (res.status === 201 || res.status === 200) {
         await Swal.fire("Created", "User added successfully.", "success");
         navigate("/admin/Users/UsersList");

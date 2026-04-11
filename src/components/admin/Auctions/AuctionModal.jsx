@@ -1,11 +1,11 @@
 import React, { useState, useRef } from "react";
-import axios from "axios";
 import Swal from "sweetalert2";
 import {
   CATS, CONDS, DURS, DUR_LABELS, EMPTY_FORM,
   toLocalDT, inp, sel, tex,
 } from "./auctionConstants";
 import { useImageUploader, ImageGrid } from "./useImageUploader";
+import { apiPost, apiPut } from "../../../utils/apiClient";
 
 // ── Field wrapper ─────────────────────────────────────────────────────────────
 function Field({ label, span, children }) {
@@ -95,11 +95,11 @@ export default function AuctionModal({ mode, auction, onClose, onSaved }) {
     setSaving(true);
     try {
       if (isEdit) {
-        await axios.put(`${import.meta.env.VITE_API_URL}/auction/auction/${auction._id}`, payload);
+        await apiPut(`/auction/auction/${auction._id}`, payload);
         onSaved({ ...auction, ...payload });
         Swal.fire({ icon:"success", title:"Auction Updated!", showConfirmButton:false, timer:1500, toast:true, position:"top-end" });
       } else {
-        const res = await axios.post(`${import.meta.env.VITE_API_URL}/auction/auctions`, payload);
+        const res = await apiPost("/auction/auctions", payload);
         onSaved(res.data?.auction || res.data?.data || res.data);
         Swal.fire({ icon:"success", title:"Auction Created!", showConfirmButton:false, timer:1500, toast:true, position:"top-end" });
       }

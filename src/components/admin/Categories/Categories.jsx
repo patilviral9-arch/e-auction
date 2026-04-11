@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-
-const AUCTIONS_ENDPOINT = `${import.meta.env.VITE_API_URL}/auction/auctions`;
+import { apiGet } from "../../../utils/apiClient";
 const BROWSE_CATEGORIES = [
   "Electronics",
   "Vehicles",
@@ -102,9 +101,8 @@ const Categories = () => {
     setLoading(true);
     setFetchError("");
     try {
-      const res = await fetch(AUCTIONS_ENDPOINT);
-      if (!res.ok) throw new Error(`Server error: ${res.status}`);
-      const data = await res.json();
+      const res = await apiGet("/auction/auctions");
+      const data = res.data;
       const list = Array.isArray(data) ? data : data.auctions ?? data.data ?? [];
       setAuctions(Array.isArray(list) ? list : []);
     } catch (err) {

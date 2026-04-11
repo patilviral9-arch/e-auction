@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import Swal from "sweetalert2";
+import { apiDelete, apiGet, apiPost, apiPut } from "../../../utils/apiClient";
 
 const statusStyle = {
   active: "bg-green-100 text-green-700",
@@ -36,7 +36,7 @@ const UsersList = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/user/getusers`);
+      const res = await apiGet("/user/getusers");
       const data = res.data?.users || res.data?.data || res.data || [];
       const normalized = Array.isArray(data)
         ? data.map((user) => ({ ...user, status: normalizeStatus(user.status) }))
@@ -50,24 +50,77 @@ const UsersList = () => {
   };
 
   const handleAddUser = async () => {
+    const isMobile = window.matchMedia("(max-width: 640px)").matches;
+
     const { value: formValues } = await Swal.fire({
       title:
-        '<div style="font-weight:800;font-size:32px;color:#1e293b;padding-top:15px;">Create Account</div>',
-      width: "650px",
-      padding: "2.5em",
+        '<div style="font-weight:800;font-size:clamp(28px,6vw,32px);color:#1e293b;padding-top:12px;">Create Account</div>',
+      width: isMobile ? "95vw" : "650px",
+      padding: isMobile ? "1.2em" : "2.5em",
       background: "#ffffff",
       html: `
-        <div style="padding: 0 10px;">
-          <div style="display:flex;background:#f8fafc;border-radius:16px;padding:6px;margin-bottom:35px;border:1px solid #e2e8f0;box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);">
-            <button id="btn-personal" type="button" style="flex:1;padding:16px;border:none;border-radius:12px;cursor:pointer;font-size:18px;font-weight:700;transition:all 0.2s ease;background:linear-gradient(135deg,#312e81,#4338ca);color:#f8fafc;">Personal</button>
-            <button id="btn-business" type="button" style="flex:1;padding:16px;border:none;border-radius:12px;cursor:pointer;font-size:18px;font-weight:700;transition:all 0.2s ease;background:transparent;color:#475569;">Business</button>
-            <button id="btn-admin" type="button" style="flex:1;padding:16px;border:none;border-radius:12px;cursor:pointer;font-size:18px;font-weight:700;transition:all 0.2s ease;background:transparent;color:#475569;">Admin</button>
+        <style>
+          .admin-add-user-shell { padding: 0 4px; }
+          .admin-add-user-role-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 6px;
+            margin-bottom: 26px;
+            border: 1px solid #e2e8f0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+          }
+          .admin-add-user-role-btn {
+            width: 100%;
+            min-width: 0;
+            padding: 12px 10px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow-wrap: normal;
+            word-break: normal;
+            transition: all 0.2s ease;
+            background: transparent;
+            color: #475569;
+          }
+          .admin-add-user-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            text-align: left;
+          }
+          .admin-add-user-name-fields {
+            grid-column: span 2;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+          }
+          .admin-add-user-field-full { grid-column: span 2; }
+          @media (max-width: 640px) {
+            .admin-add-user-role-tabs { grid-template-columns: 1fr; margin-bottom: 20px; }
+            .admin-add-user-role-btn { font-size: 15px; padding: 11px 12px; }
+            .admin-add-user-grid { grid-template-columns: 1fr; gap: 14px; }
+            .admin-add-user-name-fields { grid-column: span 1; grid-template-columns: 1fr; gap: 12px; }
+            .admin-add-user-field-full { grid-column: span 1; }
+          }
+        </style>
+        <div class="admin-add-user-shell">
+          <div class="admin-add-user-role-tabs">
+            <button id="btn-personal" type="button" class="admin-add-user-role-btn">Personal</button>
+            <button id="btn-business" type="button" class="admin-add-user-role-btn">Business</button>
+            <button id="btn-admin" type="button" class="admin-add-user-role-btn">Admin</button>
           </div>
 
           <input type="hidden" id="swal-role" value="personal">
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:25px;text-align:left;">
-            <div id="name-fields-container" style="grid-column:span 2;display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div class="admin-add-user-grid">
+            <div id="name-fields-container" class="admin-add-user-name-fields">
               <div>
                 <label style="display:block;font-size:14px;font-weight:800;color:#64748b;text-transform:uppercase;margin-bottom:10px;letter-spacing:1px;">First Name</label>
                 <input id="swal-first" class="swal2-input" style="width:100%;margin:0;height:60px;border-radius:12px;font-size:18px;border:2px solid #e2e8f0;" placeholder="John">
@@ -78,17 +131,17 @@ const UsersList = () => {
               </div>
             </div>
 
-            <div id="business-field-container" style="grid-column:span 2;display:none;">
+            <div id="business-field-container" class="admin-add-user-field-full" style="display:none;">
               <label style="display:block;font-size:14px;font-weight:800;color:#64748b;text-transform:uppercase;margin-bottom:10px;letter-spacing:1px;">Business Name</label>
               <input id="swal-business" class="swal2-input" style="width:100%;margin:0;height:60px;border-radius:12px;font-size:18px;border:2px solid #e2e8f0;" placeholder="Legal Company Name">
             </div>
 
-            <div style="grid-column:span 2;">
+            <div class="admin-add-user-field-full">
               <label style="display:block;font-size:14px;font-weight:800;color:#64748b;text-transform:uppercase;margin-bottom:10px;letter-spacing:1px;">Email Address</label>
               <input id="swal-email" type="email" class="swal2-input" style="width:100%;margin:0;height:60px;border-radius:12px;font-size:18px;border:2px solid #e2e8f0;" placeholder="name@email.com">
             </div>
 
-            <div style="grid-column:span 2;">
+            <div class="admin-add-user-field-full">
               <label style="display:block;font-size:14px;font-weight:800;color:#64748b;text-transform:uppercase;margin-bottom:10px;letter-spacing:1px;">Password</label>
               <input id="swal-pass" type="password" class="swal2-input" style="width:100%;margin:0;height:60px;border-radius:12px;font-size:18px;border:2px solid #e2e8f0;" placeholder="************">
             </div>
@@ -144,6 +197,7 @@ const UsersList = () => {
         btns.personal?.addEventListener("click", () => updateUI("personal"));
         btns.business?.addEventListener("click", () => updateUI("business"));
         btns.admin?.addEventListener("click", () => updateUI("admin"));
+        updateUI("personal");
       },
       confirmButtonText: "Register User",
       confirmButtonColor: "#4f46e5",
@@ -181,7 +235,7 @@ const UsersList = () => {
 
     if (formValues) {
       try {
-        const res = await axios.post(`${import.meta.env.VITE_API_URL}/user/register`, formValues);
+        const res = await apiPost("/user/register", formValues);
         if (res.status === 201 || res.status === 200) {
           Swal.fire({
             icon: "success",
@@ -199,7 +253,7 @@ const UsersList = () => {
 
   const updateStatus = async (id, newStatus) => {
     try {
-      const res = await axios.put(`${import.meta.env.VITE_API_URL}/user/updateuser/${id}`, {
+      const res = await apiPut(`/user/updateuser/${id}`, {
         status: uiToApiStatus(newStatus),
       });
 
@@ -233,7 +287,7 @@ const UsersList = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`${import.meta.env.VITE_API_URL}/user/deleteuser/${id}`);
+        await apiDelete(`/user/deleteuser/${id}`);
         setUsers((prev) => prev.filter((user) => user._id !== id));
         Swal.fire("Deleted!", "", "success");
       } catch (err) {

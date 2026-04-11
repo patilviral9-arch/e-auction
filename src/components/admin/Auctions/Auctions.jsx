@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import Swal from "sweetalert2";
 import { toINR, formatEnd } from "./auctionConstants";
 import AuctionModal from "./AuctionModal";
+import { apiDelete, apiGet, apiPut } from "../../../utils/apiClient";
 
 // ── Status badge colours ──────────────────────────────────────────────────────
 const statusStyle = {
@@ -37,7 +37,7 @@ const Auctions = () => {
   // ── Data fetching ──────────────────────────────────────────────────────────
   const fetchAuctions = async () => {
     try {
-      const res  = await axios.get(`${import.meta.env.VITE_API_URL}/auction/auctions`);
+      const res  = await apiGet("/auction/auctions");
       const data = res.data?.auctions || res.data?.data || res.data || [];
       const arr  = Array.isArray(data) ? data : [];
       setAuctions(arr);
@@ -63,7 +63,7 @@ const Auctions = () => {
     if (uniqueIds.length === 0) return;
 
     const results = await Promise.allSettled(
-      uniqueIds.map(id => axios.get(`${import.meta.env.VITE_API_URL}/user/getuser/${id}`))
+      uniqueIds.map(id => apiGet(`/user/getuser/${id}`))
     );
     const map = {};
     results.forEach((result, i) => {
@@ -98,7 +98,7 @@ const Auctions = () => {
   // ── Actions ────────────────────────────────────────────────────────────────
   const updateStatus = async (id, newStatus) => {
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL}/auction/auction/${id}`, { status: newStatus });
+      await apiPut(`/auction/auction/${id}`, { status: newStatus });
       setAuctions(prev => prev.map(a => a._id === id ? { ...a, status: newStatus } : a));
       setDropdown(null);
       Swal.fire({ icon:"success", title:"Updated!", timer:1500, showConfirmButton:false, toast:true, position:"top-end" });
@@ -114,7 +114,7 @@ const Auctions = () => {
     });
     if (result.isConfirmed) {
       try {
-        await axios.delete(`${import.meta.env.VITE_API_URL}/auction/auction/${id}`);
+        await apiDelete(`/auction/auction/${id}`);
         setAuctions(prev => prev.filter(a => a._id !== id));
         Swal.fire("Deleted!", "", "success");
       } catch {

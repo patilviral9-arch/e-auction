@@ -1,59 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend } from 'chart.js';
+import { apiGet } from '../../utils/apiClient';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
 
 const DEFAULT_WEEK_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-let resolvedApiBase = null;
-
-const normalizeBase = (base) => String(base || '').trim().replace(/\/+$/, '');
-const uniq = (list) => [...new Set(list.map(normalizeBase).filter(Boolean))];
-const withBase = (base, path) => `${base}${path.startsWith('/') ? path : `/${path}`}`;
-const isHtmlLike = (response) => {
-  const contentType = String(response?.headers?.['content-type'] || '').toLowerCase();
-  if (contentType.includes('text/html')) return true;
-
-  if (typeof response?.data === 'string') {
-    const sample = response.data.trim().slice(0, 80).toLowerCase();
-    if (sample.startsWith('<!doctype html') || sample.startsWith('<html')) return true;
-  }
-  return false;
-};
-
-const getApiBaseCandidates = () =>
-  uniq([
-    resolvedApiBase,
-    import.meta.env.VITE_API_URL,
-    import.meta.env.VITE_API_BASE_URL,
-    axios.defaults.baseURL,
-    typeof window !== 'undefined' ? window.location.origin : null,
-  ]);
-
-const apiGet = async (path) => {
-  const candidates = getApiBaseCandidates();
-  let lastError = null;
-
-  for (const base of candidates) {
-    try {
-      const response = await axios.get(withBase(base, path), { timeout: 6000 });
-      if (isHtmlLike(response)) {
-        lastError = new Error(`Received HTML instead of API JSON from ${withBase(base, path)}`);
-        continue;
-      }
-      resolvedApiBase = base;
-      return response;
-    } catch (error) {
-      lastError = error;
-      const status = error?.response?.status;
-      const shouldContinue = !status || status === 404 || status === 405;
-      if (!shouldContinue) throw error;
-    }
-  }
-
-  throw lastError || new Error(`Failed to load ${path}`);
-};
 
 const extractArray = (payload, preferredKeys = []) => {
   for (const key of preferredKeys) {

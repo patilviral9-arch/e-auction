@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Swal from "sweetalert2";
+import { apiDelete, apiGet } from "../../../utils/apiClient";
 
 const BidsList = () => {
   const [bids, setBids] = useState([]);
@@ -13,7 +13,7 @@ const BidsList = () => {
 
   const fetchBids = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/bid/bids`);
+      const res = await apiGet("/bid/bids");
       const data = res.data?.bids || res.data?.data || res.data || [];
       setBids(data);
       setLoading(false);
@@ -34,7 +34,7 @@ const BidsList = () => {
     if (result.isConfirmed) {
       try {
         // Backend now automatically recalculates auction's currentBid + totalBids
-        await axios.delete(`${import.meta.env.VITE_API_URL}/bid/bid/${id}`);
+        await apiDelete(`/bid/bid/${id}`);
         setBids((prev) => prev.filter((b) => b._id !== id));
         Swal.fire("Deleted!", "", "success");
       } catch (err) {
