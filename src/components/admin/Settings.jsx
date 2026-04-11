@@ -90,6 +90,27 @@ export default function Settings() {
   const [savedAt, setSavedAt] = useState(() => localStorage.getItem(STORAGE_KEY_SAVED_AT) || '');
   const [baseline, setBaseline] = useState(() => JSON.stringify(initial));
 
+  const syncFeatureBaseline = (nextFeatures) => {
+    setBaseline((prevBaseline) => {
+      try {
+        const parsed = JSON.parse(prevBaseline);
+        return JSON.stringify({ ...parsed, features: nextFeatures });
+      } catch {
+        return prevBaseline;
+      }
+    });
+  };
+
+  const persistFeatures = (nextFeatures) => {
+    localStorage.setItem(STORAGE_KEY_FEATURES, JSON.stringify(nextFeatures));
+    notifyMaintenanceModeChange();
+
+    const nowIso = new Date().toISOString();
+    localStorage.setItem(STORAGE_KEY_SAVED_AT, nowIso);
+    setSavedAt(nowIso);
+    syncFeatureBaseline(nextFeatures);
+  };
+
   const dirty = useMemo(
     () => JSON.stringify({ platform, features, security }) !== baseline,
     [platform, features, security, baseline]
@@ -133,7 +154,10 @@ export default function Settings() {
   };
 
   const setFeatureValue = (key, value) => {
-    setFeatures((prev) => ({ ...prev, [key]: value }));
+    const nextFeatures = { ...features, [key]: value };
+    setFeatures(nextFeatures);
+    persistFeatures(nextFeatures);
+
     if (key === 'darkMode') {
       toggleTheme(value ? 'dark' : 'light');
     }
@@ -468,21 +492,23 @@ export default function Settings() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={handleSave}
-          className="bg-indigo-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-indigo-700"
-        >
-          Save Settings
-        </button>
-        <button
-          type="button"
-          onClick={handleReset}
-          className="border border-gray-300 text-gray-700 px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-50"
-        >
-          Reset Defaults
-        </button>
+      <div className="sticky bottom-0 z-20 -mx-3 border-t border-gray-200 bg-white/95 px-3 py-3 backdrop-blur sm:-mx-4 sm:px-4 md:static md:mx-0 md:border-0 md:bg-transparent md:p-0">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            type="button"
+            onClick={handleSave}
+            className="w-full sm:w-auto bg-indigo-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-indigo-700"
+          >
+            Save Settings
+          </button>
+          <button
+            type="button"
+            onClick={handleReset}
+            className="w-full sm:w-auto border border-gray-300 text-gray-700 px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-50"
+          >
+            Reset Defaults
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -26,6 +26,9 @@ export const useMaintenanceMode = () => {
 
   useEffect(() => {
     const sync = () => setMaintenanceMode(getMaintenanceMode());
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") sync();
+    };
 
     const handleStorage = (event) => {
       if (!event || event.key === null || event.key === SETTINGS_FEATURES_KEY) {
@@ -35,13 +38,16 @@ export const useMaintenanceMode = () => {
 
     window.addEventListener("storage", handleStorage);
     window.addEventListener(MAINTENANCE_EVENT, sync);
+    window.addEventListener("focus", sync);
+    document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
       window.removeEventListener("storage", handleStorage);
       window.removeEventListener(MAINTENANCE_EVENT, sync);
+      window.removeEventListener("focus", sync);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
 
   return maintenanceMode;
 };
-

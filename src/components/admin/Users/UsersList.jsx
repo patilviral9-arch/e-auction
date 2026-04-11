@@ -353,80 +353,139 @@ const UsersList = () => {
         </button>
       </div>
 
-      <div className="bg-white rounded-[20px] border border-black overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-        <table className="w-full min-w-[820px] text-sm">
-          <thead className="border-b border-black">
-            <tr className="text-left text-gray-500 font-bold uppercase tracking-wider">
-              <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">User</th>
-              <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">Email</th>
-              <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">Role</th>
-              <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-center">Status</th>
-              <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-black/10">
-            {filteredUsers.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-4 sm:px-6 lg:px-8 py-10 text-center text-gray-400">
-                  No users found.
-                </td>
-              </tr>
-            ) : (
-              filteredUsers.map((user) => (
-                <tr key={user._id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 font-bold text-gray-900 text-base">
+      <div className="md:hidden space-y-3">
+        {filteredUsers.length === 0 ? (
+          <div className="bg-white rounded-xl border border-gray-200 py-10 text-center text-gray-400">
+            No users found.
+          </div>
+        ) : (
+          filteredUsers.map((user) => (
+            <div key={user._id} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-gray-500">User</p>
+                  <p className="text-base font-bold text-gray-900">
                     {user.role === "business"
                       ? user.businessName || user.firstName || "-"
                       : `${user.firstName || ""} ${user.lastName || ""}`.trim() || "-"}
-                  </td>
-                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-gray-500 text-base">{user.email}</td>
-                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-gray-700 capitalize">{user.role}</td>
-                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-center">
-                    <span
-                      className={`px-4 py-1.5 rounded-full text-xs font-bold inline-block ${
-                        statusStyle[normalizeStatus(user.status)] || "bg-gray-100"
-                      }`}
-                    >
-                      {normalizeStatus(user.status)}
-                    </span>
-                  </td>
-                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
-                    <div className="flex justify-center gap-3">
-                      <div className="relative">
-                        <button
-                          onClick={() => setDropdown(dropdown === user._id ? null : user._id)}
-                          className="bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded text-xs hover:bg-indigo-100 transition-colors"
-                        >
-                          Change Status
-                        </button>
-                        {dropdown === user._id && (
-                          <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-xl z-50 py-1 overflow-hidden">
-                            {["active", "deactive", "suspended"].map((status) => (
-                              <button
-                                key={status}
-                                onClick={() => updateStatus(user._id, status)}
-                                className="block px-4 py-2 hover:bg-gray-100 w-full text-left capitalize text-xs text-gray-700"
-                              >
-                                {status}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => deleteUser(user._id)}
-                        className="bg-red-50 text-red-600 px-3 py-1.5 rounded text-xs hover:bg-red-100 transition-colors"
-                      >
-                        Delete
-                      </button>
-                    </div>
+                  </p>
+                </div>
+                <span
+                  className={`px-3 py-1 rounded-full text-[11px] font-bold inline-block ${
+                    statusStyle[normalizeStatus(user.status)] || "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  {normalizeStatus(user.status)}
+                </span>
+              </div>
+
+              <div className="mt-3 space-y-2 text-sm">
+                <p className="text-gray-700 break-all">
+                  <span className="text-gray-500">Email:</span> {user.email}
+                </p>
+                <p className="text-gray-700 capitalize">
+                  <span className="text-gray-500">Role:</span> {user.role}
+                </p>
+              </div>
+
+              <div className="mt-3 flex gap-2">
+                <select
+                  value={normalizeStatus(user.status)}
+                  onChange={(e) => updateStatus(user._id, e.target.value)}
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-xs capitalize bg-white"
+                >
+                  {["active", "deactive", "suspended"].map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => deleteUser(user._id)}
+                  className="bg-red-50 text-red-600 px-3 py-2 rounded-lg text-xs font-semibold hover:bg-red-100 transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="hidden md:block bg-white rounded-[20px] border border-black overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[820px] text-sm">
+            <thead className="border-b border-black">
+              <tr className="text-left text-gray-500 font-bold uppercase tracking-wider">
+                <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">User</th>
+                <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">Email</th>
+                <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">Role</th>
+                <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-center">Status</th>
+                <th className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-black/10">
+              {filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-4 sm:px-6 lg:px-8 py-10 text-center text-gray-400">
+                    No users found.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                filteredUsers.map((user) => (
+                  <tr key={user._id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 font-bold text-gray-900 text-base">
+                      {user.role === "business"
+                        ? user.businessName || user.firstName || "-"
+                        : `${user.firstName || ""} ${user.lastName || ""}`.trim() || "-"}
+                    </td>
+                    <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-gray-500 text-base">{user.email}</td>
+                    <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-gray-700 capitalize">{user.role}</td>
+                    <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 text-center">
+                      <span
+                        className={`px-4 py-1.5 rounded-full text-xs font-bold inline-block ${
+                          statusStyle[normalizeStatus(user.status)] || "bg-gray-100"
+                        }`}
+                      >
+                        {normalizeStatus(user.status)}
+                      </span>
+                    </td>
+                    <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
+                      <div className="flex justify-center gap-3">
+                        <div className="relative">
+                          <button
+                            onClick={() => setDropdown(dropdown === user._id ? null : user._id)}
+                            className="bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded text-xs hover:bg-indigo-100 transition-colors"
+                          >
+                            Change Status
+                          </button>
+                          {dropdown === user._id && (
+                            <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-xl z-50 py-1 overflow-hidden">
+                              {["active", "deactive", "suspended"].map((status) => (
+                                <button
+                                  key={status}
+                                  onClick={() => updateStatus(user._id, status)}
+                                  className="block px-4 py-2 hover:bg-gray-100 w-full text-left capitalize text-xs text-gray-700"
+                                >
+                                  {status}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => deleteUser(user._id)}
+                          className="bg-red-50 text-red-600 px-3 py-1.5 rounded text-xs hover:bg-red-100 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

@@ -31,8 +31,8 @@ const AdminLayout = () => {
     <div
       style={{
         display: "flex",
-        height: "100vh",
-        minHeight: "100vh",
+        height: "100dvh",
+        minHeight: "100dvh",
         width: "100%",
         overflow: "hidden",
         background: "#0f172a",
@@ -87,7 +87,7 @@ const AdminLayout = () => {
                 position: "fixed",
                 top: 0,
                 left: 0,
-                height: "100vh",
+                height: "100dvh",
                 zIndex: 2100,
                 transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
                 transition: "transform 0.25s ease",
@@ -106,11 +106,12 @@ const AdminLayout = () => {
         style={{
           flex: 1,
           minWidth: 0,
-          height: "100vh",
+          height: "100dvh",
           padding: isMobile ? "68px 12px 16px" : "24px",
           background: "#ffffff",
           color: "#0f172a",
           overflowY: "auto",
+          overflowX: "hidden",
           overscrollBehavior: "contain",
         }}
       >

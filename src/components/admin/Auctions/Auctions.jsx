@@ -4,7 +4,7 @@ import { toINR, formatEnd } from "./auctionConstants";
 import AuctionModal from "./AuctionModal";
 import { apiDelete, apiGet, apiPut } from "../../../utils/apiClient";
 
-// ── Status badge colours ──────────────────────────────────────────────────────
+// Status badge colors
 const statusStyle = {
   Active:    "bg-green-100 text-green-700",
   Scheduled: "bg-blue-100 text-blue-700",
@@ -12,7 +12,7 @@ const statusStyle = {
   Cancelled: "bg-red-100 text-red-700",
 };
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// Component
 const Auctions = () => {
   const [auctions,       setAuctions]       = useState([]);
   const [usersMap,       setUsersMap]       = useState({});
@@ -34,7 +34,7 @@ const Auctions = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // ── Data fetching ──────────────────────────────────────────────────────────
+  // Data fetching
   const fetchAuctions = async () => {
     try {
       const res  = await apiGet("/auction/auctions");
@@ -92,10 +92,10 @@ const Auctions = () => {
       }
       if (typeof val === "string" && usersMap[val]) return usersMap[val];
     }
-    return "—";
+    return "-";
   };
 
-  // ── Actions ────────────────────────────────────────────────────────────────
+  // Actions
   const updateStatus = async (id, newStatus) => {
     try {
       await apiPut(`/auction/auction/${id}`, { status: newStatus });
@@ -131,7 +131,7 @@ const Auctions = () => {
     }
   };
 
-  // ── Filtering ──────────────────────────────────────────────────────────────
+  // Filtering
   const categories       = ["All", ...new Set(auctions.map(a => a.category).filter(Boolean))];
   const existingStatuses = ["All", ...new Set(auctions.map(a => a.status).filter(Boolean))];
 
@@ -185,8 +185,67 @@ const Auctions = () => {
         </button>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-[20px] border border-black shadow-sm overflow-hidden">
+      <div className="md:hidden space-y-3">
+        {filtered.length === 0 ? (
+          <div className="bg-white rounded-xl border border-gray-200 py-12 text-center text-gray-400">
+            No auctions found.
+          </div>
+        ) : (
+          filtered.map((a) => (
+            <div key={a._id} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-gray-500">Item</p>
+                  <p className="text-base font-bold text-gray-900">{a.title || a.item || "-"}</p>
+                </div>
+                <span className={`px-3 py-1 rounded-full text-[11px] font-bold inline-block ${statusStyle[a.status] || "bg-gray-100 text-gray-600"}`}>
+                  {a.status === "Active" ? "Live" : a.status || "-"}
+                </span>
+              </div>
+
+              <div className="mt-3 grid grid-cols-1 gap-2 text-sm">
+                <p className="text-gray-700"><span className="text-gray-500">Seller:</span> {getSellerName(a)}</p>
+                <p className="text-gray-700"><span className="text-gray-500">Category:</span> {a.category || "-"}</p>
+                <p className="text-gray-700"><span className="text-gray-500">Start Bid:</span> {toINR(a.startingBid ?? a.startBid)}</p>
+                <p className="text-gray-700"><span className="text-gray-500">Current Bid:</span> {toINR(a.currentBid ?? a.highestBid)}</p>
+                <p className="text-gray-700"><span className="text-gray-500">Bids:</span> {a.bids ?? a.bidCount ?? a.totalBids ?? 0}</p>
+                <p className="text-gray-700"><span className="text-gray-500">Ends:</span> {formatEnd(a.endDate || a.endTime || a.endsAt)}</p>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                <select
+                  value={a.status || "Scheduled"}
+                  onChange={(e) => updateStatus(a._id, e.target.value)}
+                  className="flex-1 min-w-[150px] border border-gray-300 rounded-lg px-3 py-2 text-xs bg-white"
+                >
+                  {[
+                    { value:"Active", label:"Active (Live)" },
+                    { value:"Scheduled", label:"Scheduled" },
+                    { value:"Ended", label:"Ended" },
+                    { value:"Cancelled", label:"Cancelled" },
+                  ].map(({ value, label }) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => setModal({ mode:"edit", auction: a })}
+                  className="bg-amber-50 text-amber-600 px-3 py-2 rounded-lg text-xs font-semibold hover:bg-amber-100 transition-colors"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => deleteAuction(a._id)}
+                  className="bg-red-50 text-red-600 px-3 py-2 rounded-lg text-xs font-semibold hover:bg-red-100 transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="hidden md:block bg-white rounded-[20px] border border-black shadow-sm overflow-hidden">
         <div className="overflow-x-auto" style={{ borderRadius:"20px" }}>
           <table className="w-full min-w-[980px] text-sm table-auto">
             <thead className="border-b border-black">
@@ -210,9 +269,9 @@ const Auctions = () => {
               ) : filtered.map(a => (
                 <tr key={a._id} className="hover:bg-gray-50 transition-colors">
 
-                  <td className="px-3 py-4 font-bold text-gray-900 text-sm">{a.title || a.item || "—"}</td>
+                  <td className="px-3 py-4 font-bold text-gray-900 text-sm">{a.title || a.item || "-"}</td>
                   <td className="px-3 py-4 text-gray-500 text-sm">{getSellerName(a)}</td>
-                  <td className="px-3 py-4 text-gray-700 capitalize">{a.category || "—"}</td>
+                  <td className="px-3 py-4 text-gray-700 capitalize">{a.category || "-"}</td>
                   <td className="px-3 py-4 text-gray-600">{toINR(a.startingBid ?? a.startBid)}</td>
                   <td className="px-3 py-4 font-semibold text-gray-800">{toINR(a.currentBid ?? a.highestBid)}</td>
                   <td className="px-3 py-4 text-center text-gray-600">{a.bids ?? a.bidCount ?? a.totalBids ?? 0}</td>
@@ -221,13 +280,11 @@ const Auctions = () => {
                   </td>
                   <td className="px-3 py-4 text-center">
                     <span className={`px-4 py-1.5 rounded-full text-xs font-bold inline-block ${statusStyle[a.status] || "bg-gray-100 text-gray-600"}`}>
-                      {a.status === "Active" ? "Live" : a.status || "—"}
+                      {a.status === "Active" ? "Live" : a.status || "-"}
                     </span>
                   </td>
                   <td className="px-3 py-4">
                     <div className="flex flex-wrap justify-center gap-2" ref={dropdown === a._id ? dropdownRef : null}>
-
-                      {/* Change Status dropdown */}
                       <div className="relative">
                         <button
                           onClick={() => setDropdown(dropdown === a._id ? null : a._id)}
@@ -277,8 +334,7 @@ const Auctions = () => {
           </table>
         </div>
       </div>
-
-      {/* Modal — rendered in React tree for real state + uploads */}
+      {/* Modal rendered in React tree for real state + uploads */}
       {modal && (
         <AuctionModal
           mode={modal.mode}

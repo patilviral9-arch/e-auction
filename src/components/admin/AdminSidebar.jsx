@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-// ─── Color tokens ─────────────────────────────────────────────────────────────
+// Color tokens
 const C = {
   bg:      '#0f172a',
   bg2:     '#1e293b',
@@ -16,7 +16,7 @@ const C = {
   btnRed:  '#dc2626',
 };
 
-// ─── Icons ────────────────────────────────────────────────────────────────────
+// Icons
 const Icons = {
   Dashboard: () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -91,7 +91,7 @@ const Icons = {
   ),
 };
 
-// ─── Nav config ───────────────────────────────────────────────────────────────
+// Nav config
 const navSections = [
   { title: 'Overview',   items: [{ to: '/admin', label: 'Dashboard', icon: 'Dashboard', end: true }] },
   { title: 'Management', items: [
@@ -104,7 +104,7 @@ const navSections = [
   { title: 'System',    items: [{ to: '/admin/settings', label: 'Settings', icon: 'Settings' }] },
 ];
 
-// ─── NavItem with hover state ──────────────────────────────────────────────────
+// NavItem with hover state
 function NavItem({ item, collapsed, onNavigate }) {
   const [hovered, setHovered] = useState(false);
   const Icon = Icons[item.icon];
@@ -149,7 +149,7 @@ function NavItem({ item, collapsed, onNavigate }) {
   );
 }
 
-// ─── Main component ────────────────────────────────────────────────────────────
+// Main component
 export default function AdminSidebar({ isMobile = false, onNavigate, onRequestClose }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -175,12 +175,81 @@ export default function AdminSidebar({ isMobile = false, onNavigate, onRequestCl
 
   const expandedWidth = isMobile ? 260 : 240;
   const sidebarWidth = collapsed ? 60 : expandedWidth;
+  const FooterActions = ({ mobileTop = false }) => (
+    <div style={{
+      backgroundColor: C.bg,
+      flexShrink: 0,
+      padding: mobileTop ? '8px 8px 10px' : '10px 8px max(10px, env(safe-area-inset-bottom))',
+      borderTop: mobileTop ? 'none' : `1px solid ${C.border}`,
+      borderBottom: mobileTop ? `1px solid ${C.border}` : 'none',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '6px',
+      boxSizing: 'border-box',
+    }}>
+      <button
+        onClick={handleWebsiteNav}
+        onMouseEnter={() => setWebHover(true)}
+        onMouseLeave={() => setWebHover(false)}
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          gap: '8px',
+          padding: collapsed ? '8px' : '8px 12px',
+          borderRadius: '8px',
+          fontSize: '13px', fontWeight: 600,
+          cursor: 'pointer', width: '100%',
+          whiteSpace: 'nowrap',
+          backgroundColor: webHover ? '#1d4ed8' : C.btnBlue,
+          color: '#ffffff',
+          border: '1px solid #1d4ed8',
+          transition: 'background-color 0.15s, transform 0.1s',
+          transform: webHover ? 'translateY(-1px)' : 'none',
+          boxSizing: 'border-box',
+        }}
+      >
+        <Icons.Globe />
+        {(!collapsed || isMobile) && (
+          <span style={{ background: 'none', backgroundColor: 'inherit', color: 'inherit', display: 'inline' }}>
+            Go to Website
+          </span>
+        )}
+      </button>
+
+      <button
+        onClick={handleLogout}
+        onMouseEnter={() => setOutHover(true)}
+        onMouseLeave={() => setOutHover(false)}
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          gap: '8px',
+          padding: collapsed ? '8px' : '8px 12px',
+          borderRadius: '8px',
+          fontSize: '13px', fontWeight: 600,
+          cursor: 'pointer', width: '100%',
+          whiteSpace: 'nowrap',
+          backgroundColor: outHover ? '#b91c1c' : C.btnRed,
+          color: '#ffffff',
+          border: '1px solid #b91c1c',
+          transition: 'background-color 0.15s, transform 0.1s',
+          transform: outHover ? 'translateY(-1px)' : 'none',
+          boxSizing: 'border-box',
+        }}
+      >
+        <Icons.Logout />
+        {(!collapsed || isMobile) && (
+          <span style={{ background: 'none', backgroundColor: 'inherit', color: 'inherit', display: 'inline' }}>
+            Logout
+          </span>
+        )}
+      </button>
+    </div>
+  );
 
   return (
     <div style={{
       position: isMobile ? 'relative' : 'sticky',
       top: 0,
-      height: '100vh',
+      height: '100dvh',
       display: 'flex',
       flexDirection: 'column',
       width: `${sidebarWidth}px`,
@@ -197,7 +266,7 @@ export default function AdminSidebar({ isMobile = false, onNavigate, onRequestCl
       boxSizing: 'border-box',
     }}>
 
-      {/* ── Header ── */}
+      {/* Header */}
       <div style={{
         backgroundColor: C.bg,
         padding: '18px 14px 14px',
@@ -241,11 +310,14 @@ export default function AdminSidebar({ isMobile = false, onNavigate, onRequestCl
         </button>
       </div>
 
-      {/* ── Nav ── */}
+      {isMobile && <FooterActions mobileTop />}
+
+
+      {/* Navigation */}
       <nav style={{
         backgroundColor: C.bg,
         flex: 1,
-        padding: '6px 8px',
+        padding: isMobile ? '4px 8px' : '6px 8px',
         overflowY: 'auto',
         overflowX: 'hidden',
         minHeight: 0,
@@ -261,7 +333,7 @@ export default function AdminSidebar({ isMobile = false, onNavigate, onRequestCl
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
                 padding: '0 8px',
-                margin: '12px 0 4px',
+                margin: isMobile ? '10px 0 4px' : '12px 0 4px',
                 fontWeight: 600,
                 display: 'block',
               }}>
@@ -275,75 +347,8 @@ export default function AdminSidebar({ isMobile = false, onNavigate, onRequestCl
         ))}
       </nav>
 
-      {/* ── Footer ── */}
-      <div style={{
-        backgroundColor: C.bg,
-        flexShrink: 0,
-        padding: '10px 8px 14px',
-        borderTop: `1px solid ${C.border}`,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '6px',
-        boxSizing: 'border-box',
-      }}>
-        {/* Go to Website */}
-        <button
-          onClick={handleWebsiteNav}
-          onMouseEnter={() => setWebHover(true)}
-          onMouseLeave={() => setWebHover(false)}
-          style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            gap: '8px',
-            padding: collapsed ? '9px' : '9px 12px',
-            borderRadius: '8px',
-            fontSize: '13px', fontWeight: 600,
-            cursor: 'pointer', width: '100%',
-            whiteSpace: 'nowrap',
-            backgroundColor: webHover ? '#1d4ed8' : C.btnBlue,
-            color: '#ffffff',
-            border: '1px solid #1d4ed8',
-            transition: 'background-color 0.15s, transform 0.1s',
-            transform: webHover ? 'translateY(-1px)' : 'none',
-            boxSizing: 'border-box',
-          }}
-        >
-          <Icons.Globe />
-          {(!collapsed || isMobile) && (
-            <span style={{ background: 'none', backgroundColor: 'inherit', color: 'inherit', display: 'inline' }}>
-              Go to Website
-            </span>
-          )}
-        </button>
-
-        {/* Logout */}
-        <button
-          onClick={handleLogout}
-          onMouseEnter={() => setOutHover(true)}
-          onMouseLeave={() => setOutHover(false)}
-          style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            gap: '8px',
-            padding: collapsed ? '9px' : '9px 12px',
-            borderRadius: '8px',
-            fontSize: '13px', fontWeight: 600,
-            cursor: 'pointer', width: '100%',
-            whiteSpace: 'nowrap',
-            backgroundColor: outHover ? '#b91c1c' : C.btnRed,
-            color: '#ffffff',
-            border: '1px solid #b91c1c',
-            transition: 'background-color 0.15s, transform 0.1s',
-            transform: outHover ? 'translateY(-1px)' : 'none',
-            boxSizing: 'border-box',
-          }}
-        >
-          <Icons.Logout />
-          {(!collapsed || isMobile) && (
-            <span style={{ background: 'none', backgroundColor: 'inherit', color: 'inherit', display: 'inline' }}>
-              Logout
-            </span>
-          )}
-        </button>
-      </div>
+      {/* Footer */}
+      {!isMobile && <FooterActions />}
     </div>
   );
 }
