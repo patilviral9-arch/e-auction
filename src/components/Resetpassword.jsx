@@ -1,7 +1,7 @@
-import axios from 'axios'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useParams, Link } from 'react-router-dom'
+import { apiPost, apiPut } from '../utils/apiClient'
 
 // ── Hardcoded light theme tokens ─────────────────────────────────────────────
 const T = {
@@ -147,10 +147,20 @@ export const Resetpassword = () => {
     setApiError('')
     setLoading(true)
     try {
-      const res = await axios.post('/user/resetpassword', {
-        newPassword: data.newPassword,
-        token,
-      })
+      let res
+      const payload = { newPassword: data.newPassword, token }
+      try {
+        // Backend route is PUT /user/resetpassword
+        res = await apiPut('/user/resetpassword', payload, { timeout: 25000 })
+      } catch (error) {
+        // Backward compatibility with older deployments that used POST
+        const status = error?.response?.status
+        if (status === 404 || status === 405) {
+          res = await apiPost('/user/resetpassword', payload, { timeout: 25000 })
+        } else {
+          throw error
+        }
+      }
       if (res.status === 200) {
         setDone(true)
         setTimeout(() => navigate('/Login'), 3000)

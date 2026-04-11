@@ -1,7 +1,7 @@
-import axios from 'axios'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, Link } from 'react-router-dom'
+import { apiPost } from '../utils/apiClient'
 
 // ── Hardcoded light theme tokens ─────────────────────────────────────────────
 const T = {
@@ -114,7 +114,7 @@ export const Forgetpassword = () => {
     setApiError("")
     setLoading(true)
     try {
-      const res = await axios.post("/user/forgetpassword", data)
+      const res = await apiPost("/user/forgetpassword", data, { timeout: 25000 })
       if (res.status === 200) {
         setEmail(data.email)
         setSent(true)

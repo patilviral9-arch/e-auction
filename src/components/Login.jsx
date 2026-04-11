@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useMaintenanceMode } from "../hooks/useMaintenanceMode";
+import { apiPost } from "../utils/apiClient";
 
 // ── Hardcoded light theme tokens ─────────────────────────────────────────────
 const T = {
@@ -125,7 +125,7 @@ export const Login = () => {
     setApiError("");
     setLoading(true);
     try {
-      const res = await axios.post("user/login", data);
+      const res = await apiPost("/user/login", data, { timeout: 25000 });
       if (res.status === 200) {
         const token = res.data?.token;
         if (!token) {
