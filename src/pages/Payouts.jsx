@@ -237,8 +237,74 @@ const BankRow = ({ bank, onRemove, onSetDefault, t }) => {
 };
 
 // ── Transaction row ───────────────────────────────────────────────────────────
-const TxRow = ({ tx, t }) => {
+const TxRow = ({ tx, t, isMobile = false }) => {
   const [hov, setHov] = useState(false);
+
+  if (isMobile) {
+    return (
+      <div
+        onMouseEnter={() => setHov(true)}
+        onMouseLeave={() => setHov(false)}
+        style={{
+          padding: "14px",
+          borderBottom: `1px solid ${t.border}`,
+          background: hov ? t.bg : "transparent",
+          transition: "background .15s",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+          <div style={{
+            width: "36px", height: "36px", borderRadius: "10px", flexShrink: 0,
+            background: "linear-gradient(135deg,rgba(56,189,248,.1),rgba(99,102,241,.1))",
+            border: `1px solid ${t.border}`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "#38bdf8",
+          }}>{Icons.Gavel}</div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ color: t.textPri, fontWeight: 700, fontSize: "13px", lineHeight: 1.35 }}>{tx.auctionTitle}</div>
+            <div style={{ color: t.textMut, fontSize: "11px", marginTop: "2px", fontFamily: "monospace" }}>{tx.payoutId} | {tx.method}</div>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "10px" }}>
+          <div>
+            <div style={{ color: t.textMut, fontSize: "10px", fontWeight: 700, textTransform: "uppercase", marginBottom: "3px" }}>Date</div>
+            <div style={{ color: t.textSec, fontSize: "12px" }}>{formatDate(tx.date)}</div>
+          </div>
+          <div>
+            <div style={{ color: t.textMut, fontSize: "10px", fontWeight: 700, textTransform: "uppercase", marginBottom: "3px" }}>Amount</div>
+            <div style={{ color: t.textPri, fontWeight: 800, fontSize: "14px" }}>{formatINR(tx.amount)}</div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
+          <StatusBadge status={tx.status} />
+          <div>
+            {tx.status === "Paid" && (
+              <button style={{
+                display: "flex", alignItems: "center", gap: "4px",
+                padding: "5px 10px", borderRadius: "8px",
+                border: `1px solid ${t.border}`, background: "transparent",
+                color: t.textMut, fontSize: "11px", fontWeight: 600, cursor: "pointer",
+              }}>{Icons.Receipt} Receipt</button>
+            )}
+            {tx.status === "Failed" && (
+              <button style={{
+                display: "flex", alignItems: "center", gap: "4px",
+                padding: "5px 10px", borderRadius: "8px",
+                border: "1px solid rgba(244,63,94,.3)", background: "transparent",
+                color: "#f43f5e", fontSize: "11px", fontWeight: 600, cursor: "pointer",
+              }}>Retry</button>
+            )}
+            {(tx.status === "Pending" || tx.status === "Processing") && (
+              <span style={{ color: t.textMut, fontSize: "11px" }}>In progress...</span>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       onMouseEnter={() => setHov(true)}
@@ -304,7 +370,7 @@ const TxRow = ({ tx, t }) => {
 };
 
 // ── Add Bank Modal ────────────────────────────────────────────────────────────
-const AddBankModal = ({ onClose, onAdd, t }) => {
+const AddBankModal = ({ onClose, onAdd, t, isMobile = false }) => {
   const [form, setForm] = useState({ name: "", accountNum: "", ifsc: "", type: "Savings", upi: "" });
   const [tab, setTab] = useState("bank"); // "bank" | "upi"
 
@@ -352,8 +418,8 @@ const AddBankModal = ({ onClose, onAdd, t }) => {
   const labelStyle = { color: t.textSec, fontSize: "12px", fontWeight: 600, display: "block", marginBottom: "6px" };
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,.7)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
-      <div style={{ background: t.bgSec, border: `1px solid ${t.borderMd}`, borderRadius: "20px", padding: "28px", width: "420px", boxShadow: `0 32px 64px ${t.shadow}` }} onClick={e => e.stopPropagation()}>
+    <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,.7)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: isMobile ? "12px" : "0" }} onClick={onClose}>
+      <div style={{ background: t.bgSec, border: `1px solid ${t.borderMd}`, borderRadius: "20px", padding: isMobile ? "18px" : "28px", width: isMobile ? "100%" : "420px", maxWidth: "420px", boxShadow: `0 32px 64px ${t.shadow}` }} onClick={e => e.stopPropagation()}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
           <div>
             <div style={{ color: t.textMut, fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em" }}>Add Account</div>
@@ -405,7 +471,7 @@ const AddBankModal = ({ onClose, onAdd, t }) => {
 };
 
 // ── Withdraw Modal ────────────────────────────────────────────────────────────
-const WithdrawModal = ({ balance, banks, onClose, onConfirm, t }) => {
+const WithdrawModal = ({ balance, banks, onClose, onConfirm, t, isMobile = false }) => {
   const [amount, setAmount] = useState(balance);
   const [bankId, setBankId] = useState(() => getBankUiId(banks.find(b => b.isDefault) || banks[0]));
   const [submitting, setSubmitting] = useState(false);
@@ -444,8 +510,8 @@ const WithdrawModal = ({ balance, banks, onClose, onConfirm, t }) => {
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,.7)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
-      <div style={{ background: t.bgSec, border: `1px solid ${t.borderMd}`, borderRadius: "20px", padding: "32px", width: "420px", boxShadow: `0 32px 64px ${t.shadow}` }} onClick={e => e.stopPropagation()}>
+    <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,.7)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: isMobile ? "12px" : "0" }} onClick={onClose}>
+      <div style={{ background: t.bgSec, border: `1px solid ${t.borderMd}`, borderRadius: "20px", padding: isMobile ? "18px" : "32px", width: isMobile ? "100%" : "420px", maxWidth: "420px", boxShadow: `0 32px 64px ${t.shadow}` }} onClick={e => e.stopPropagation()}>
         {done ? (
           <div style={{ textAlign: "center", padding: "20px 0" }}>
             <div style={{ marginBottom: "16px", display: "inline-flex", color: "#34d399" }}>{Icons.CheckCircle}</div>
@@ -573,12 +639,28 @@ export default function Payouts() {
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showAddBank, setShowAddBank]   = useState(false);
   const [user, setUser]                 = useState(null);
+  const [isMobile, setIsMobile]         = useState(() => (
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 900px)").matches : false
+  ));
 
   // ── redirect if not business ───────────────────────────────────────────────
   useEffect(() => {
     if (!userId) { navigate("/Login"); return; }
     if (role && role !== "business") { navigate("/"); return; }
   }, [userId, role]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return undefined;
+    const media = window.matchMedia("(max-width: 900px)");
+    const onChange = (event) => setIsMobile(event.matches);
+    setIsMobile(media.matches);
+    if (media.addEventListener) media.addEventListener("change", onChange);
+    else media.addListener(onChange);
+    return () => {
+      if (media.removeEventListener) media.removeEventListener("change", onChange);
+      else media.removeListener(onChange);
+    };
+  }, []);
 
   // ── fetch payout data ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -796,10 +878,10 @@ export default function Payouts() {
     <div style={{ background: t.bg, minHeight: "100vh", fontFamily: "'Segoe UI', system-ui, sans-serif", transition: "background 0.25s" }}>
 
       {/* ── PAGE HEADER ── */}
-      <div style={{ background: t.bgSec, borderBottom: `1px solid ${t.border}`, padding: "40px 40px 32px" }}>
+      <div style={{ background: t.bgSec, borderBottom: `1px solid ${t.border}`, padding: isMobile ? "24px 14px 20px" : "40px 40px 32px" }}>
         <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "16px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "18px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "flex-end", flexWrap: "wrap", gap: "16px" }}>
+            <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", gap: "18px", flexDirection: isMobile ? "column" : "row" }}>
               {/* Avatar */}
               {user?.avatar ? (
                 <img src={user.avatar} alt="avatar"
@@ -815,20 +897,20 @@ export default function Payouts() {
               )}
               <div>
                 <div style={{ color: "#38bdf8", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: "4px" }}>Seller Dashboard</div>
-                <h1 style={{ color: t.textPri, fontSize: "32px", fontWeight: 900, margin: 0, letterSpacing: "-0.02em" }}>
+                <h1 style={{ color: t.textPri, fontSize: isMobile ? "26px" : "32px", fontWeight: 900, margin: 0, letterSpacing: "-0.02em" }}>
                   {user?.businessName || (user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() : "Payouts")}
                 </h1>
-                <p style={{ color: t.textMut, marginTop: "4px", fontSize: "14px", display: "flex", alignItems: "center", gap: "10px" }}>
+                <p style={{ color: t.textMut, marginTop: "4px", fontSize: isMobile ? "13px" : "14px", display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
                   {user?.email && <span>Email: {user.email}</span>}
                   {user?.phone && <span>Phone: {user.phone}</span>}
                   {!user?.email && <span>{transactions.length} transactions | {banks.length} linked account{banks.length !== 1 ? "s" : ""}</span>}
                 </p>
               </div>
             </div>
-            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center", width: isMobile ? "100%" : "auto" }}>
               <button
                 onClick={() => setShowWithdraw(true)}
-                style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 22px", borderRadius: "10px", border: "none", background: "linear-gradient(135deg,#38bdf8,#6366f1)", color: "white", fontWeight: 700, fontSize: "14px", cursor: "pointer", boxShadow: "0 4px 14px rgba(56,189,248,.3)" }}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: isMobile ? "10px 14px" : "10px 22px", width: isMobile ? "100%" : "auto", borderRadius: "10px", border: "none", background: "linear-gradient(135deg,#38bdf8,#6366f1)", color: "white", fontWeight: 700, fontSize: "14px", cursor: "pointer", boxShadow: "0 4px 14px rgba(56,189,248,.3)" }}
               >
                 {Icons.Wallet} Withdraw Funds
               </button>
@@ -837,7 +919,7 @@ export default function Payouts() {
         </div>
       </div>
 
-      <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "32px 40px" }}>
+      <div style={{ maxWidth: "1400px", margin: "0 auto", padding: isMobile ? "18px 14px 28px" : "32px 40px" }}>
 
         {fetchError && (
           <div style={{ background: "rgba(251,191,36,.08)", border: "1px solid rgba(251,191,36,.25)", borderRadius: "12px", padding: "12px 16px", marginBottom: "24px", display: "flex", gap: "10px", alignItems: "center" }}>
@@ -847,7 +929,7 @@ export default function Payouts() {
         )}
 
         {/* ── STAT CARDS ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: "16px", marginBottom: "32px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2,minmax(0,1fr))" : "repeat(auto-fit,minmax(200px,1fr))", gap: "16px", marginBottom: isMobile ? "18px" : "32px" }}>
           <StatCard icon={Icons.Wallet}      label="Available Balance" value={formatINR(balance)}      sub="Ready to withdraw"         accentColor="#38bdf8" subColor="#38bdf8" t={t} />
           <StatCard icon={Icons.TrendUp}     label="Total Earned"      value={formatINR(totalEarned)}  sub="+11.2% vs last month"     accentColor="#34d399" subColor="#34d399" t={t} />
           <StatCard icon={Icons.Clock}       label="Pending"           value={formatINR(pendingAmt)}   sub={`${transactions.filter(x=>x.status==="Pending").length} settling`} accentColor="#fbbf24" subColor="#fbbf24" t={t} />
@@ -855,7 +937,7 @@ export default function Payouts() {
         </div>
 
         {/* ── TWO-COLUMN LAYOUT ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: "24px", alignItems: "start" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 340px", gap: "24px", alignItems: "start" }}>
 
           {/* ── LEFT: Balance card + Transactions ── */}
           <div>
@@ -864,7 +946,7 @@ export default function Payouts() {
             <div style={{
               background: "linear-gradient(135deg,#0f172a,#1e1b4b)",
               borderRadius: "20px",
-              padding: "28px 32px",
+              padding: isMobile ? "20px 18px" : "28px 32px",
               marginBottom: "24px",
               border: "1px solid rgba(99,102,241,.3)",
               boxShadow: "0 8px 32px rgba(99,102,241,.15)",
@@ -876,7 +958,7 @@ export default function Payouts() {
 
               <div style={{ position: "relative" }}>
                 <div style={{ color: "rgba(255,255,255,.5)", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: "6px" }}>Available to Withdraw</div>
-                <div style={{ color: "#ffffff", fontSize: "42px", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1, marginBottom: "4px" }}>{formatINR(balance)}</div>
+                <div style={{ color: "#ffffff", fontSize: isMobile ? "34px" : "42px", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1, marginBottom: "4px" }}>{formatINR(balance)}</div>
                 <div style={{ color: "rgba(255,255,255,.4)", fontSize: "13px", marginBottom: "22px" }}>Withdrawals are auto-settled in about 1-3 minutes</div>
 
                 <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
@@ -890,7 +972,7 @@ export default function Payouts() {
                 </div>
 
                 {/* mini earnings breakdown */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", marginTop: "22px", paddingTop: "22px", borderTop: "1px solid rgba(255,255,255,.08)" }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "12px", marginTop: "22px", paddingTop: "22px", borderTop: "1px solid rgba(255,255,255,.08)" }}>
                   {[
                     ["Gross (Mar)", formatINR(totalEarned), "rgba(255,255,255,.85)"],
                     ["Commission", `-${formatINR(commission)}`, "#f43f5e"],
@@ -907,21 +989,21 @@ export default function Payouts() {
 
             {/* ── TRANSACTIONS ── */}
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                <h2 style={{ color: t.textPri, fontSize: "20px", fontWeight: 900, margin: 0 }}>Transaction History</h2>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", marginBottom: "16px", flexWrap: "wrap", gap: "8px" }}>
+                <h2 style={{ color: t.textPri, fontSize: isMobile ? "18px" : "20px", fontWeight: 900, margin: 0 }}>Transaction History</h2>
                 <div style={{ color: t.textMut, fontSize: "13px" }}>{filtered.length} of {transactions.length}</div>
               </div>
 
               {/* Filter + search */}
               <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "16px", alignItems: "center" }}>
                 {/* Tab pills */}
-                <div style={{ display: "flex", gap: "6px", background: t.bgCard, borderRadius: "50px", padding: "4px", border: `1px solid ${t.border}` }}>
+                <div style={{ display: "flex", gap: "6px", background: t.bgCard, borderRadius: "50px", padding: "4px", border: `1px solid ${t.border}`, maxWidth: "100%", overflowX: "auto" }}>
                   {["All", "Paid", "Pending", "Processing", "Failed"].map(f => (
                     <button key={f} onClick={() => setFilter(f)} style={{
                       padding: "6px 14px", borderRadius: "50px", border: "none",
                       background: filter === f ? "linear-gradient(135deg,#38bdf8,#6366f1)" : "transparent",
                       color: filter === f ? "white" : t.textMut,
-                      fontWeight: 700, fontSize: "12px", cursor: "pointer", transition: "all .15s",
+                      fontWeight: 700, fontSize: "12px", cursor: "pointer", transition: "all .15s", whiteSpace: "nowrap", flexShrink: 0,
                     }}>{f} {filter === f && `(${filtered.length})`}</button>
                   ))}
                 </div>
@@ -935,11 +1017,13 @@ export default function Payouts() {
               {/* Table */}
               <div style={{ background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: "16px", overflow: "hidden", boxShadow: t.shadow }}>
                 {/* Header */}
+                {!isMobile && (
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 120px 110px 90px 90px", gap: "12px", padding: "12px 20px", borderBottom: `1px solid ${t.border}`, background: t.bg }}>
                   {["Auction", "Date", "Amount", "Status", ""].map((h, i) => (
                     <div key={i} style={{ color: t.textMut, fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em" }}>{h}</div>
                   ))}
                 </div>
+                )}
 
                 {filtered.length === 0 ? (
                   <div style={{ textAlign: "center", padding: "60px 0" }}>
@@ -948,12 +1032,12 @@ export default function Payouts() {
                     <div style={{ color: t.textMut, fontSize: "13px", marginTop: "6px" }}>Try a different filter or search term.</div>
                   </div>
                 ) : (
-                  filtered.map(tx => <TxRow key={tx._id || tx.id || tx.payoutId} tx={tx} t={t} />)
+                  filtered.map(tx => <TxRow key={tx._id || tx.id || tx.payoutId} tx={tx} t={t} isMobile={isMobile} />)
                 )}
 
                 {/* Pagination hint */}
                 {filtered.length > 0 && (
-                  <div style={{ padding: "12px 20px", borderTop: `1px solid ${t.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ padding: "12px 20px", borderTop: `1px solid ${t.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
                     <span style={{ color: t.textMut, fontSize: "12px" }}>Showing {filtered.length} transactions</span>
                     <button style={{ display: "flex", alignItems: "center", gap: "4px", color: "#38bdf8", fontSize: "12px", fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>
                       View all {Icons.ChevronRight}
@@ -1044,8 +1128,8 @@ export default function Payouts() {
       <FooterComponent />
 
       {/* ── Modals ── */}
-      {showWithdraw && <WithdrawModal balance={balance} banks={banks} onClose={() => setShowWithdraw(false)} onConfirm={handleWithdraw} t={t} />}
-      {showAddBank  && <AddBankModal  onClose={() => setShowAddBank(false)} onAdd={handleAddBank} t={t} />}
+      {showWithdraw && <WithdrawModal balance={balance} banks={banks} onClose={() => setShowWithdraw(false)} onConfirm={handleWithdraw} t={t} isMobile={isMobile} />}
+      {showAddBank  && <AddBankModal  onClose={() => setShowAddBank(false)} onAdd={handleAddBank} t={t} isMobile={isMobile} />}
 
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }

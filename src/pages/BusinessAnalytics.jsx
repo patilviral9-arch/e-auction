@@ -61,11 +61,27 @@ const getMonthKey = (value) => {
 export default function BusinessAnalytics() {
   const t = useThemeStyles();
   const { userId } = useAuth();
-  const shellPadding = "clamp(16px, 3vw, 40px)";
+  const [isMobile, setIsMobile] = useState(() => (
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 900px)").matches : false
+  ));
+  const shellPadding = isMobile ? "14px" : "clamp(16px, 3vw, 40px)";
 
   const [auctions, setAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return undefined;
+    const media = window.matchMedia("(max-width: 900px)");
+    const onChange = (event) => setIsMobile(event.matches);
+    setIsMobile(media.matches);
+    if (media.addEventListener) media.addEventListener("change", onChange);
+    else media.addListener(onChange);
+    return () => {
+      if (media.removeEventListener) media.removeEventListener("change", onChange);
+      else media.removeListener(onChange);
+    };
+  }, []);
 
   const fetchMine = async () => {
     if (!userId) {
@@ -251,7 +267,7 @@ export default function BusinessAnalytics() {
         style={{
           background: t.bgSec,
           borderBottom: `1px solid ${t.border}`,
-          padding: `40px ${shellPadding} 32px`,
+          padding: isMobile ? `24px ${shellPadding} 20px` : `40px ${shellPadding} 32px`,
         }}
       >
         <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
@@ -277,19 +293,20 @@ export default function BusinessAnalytics() {
               >
                 Business Performance
               </div>
-              <h1 style={{ margin: 0, fontSize: "clamp(30px, 3vw, 36px)", fontWeight: 900, lineHeight: 1.08 }}>
+              <h1 style={{ margin: 0, fontSize: isMobile ? "26px" : "clamp(30px, 3vw, 36px)", fontWeight: 900, lineHeight: 1.08 }}>
                 Auction Analytics
               </h1>
-              <p style={{ margin: "8px 0 0", color: t.textMut, fontSize: "clamp(14px, 1.2vw, 16px)" }}>
+              <p style={{ margin: "8px 0 0", color: t.textMut, fontSize: isMobile ? "13px" : "clamp(14px, 1.2vw, 16px)" }}>
                 Insights from auctions created by your business account.
               </p>
             </div>
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", width: isMobile ? "100%" : "auto" }}>
               <button
                 onClick={fetchMine}
                 disabled={loading}
                 style={{
                   padding: "10px 18px",
+                  width: isMobile ? "100%" : "auto",
                   borderRadius: "10px",
                   border: `1px solid ${t.borderMd}`,
                   background: t.bgCard,
@@ -305,6 +322,7 @@ export default function BusinessAnalytics() {
                 to="/business/Listings"
                 style={{
                   padding: "10px 18px",
+                  width: isMobile ? "100%" : "auto",
                   borderRadius: "10px",
                   textDecoration: "none",
                   background: "linear-gradient(135deg,#38bdf8,#6366f1)",
@@ -324,7 +342,7 @@ export default function BusinessAnalytics() {
         style={{
           maxWidth: "1400px",
           margin: "0 auto",
-          padding: `32px ${shellPadding} 52px`,
+          padding: isMobile ? `18px ${shellPadding} 30px` : `32px ${shellPadding} 52px`,
           boxSizing: "border-box",
         }}
       >
@@ -375,7 +393,7 @@ export default function BusinessAnalytics() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
+                gridTemplateColumns: isMobile ? "repeat(2, minmax(0, 1fr))" : "repeat(auto-fit, minmax(210px, 1fr))",
                 gap: "14px",
                 marginBottom: "22px",
               }}
@@ -408,7 +426,7 @@ export default function BusinessAnalytics() {
                   >
                     {card.label}
                   </div>
-                  <div style={{ fontSize: "clamp(30px, 2.4vw, 36px)", marginTop: "8px", fontWeight: 900, color: card.color, lineHeight: 1.05 }}>
+                  <div style={{ fontSize: isMobile ? "24px" : "clamp(30px, 2.4vw, 36px)", marginTop: "8px", fontWeight: 900, color: card.color, lineHeight: 1.05 }}>
                     {card.value}
                   </div>
                 </div>
@@ -418,7 +436,7 @@ export default function BusinessAnalytics() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(320px, 1fr))",
                 gap: "14px",
                 marginBottom: "20px",
               }}
@@ -497,55 +515,72 @@ export default function BusinessAnalytics() {
 
             <div style={{ background: t.bgSec, border: `1px solid ${t.border}`, borderRadius: "14px", padding: "18px", marginBottom: "20px" }}>
               <h3 style={{ margin: "0 0 12px", fontSize: "20px", fontWeight: 800 }}>Category Performance</h3>
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "680px" }}>
-                  <thead>
-                    <tr style={{ borderBottom: `1px solid ${t.border}` }}>
-                      {["Category", "Total", "Live", "Completed", "Total Bids", "Revenue"].map((h) => (
-                        <th
-                          key={h}
-                          style={{
-                            textAlign: h === "Category" ? "left" : "center",
-                            padding: "10px 8px",
-                            color: t.textMut,
-                            fontSize: "12px",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.05em",
-                          }}
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {categoryRows.map((row) => (
-                      <tr key={row.category} style={{ borderBottom: `1px solid ${t.border}` }}>
-                        <td style={{ padding: "12px 8px", color: t.textPri, fontWeight: 700, fontSize: "14px" }}>{row.category}</td>
-                        <td style={{ padding: "12px 8px", color: t.textSec, textAlign: "center", fontSize: "14px" }}>{row.total}</td>
-                        <td style={{ padding: "12px 8px", color: "#22c55e", textAlign: "center", fontWeight: 700, fontSize: "14px" }}>
-                          {row.active}
-                        </td>
-                        <td style={{ padding: "12px 8px", color: "#38bdf8", textAlign: "center", fontWeight: 700, fontSize: "14px" }}>
-                          {row.completed}
-                        </td>
-                        <td style={{ padding: "12px 8px", color: "#a78bfa", textAlign: "center", fontWeight: 700, fontSize: "14px" }}>
-                          {row.bids}
-                        </td>
-                        <td style={{ padding: "12px 8px", color: "#10b981", textAlign: "center", fontWeight: 700, fontSize: "14px" }}>
-                          {formatINR(row.revenue)}
-                        </td>
+              {isMobile ? (
+                <div style={{ display: "grid", gap: "10px" }}>
+                  {categoryRows.map((row) => (
+                    <div key={row.category} style={{ border: `1px solid ${t.border}`, borderRadius: "10px", padding: "10px", background: t.bgInput }}>
+                      <div style={{ color: t.textPri, fontWeight: 800, fontSize: "14px", marginBottom: "8px" }}>{row.category}</div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                        <div style={{ color: t.textMut, fontSize: "12px" }}>Total: <b style={{ color: t.textSec }}>{row.total}</b></div>
+                        <div style={{ color: "#22c55e", fontSize: "12px" }}>Live: <b>{row.active}</b></div>
+                        <div style={{ color: "#38bdf8", fontSize: "12px" }}>Completed: <b>{row.completed}</b></div>
+                        <div style={{ color: "#a78bfa", fontSize: "12px" }}>Bids: <b>{row.bids}</b></div>
+                      </div>
+                      <div style={{ marginTop: "8px", color: "#10b981", fontWeight: 700, fontSize: "13px" }}>Revenue: {formatINR(row.revenue)}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "680px" }}>
+                    <thead>
+                      <tr style={{ borderBottom: `1px solid ${t.border}` }}>
+                        {["Category", "Total", "Live", "Completed", "Total Bids", "Revenue"].map((h) => (
+                          <th
+                            key={h}
+                            style={{
+                              textAlign: h === "Category" ? "left" : "center",
+                              padding: "10px 8px",
+                              color: t.textMut,
+                              fontSize: "12px",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.05em",
+                            }}
+                          >
+                            {h}
+                          </th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {categoryRows.map((row) => (
+                        <tr key={row.category} style={{ borderBottom: `1px solid ${t.border}` }}>
+                          <td style={{ padding: "12px 8px", color: t.textPri, fontWeight: 700, fontSize: "14px" }}>{row.category}</td>
+                          <td style={{ padding: "12px 8px", color: t.textSec, textAlign: "center", fontSize: "14px" }}>{row.total}</td>
+                          <td style={{ padding: "12px 8px", color: "#22c55e", textAlign: "center", fontWeight: 700, fontSize: "14px" }}>
+                            {row.active}
+                          </td>
+                          <td style={{ padding: "12px 8px", color: "#38bdf8", textAlign: "center", fontWeight: 700, fontSize: "14px" }}>
+                            {row.completed}
+                          </td>
+                          <td style={{ padding: "12px 8px", color: "#a78bfa", textAlign: "center", fontWeight: 700, fontSize: "14px" }}>
+                            {row.bids}
+                          </td>
+                          <td style={{ padding: "12px 8px", color: "#10b981", textAlign: "center", fontWeight: 700, fontSize: "14px" }}>
+                            {formatINR(row.revenue)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
 
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(320px, 1fr))",
                 gap: "14px",
               }}
             >
@@ -557,7 +592,7 @@ export default function BusinessAnalytics() {
                   ) : (
                     monthRows.map((row) => (
                       <div key={row.month}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px", gap: "8px", flexWrap: "wrap" }}>
                           <span style={{ color: t.textSec, fontSize: "14px", fontWeight: 600 }}>{row.month}</span>
                           <span style={{ color: t.textMut, fontSize: "13px" }}>
                             {row.auctions} auctions | {formatINR(row.revenue)}
@@ -586,7 +621,7 @@ export default function BusinessAnalytics() {
                       key={auction.id}
                       style={{
                         display: "grid",
-                        gridTemplateColumns: "1fr auto",
+                        gridTemplateColumns: isMobile ? "1fr" : "1fr auto",
                         gap: "8px",
                         alignItems: "center",
                         padding: "10px",
@@ -601,7 +636,7 @@ export default function BusinessAnalytics() {
                           {auction.category} | {auction.status}
                         </div>
                       </div>
-                      <div style={{ textAlign: "right" }}>
+                      <div style={{ textAlign: isMobile ? "left" : "right" }}>
                         <div style={{ fontSize: "13px", color: "#38bdf8", fontWeight: 700 }}>
                           {formatINR(auction.currentBid)}
                         </div>

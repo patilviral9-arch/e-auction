@@ -239,7 +239,29 @@ export default function Listings() {
   const [search,  setSearch]  = useState("");
   const [filter,  setFilter]  = useState("all");
   const [sort,    setSort]    = useState("newest");
-  const [view,    setView]    = useState("list");
+  const [isMobile, setIsMobile] = useState(() => (
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 900px)").matches : false
+  ));
+  const [view,    setView]    = useState(() => (
+    typeof window !== "undefined" && window.matchMedia("(max-width: 900px)").matches ? "grid" : "list"
+  ));
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return undefined;
+    const media = window.matchMedia("(max-width: 900px)");
+    const onChange = (event) => setIsMobile(event.matches);
+    setIsMobile(media.matches);
+    if (media.addEventListener) media.addEventListener("change", onChange);
+    else media.addListener(onChange);
+    return () => {
+      if (media.removeEventListener) media.removeEventListener("change", onChange);
+      else media.removeListener(onChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isMobile && view === "list") setView("grid");
+  }, [isMobile, view]);
 
   useEffect(() => {
     if (!userId) return;
@@ -338,7 +360,7 @@ export default function Listings() {
   // ── style tokens ──────────────────────────────────────────────────────────
   const S = {
     page:  { background:"var(--bg-primary)", minHeight:"100vh", fontFamily:"system-ui, sans-serif", transition:"background 0.25s" },
-    inner: { maxWidth:"1100px", margin:"0 auto", padding:"0 32px 60px" },
+    inner: { maxWidth:"1100px", margin:"0 auto", padding: isMobile ? "0 14px 34px" : "0 32px 60px" },
     card:  { background:"var(--bg-secondary)", border:"1px solid var(--border)", borderRadius:"16px", padding:"20px", boxShadow: isLight ? "0 2px 12px rgba(0,0,0,0.06)" : "0 2px 16px rgba(0,0,0,0.3)" },
     input: { background:"var(--bg-input)", border:"1px solid var(--border-input)", borderRadius:"10px", padding:"9px 14px", fontSize:"13px", color:"var(--text-primary)", outline:"none", fontFamily:"system-ui, sans-serif" },
     filterBtn: (active) => ({
@@ -373,22 +395,22 @@ export default function Listings() {
       `}</style>
 
       {/* ── Header ── */}
-      <div style={{ background:"var(--bg-secondary)", borderBottom:"1px solid var(--border)", padding:"32px 0 0" }}>
-        <div style={{ maxWidth:"1100px", margin:"0 auto", padding:"0 32px" }}>
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", flexWrap:"wrap", gap:"16px", marginBottom:"24px" }}>
+      <div style={{ background:"var(--bg-secondary)", borderBottom:"1px solid var(--border)", padding: isMobile ? "22px 0 0" : "32px 0 0" }}>
+        <div style={{ maxWidth:"1100px", margin:"0 auto", padding: isMobile ? "0 14px" : "0 32px" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems: isMobile ? "flex-start" : "flex-end", flexWrap:"wrap", gap:"16px", marginBottom: isMobile ? "16px" : "24px" }}>
             <div>
               <div style={{ color:"var(--accent-blue)", fontSize:"12px", fontWeight:700, textTransform:"uppercase", letterSpacing:".08em", marginBottom:"6px" }}>📋 My Auctions</div>
-              <h1 style={{ color:"var(--text-primary)", fontSize:"28px", fontWeight:900, margin:"0 0 4px", letterSpacing:"-0.5px" }}>My Auctions</h1>
-              <p style={{ color:"var(--text-muted)", fontSize:"14px", margin:0 }}>All auctions you've created</p>
+              <h1 style={{ color:"var(--text-primary)", fontSize: isMobile ? "24px" : "28px", fontWeight:900, margin:"0 0 4px", letterSpacing:"-0.5px" }}>My Auctions</h1>
+              <p style={{ color:"var(--text-muted)", fontSize: isMobile ? "13px" : "14px", margin:0 }}>All auctions you've created</p>
             </div>
-            <Link to="/create-auction" style={{ padding:"11px 22px", borderRadius:"12px", background:"linear-gradient(135deg,#38bdf8,#6366f1)", color:"white", fontWeight:700, fontSize:"14px", textDecoration:"none", display:"flex", alignItems:"center", gap:"6px", boxShadow:"0 4px 14px rgba(56,189,248,0.3)", whiteSpace:"nowrap" }}>
+            <Link to="/create-auction" style={{ padding: isMobile ? "10px 16px" : "11px 22px", borderRadius:"12px", background:"linear-gradient(135deg,#38bdf8,#6366f1)", color:"white", fontWeight:700, fontSize:"14px", textDecoration:"none", display:"flex", alignItems:"center", gap:"6px", boxShadow:"0 4px 14px rgba(56,189,248,0.3)", whiteSpace:"nowrap" }}>
               ➕ New Auction
             </Link>
           </div>
 
           {/* Stat bar */}
           {!loading && all.length > 0 && (
-            <div style={{ display:"flex", gap:"28px", paddingBottom:"20px", borderBottom:"2px solid var(--border)", flexWrap:"wrap" }}>
+            <div style={{ display:"flex", gap: isMobile ? "16px" : "28px", paddingBottom: isMobile ? "14px" : "20px", borderBottom:"2px solid var(--border)", flexWrap:"wrap" }}>
               <StatPill value={counts.all}       label="Total"     color="var(--text-primary)" />
               <StatPill value={counts.Active}    label="Live"      color="#f43f5e" />
               <StatPill value={counts.Scheduled} label="Scheduled" color="#f59e0b" />
@@ -404,8 +426,8 @@ export default function Listings() {
 
       <div style={S.inner}>
         {/* Controls */}
-        <div style={{ display:"flex", gap:"12px", alignItems:"center", margin:"24px 0 20px", flexWrap:"wrap" }}>
-          <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:"50px", padding:"4px", display:"flex", gap:"4px" }}>
+        <div style={{ display:"flex", gap:"12px", alignItems:"center", margin: isMobile ? "16px 0 14px" : "24px 0 20px", flexWrap:"wrap" }}>
+          <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:"50px", padding:"4px", display:"flex", gap:"4px", maxWidth: "100%", overflowX: "auto" }}>
             {[
               ["all",       "All"],
               ["Active",    "🔴 Live"],
@@ -413,7 +435,7 @@ export default function Listings() {
               ["Completed", "✓ Completed"],
               ["Cancelled", "🚫 Cancelled"],
             ].map(([val, label]) => (
-              <button key={val} style={S.filterBtn(filter === val)} onClick={() => setFilter(val)}>
+              <button key={val} style={{ ...S.filterBtn(filter === val), whiteSpace: "nowrap", flexShrink: 0 }} onClick={() => setFilter(val)}>
                 {label}
                 {val !== "all" && counts[val] > 0 && <span style={{ marginLeft:"4px", opacity:.55 }}>({counts[val]})</span>}
                 {val === "all" && <span style={{ marginLeft:"4px", opacity:.55 }}>({counts.all})</span>}
@@ -427,12 +449,19 @@ export default function Listings() {
               style={{ ...S.input, width:"100%", paddingLeft:"34px", boxSizing:"border-box" }} />
           </div>
 
-          <select value={sort} onChange={e => setSort(e.target.value)} style={{ ...S.input, cursor:"pointer" }}>
+          <select value={sort} onChange={e => setSort(e.target.value)} style={{ ...S.input, cursor:"pointer", width: isMobile ? "100%" : "auto" }}>
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
             <option value="highest">Highest Bid</option>
             <option value="most-bids">Most Bids</option>
           </select>
+
+          {!isMobile && (
+            <div style={{ display:"flex", gap:"6px", marginLeft:"auto" }}>
+              <button title="List view" onClick={() => setView("list")} style={S.viewBtn(view === "list")}>≡</button>
+              <button title="Grid view" onClick={() => setView("grid")} style={S.viewBtn(view === "grid")}>▦</button>
+            </div>
+          )}
         </div>
 
         {!loading && (
@@ -477,9 +506,9 @@ export default function Listings() {
           <div style={{ display:"flex", flexDirection:"column", gap:"10px", animation:"fadeUp .3s ease" }}>
             {filtered.map(a => (
               <div key={a.id} className="lst-row"
-                style={{ ...S.card, display:"flex", gap:"16px", alignItems:"center", padding:"16px 20px", transition:"background .15s" }}>
+                style={{ ...S.card, display:"flex", gap: isMobile ? "12px" : "16px", alignItems: isMobile ? "flex-start" : "center", padding: isMobile ? "14px" : "16px 20px", transition:"background .15s", flexDirection: isMobile ? "column" : "row" }}>
                 <img src={a.img} alt={a.title}
-                  style={{ width:"72px", height:"72px", borderRadius:"10px", objectFit:"cover", flexShrink:0, border:"1px solid var(--border)", filter: a.status === "Cancelled" ? "grayscale(60%)" : "none" }} />
+                  style={{ width: isMobile ? "100%" : "72px", height: isMobile ? "180px" : "72px", borderRadius:"10px", objectFit:"cover", flexShrink:0, border:"1px solid var(--border)", filter: a.status === "Cancelled" ? "grayscale(60%)" : "none" }} />
 
                 <div style={{ flex:1, minWidth:0 }}>
                   <div style={{ display:"flex", alignItems:"center", gap:"8px", marginBottom:"4px", flexWrap:"wrap" }}>
@@ -498,12 +527,12 @@ export default function Listings() {
                   </div>
                 </div>
 
-                <div style={{ display:"flex", gap:"20px", alignItems:"center", flexShrink:0 }}>
+                <div style={{ display:"flex", gap:"20px", alignItems:"center", flexShrink:0, width: isMobile ? "100%" : "auto", justifyContent: isMobile ? "space-between" : "flex-start" }}>
                   <StatPill value={formatINR(a.currentBid)} label="Current Bid" color="var(--accent-blue)" />
                   <StatPill value={a.totalBids} label="Bids" />
                 </div>
 
-                <div style={{ display:"flex", gap:"6px", flexShrink:0 }}>
+                <div style={{ display:"flex", gap:"6px", flexShrink:0, width: isMobile ? "100%" : "auto" }}>
                   {a.status === "Completed" ? (
                     <button disabled style={{ padding:"7px 14px", borderRadius:"8px", border:"1px solid var(--border)", background:"transparent", color:"var(--text-muted)", fontSize:"12px", fontWeight:600, cursor:"not-allowed" }}>✓ Completed</button>
                   ) : a.status === "Cancelled" ? (
@@ -511,9 +540,9 @@ export default function Listings() {
                   ) : a.status === "Scheduled" ? (
                     <button disabled style={{ padding:"7px 14px", borderRadius:"8px", border:"1px solid rgba(245,158,11,0.35)", background:"rgba(245,158,11,0.08)", color:"#f59e0b", fontSize:"12px", fontWeight:600, cursor:"not-allowed" }}>📅 Not Started</button>
                   ) : (
-                    <button className="lst-action" onClick={() => navigate(`/auction/${a.id}`)} style={S.actionBtn}>View</button>
+                    <button className="lst-action" onClick={() => navigate(`/auction/${a.id}`)} style={{ ...S.actionBtn, flex: isMobile ? 1 : "unset" }}>View</button>
                   )}
-                  <button className="lst-action" onClick={() => navigate(`/edit-auction/${a.id}`)} style={S.actionBtn}>Edit</button>
+                  <button className="lst-action" onClick={() => navigate(`/edit-auction/${a.id}`)} style={{ ...S.actionBtn, flex: isMobile ? 1 : "unset" }}>Edit</button>
                   <button className="lst-del"    onClick={() => handleDelete(a)}                   style={S.delBtn} title="Delete">🗑</button>
                 </div>
               </div>
@@ -523,11 +552,11 @@ export default function Listings() {
         ) : (
 
           /* GRID VIEW */
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(240px, 1fr))", gap:"16px", animation:"fadeUp .3s ease" }}>
+          <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(240px, 1fr))", gap: isMobile ? "12px" : "16px", animation:"fadeUp .3s ease" }}>
             {filtered.map(a => (
               <div key={a.id} className="lst-card"
                 style={{ ...S.card, padding:0, overflow:"hidden", transition:"all .25s cubic-bezier(.34,1.56,.64,1)" }}>
-                <div style={{ position:"relative", height:"160px", background:"var(--bg-card)", overflow:"hidden" }}>
+                <div style={{ position:"relative", height: isMobile ? "190px" : "160px", background:"var(--bg-card)", overflow:"hidden" }}>
                   <img src={a.img} alt={a.title} style={{ width:"100%", height:"100%", objectFit:"cover", filter: a.status === "Completed" || a.status === "Cancelled" ? "grayscale(35%)" : "none" }} />
                   <div style={{ position:"absolute", top:"8px", left:"8px" }}>
                     <StatusChanger auction={a} onStatusChange={handleStatusChange} />
@@ -538,7 +567,7 @@ export default function Listings() {
                     </div>
                   )}
                 </div>
-                <div style={{ padding:"16px" }}>
+                  <div style={{ padding: isMobile ? "14px" : "16px" }}>
                   <div style={{ color:"var(--text-muted)", fontSize:"11px", fontWeight:600, marginBottom:"4px", textTransform:"uppercase", letterSpacing:".04em" }}>{a.category}</div>
                   <div style={{ color:"var(--text-primary)", fontWeight:700, fontSize:"14px", marginBottom:"10px", lineHeight:1.3, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" }}>{a.title}</div>
                   <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"14px" }}>

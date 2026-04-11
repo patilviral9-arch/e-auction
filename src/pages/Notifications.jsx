@@ -328,6 +328,9 @@ export default function NotificationsPage() {
   const [filter,        setFilter]        = useState("all");
   const [clearingAll,   setClearingAll]   = useState(false);
   const [deletingId,    setDeletingId]    = useState(null);
+  const [isMobile, setIsMobile] = useState(() => (
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 900px)").matches : false
+  ));
   const [read,          setRead]          = useState(() => {
     try { return new Set(JSON.parse(localStorage.getItem("noti_read") || "[]")); }
     catch { return new Set(); }
@@ -362,6 +365,19 @@ export default function NotificationsPage() {
       setFilter("all");
     }
   }, [filterTabs, filter]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return undefined;
+    const media = window.matchMedia("(max-width: 900px)");
+    const onChange = (event) => setIsMobile(event.matches);
+    setIsMobile(media.matches);
+    if (media.addEventListener) media.addEventListener("change", onChange);
+    else media.addListener(onChange);
+    return () => {
+      if (media.removeEventListener) media.removeEventListener("change", onChange);
+      else media.removeListener(onChange);
+    };
+  }, []);
 
   // â”€â”€ Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const markRead = async (id) => {
@@ -453,33 +469,33 @@ export default function NotificationsPage() {
   // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <div style={{ background: t.bg, minHeight: "100vh", fontFamily: "system-ui, sans-serif", transition: "background .25s" }}>
-      <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "36px 32px 80px" }}>
+      <div style={{ maxWidth: "1400px", margin: "0 auto", padding: isMobile ? "20px 14px 34px" : "36px 32px 80px" }}>
 
         {/* â”€â”€ Page Header â”€â”€ */}
-        <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "32px", paddingBottom: "24px", borderBottom: `1px solid ${t.border}` }}>
+        <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? "12px" : "16px", marginBottom: isMobile ? "20px" : "32px", paddingBottom: isMobile ? "16px" : "24px", borderBottom: `1px solid ${t.border}`, flexWrap: isMobile ? "wrap" : "nowrap" }}>
           <button onClick={() => navigate(-1)}
-            style={{ width: "42px", height: "42px", borderRadius: "12px", border: `1px solid ${t.border}`, background: t.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all .15s" }}
+            style={{ width: isMobile ? "38px" : "42px", height: isMobile ? "38px" : "42px", borderRadius: "12px", border: `1px solid ${t.border}`, background: t.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all .15s" }}
             onMouseEnter={e => e.currentTarget.style.background = t.bgHover}
             onMouseLeave={e => e.currentTarget.style.background = t.bgCard}>
-            <Icon.ArrowLeft size={18} color={t.textSec} />
+            <Icon.ArrowLeft size={isMobile ? 16 : 18} color={t.textSec} />
           </button>
 
           <div style={{ flex: 1 }}>
             <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-              <h1 style={{ color: t.textPri, fontSize: "28px", fontWeight: 900, margin: 0, letterSpacing: "-.02em" }}>Notifications</h1>
+              <h1 style={{ color: t.textPri, fontSize: isMobile ? "24px" : "28px", fontWeight: 900, margin: 0, letterSpacing: "-.02em" }}>Notifications</h1>
               {unreadCount > 0 && (
                 <span style={{ background: "linear-gradient(135deg,#f43f5e,#f97316)", color: "white", fontSize: "11px", fontWeight: 800, padding: "3px 11px", borderRadius: "999px", boxShadow: "0 2px 10px rgba(244,63,94,.4)", letterSpacing: ".05em" }}>
                   {unreadCount} NEW
                 </span>
               )}
             </div>
-            <p style={{ color: t.textMut, fontSize: "14px", margin: "3px 0 0" }}>{isBusiness ? "Auction creation · reserve · sales · buyer payments" : "Wishlist milestones · wins · outbid · payments"}</p>
+            <p style={{ color: t.textMut, fontSize: isMobile ? "13px" : "14px", margin: "3px 0 0" }}>{isBusiness ? "Auction creation · reserve · sales · buyer payments" : "Wishlist milestones · wins · outbid · payments"}</p>
           </div>
 
-          <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
+          <div style={{ display: "flex", gap: "8px", flexShrink: 0, width: isMobile ? "100%" : "auto", flexWrap: "wrap" }}>
             {unreadCount > 0 && (
               <button onClick={markAllRead}
-                style={{ padding: "9px 16px", borderRadius: "10px", border: "1px solid rgba(56,189,248,.35)", background: "rgba(56,189,248,.08)", color: "#38bdf8", fontWeight: 700, fontSize: "13px", cursor: "pointer", transition: "all .15s", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: "7px" }}
+                style={{ padding: isMobile ? "8px 12px" : "9px 16px", borderRadius: "10px", border: "1px solid rgba(56,189,248,.35)", background: "rgba(56,189,248,.08)", color: "#38bdf8", fontWeight: 700, fontSize: "13px", cursor: "pointer", transition: "all .15s", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: "7px" }}
                 onMouseEnter={e => e.currentTarget.style.background = "rgba(56,189,248,.18)"}
                 onMouseLeave={e => e.currentTarget.style.background = "rgba(56,189,248,.08)"}>
                 <Icon.CheckCheck size={15} color="#38bdf8" />
@@ -488,7 +504,7 @@ export default function NotificationsPage() {
             )}
             {notifications.length > 0 && (
               <button onClick={clearAll} disabled={clearingAll}
-                style={{ padding: "9px 16px", borderRadius: "10px", border: "1px solid rgba(244,63,94,.35)", background: "rgba(244,63,94,.08)", color: "#f43f5e", fontWeight: 700, fontSize: "13px", cursor: clearingAll ? "not-allowed" : "pointer", opacity: clearingAll ? 0.55 : 1, transition: "all .15s", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: "7px" }}
+                style={{ padding: isMobile ? "8px 12px" : "9px 16px", borderRadius: "10px", border: "1px solid rgba(244,63,94,.35)", background: "rgba(244,63,94,.08)", color: "#f43f5e", fontWeight: 700, fontSize: "13px", cursor: clearingAll ? "not-allowed" : "pointer", opacity: clearingAll ? 0.55 : 1, transition: "all .15s", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: "7px" }}
                 onMouseEnter={e => { if (!clearingAll) e.currentTarget.style.background = "rgba(244,63,94,.18)"; }}
                 onMouseLeave={e => { e.currentTarget.style.background = "rgba(244,63,94,.08)"; }}>
                 <Icon.Trash size={15} color="#f43f5e" />
@@ -496,7 +512,7 @@ export default function NotificationsPage() {
               </button>
             )}
             <button onClick={fetchNotifications}
-              style={{ width: "40px", height: "40px", borderRadius: "10px", border: `1px solid ${t.border}`, background: t.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all .15s" }}
+              style={{ width: isMobile ? "36px" : "40px", height: isMobile ? "36px" : "40px", borderRadius: "10px", border: `1px solid ${t.border}`, background: t.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all .15s" }}
               onMouseEnter={e => e.currentTarget.style.background = t.bgHover}
               onMouseLeave={e => e.currentTarget.style.background = t.bgCard}
               title="Refresh">
@@ -506,17 +522,17 @@ export default function NotificationsPage() {
         </div>
 
         {/* â”€â”€ Two-column layout â”€â”€ */}
-        <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: "28px", alignItems: "start" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "280px 1fr", gap: isMobile ? "14px" : "28px", alignItems: "start" }}>
 
           {/* â•â•â•â• LEFT SIDEBAR â•â•â•â• */}
-          <div style={{ position: "sticky", top: "24px", display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div style={{ position: isMobile ? "static" : "sticky", top: isMobile ? "auto" : "24px", display: "flex", flexDirection: "column", gap: "16px", order: isMobile ? 2 : 1 }}>
 
             {/* Stats */}
             <div style={{ background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: "18px", overflow: "hidden", boxShadow: t.shadowCard }}>
               <div style={{ padding: "14px 18px", borderBottom: `1px solid ${t.border}` }}>
                 <span style={{ color: t.textMut, fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em" }}>Overview</span>
               </div>
-              {overviewStats.map(({ label, value, color, Ic }, i, arr) => (
+              {overviewStats.slice(0, isMobile ? 4 : overviewStats.length).map(({ label, value, color, Ic }, i, arr) => (
                 <div key={label} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "13px 18px", borderBottom: i < arr.length - 1 ? `1px solid ${t.border}` : "none" }}>
                   <div style={{ width: "30px", height: "30px", borderRadius: "8px", background: `${color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <Ic size={15} color={color} />
@@ -532,14 +548,14 @@ export default function NotificationsPage() {
               <div style={{ padding: "14px 18px", borderBottom: `1px solid ${t.border}` }}>
                 <span style={{ color: t.textMut, fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em" }}>Filter</span>
               </div>
-              <div style={{ padding: "10px" }}>
+              <div style={{ padding: "10px", display: isMobile ? "flex" : "block", overflowX: isMobile ? "auto" : "visible", gap: isMobile ? "8px" : "0" }}>
                 {filterTabs.map(({ key, label }) => {
                   const cnt    = countOf(key);
                   const active = filter === key;
                   const FIc    = FILTER_ICON[key] ?? Icon.Bell;
                   return (
                     <button key={key} onClick={() => setFilter(key)}
-                      style={{ width: "100%", display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", borderRadius: "10px", border: "none", background: active ? "linear-gradient(135deg,#38bdf8,#6366f1)" : "transparent", color: active ? "white" : t.textSec, fontWeight: active ? 700 : 500, fontSize: "14px", cursor: "pointer", transition: "all .15s", marginBottom: "2px" }}
+                      style={{ width: isMobile ? "auto" : "100%", minWidth: isMobile ? "auto" : "unset", display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", borderRadius: "10px", border: "none", background: active ? "linear-gradient(135deg,#38bdf8,#6366f1)" : "transparent", color: active ? "white" : t.textSec, fontWeight: active ? 700 : 500, fontSize: "14px", cursor: "pointer", transition: "all .15s", marginBottom: isMobile ? "0" : "2px", whiteSpace: "nowrap", flexShrink: 0 }}
                       onMouseEnter={e => { if (!active) e.currentTarget.style.background = t.bgHover; }}
                       onMouseLeave={e => { if (!active) e.currentTarget.style.background = "transparent"; }}>
                       <FIc size={16} color={active ? "white" : t.textMut} />
@@ -594,14 +610,14 @@ export default function NotificationsPage() {
           </div>
 
           {/* â•â•â•â• RIGHT FEED â•â•â•â• */}
-          <div>
+          <div style={{ order: isMobile ? 1 : 2 }}>
 
             {/* Skeleton */}
             {loading && (
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {[1, 2, 3, 4].map(i => (
-                  <div key={i} style={{ background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: "16px", padding: "22px 24px", display: "flex", gap: "16px", opacity: 1 - i * 0.18 }}>
-                    <div style={{ width: "52px", height: "52px", borderRadius: "14px", background: t.bgHover, flexShrink: 0, animation: "shimmer 1.4s infinite" }} />
+                  <div key={i} style={{ background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: "16px", padding: isMobile ? "14px" : "22px 24px", display: "flex", gap: isMobile ? "12px" : "16px", opacity: 1 - i * 0.18 }}>
+                    <div style={{ width: isMobile ? "42px" : "52px", height: isMobile ? "42px" : "52px", borderRadius: isMobile ? "12px" : "14px", background: t.bgHover, flexShrink: 0, animation: "shimmer 1.4s infinite" }} />
                     <div style={{ flex: 1 }}>
                       <div style={{ height: "12px", width: "35%", background: t.bgHover, borderRadius: "6px", marginBottom: "12px", animation: "shimmer 1.4s infinite" }} />
                       <div style={{ height: "11px", width: "82%", background: t.bgHover, borderRadius: "6px", marginBottom: "10px", animation: "shimmer 1.4s infinite" }} />
@@ -629,17 +645,17 @@ export default function NotificationsPage() {
 
             {/* Empty */}
             {!loading && !error && visible.length === 0 && (
-              <div style={{ textAlign: "center", padding: "100px 0 80px" }}>
-                <div style={{ width: "88px", height: "88px", borderRadius: "24px", background: t.bgCard, border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 22px" }}>
+              <div style={{ textAlign: "center", padding: isMobile ? "56px 0 30px" : "100px 0 80px" }}>
+                <div style={{ width: isMobile ? "70px" : "88px", height: isMobile ? "70px" : "88px", borderRadius: isMobile ? "18px" : "24px", background: t.bgCard, border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 22px" }}>
                   {(() => {
                     const EmptyIc = FILTER_ICON[filter] ?? Icon.Bell;
-                    return <EmptyIc size={38} color={t.textFaint} />;
+                    return <EmptyIc size={isMobile ? 30 : 38} color={t.textFaint} />;
                   })()}
                 </div>
-                <div style={{ color: t.textPri, fontWeight: 800, fontSize: "22px", marginBottom: "10px" }}>
+                <div style={{ color: t.textPri, fontWeight: 800, fontSize: isMobile ? "18px" : "22px", marginBottom: "10px" }}>
                   {filter === "all" ? "All caught up!" : "No " + filter + " notifications"}
                 </div>
-                <div style={{ color: t.textMut, fontSize: "15px", lineHeight: 1.7, maxWidth: "380px", margin: "0 auto 28px" }}>
+                <div style={{ color: t.textMut, fontSize: isMobile ? "13px" : "15px", lineHeight: 1.7, maxWidth: "380px", margin: "0 auto 28px" }}>
                   {filter === "all"
                     ? (isBusiness
                         ? "Create auctions and start receiving reserve, sale and buyer-payment updates here."
@@ -648,8 +664,8 @@ export default function NotificationsPage() {
                 </div>
                 {filter === "all" && (
                   <button onClick={() => navigate(isBusiness ? "/business/Listings" : "/browse")}
-                    style={{ padding: "13px 32px", borderRadius: "12px", background: "linear-gradient(135deg,#38bdf8,#6366f1)", border: "none", color: "white", fontWeight: 700, fontSize: "15px", cursor: "pointer", boxShadow: "0 4px 16px rgba(56,189,248,.35)", display: "inline-flex", alignItems: "center", gap: "9px" }}>
-                    <Icon.Gavel size={18} color="white" /> {isBusiness ? "View Listings" : "Browse Auctions"}
+                    style={{ padding: isMobile ? "11px 20px" : "13px 32px", borderRadius: "12px", background: "linear-gradient(135deg,#38bdf8,#6366f1)", border: "none", color: "white", fontWeight: 700, fontSize: isMobile ? "14px" : "15px", cursor: "pointer", boxShadow: "0 4px 16px rgba(56,189,248,.35)", display: "inline-flex", alignItems: "center", gap: "9px" }}>
+                    <Icon.Gavel size={isMobile ? 16 : 18} color="white" /> {isBusiness ? "View Listings" : "Browse Auctions"}
                   </button>
                 )}
               </div>
@@ -695,11 +711,11 @@ export default function NotificationsPage() {
                       {/* Left accent bar */}
                       <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: meta.urgency === 3 ? "5px" : "3px", background: meta.accent, boxShadow: meta.urgency === 3 ? `3px 0 16px ${meta.accent}66` : "none", borderRadius: "16px 0 0 16px" }} />
 
-                      <div style={{ padding: "20px 20px 20px 26px", display: "flex", gap: "16px", alignItems: "flex-start" }}>
+                      <div style={{ padding: isMobile ? "14px 14px 14px 18px" : "20px 20px 20px 26px", display: "flex", gap: isMobile ? "10px" : "16px", alignItems: "flex-start" }}>
 
                         {/* Icon bubble */}
-                        <div style={{ width: "52px", height: "52px", borderRadius: "14px", background: isRead ? t.bgHover : meta.bg, border: `1px solid ${isRead ? t.border : meta.border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <NIc size={24} color={isRead ? t.textFaint : meta.accent} />
+                        <div style={{ width: isMobile ? "42px" : "52px", height: isMobile ? "42px" : "52px", borderRadius: isMobile ? "12px" : "14px", background: isRead ? t.bgHover : meta.bg, border: `1px solid ${isRead ? t.border : meta.border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <NIc size={isMobile ? 20 : 24} color={isRead ? t.textFaint : meta.accent} />
                         </div>
 
                         {/* Content */}
@@ -718,38 +734,38 @@ export default function NotificationsPage() {
                             )}
                           </div>
 
-                          <p style={{ color: isRead ? t.textSec : t.textPri, fontSize: "14px", fontWeight: isRead ? 400 : 600, margin: "0 0 14px", lineHeight: 1.65 }}>
+                          <p style={{ color: isRead ? t.textSec : t.textPri, fontSize: isMobile ? "13px" : "14px", fontWeight: isRead ? 400 : 600, margin: "0 0 14px", lineHeight: 1.65 }}>
                             {n.body ?? n.message ?? ""}
                           </p>
 
                           {auction && (
-                            <div style={{ display: "flex", alignItems: "center", gap: "12px", background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "12px 14px" }}>
+                            <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", flexDirection: isMobile ? "column" : "row", gap: "12px", background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "12px 14px" }}>
                               {auction.images?.[0] && (
                                 <img
                                   src={typeof auction.images[0] === "string" ? auction.images[0] : auction.images[0]?.url}
                                   alt=""
-                                  style={{ width: "44px", height: "44px", borderRadius: "10px", objectFit: "cover", flexShrink: 0, border: `1px solid ${t.border}` }}
+                                  style={{ width: isMobile ? "100%" : "44px", height: isMobile ? "120px" : "44px", borderRadius: "10px", objectFit: "cover", flexShrink: 0, border: `1px solid ${t.border}` }}
                                 />
                               )}
                               <div style={{ flex: 1, minWidth: 0 }}>
                                 <div style={{ color: t.textPri, fontSize: "14px", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                   {auction.title ?? "â€”"}
                                 </div>
-                                <div style={{ color: t.textMut, fontSize: "12px", marginTop: "3px" }}>
+                                <div style={{ color: t.textMut, fontSize: "12px", marginTop: "3px", lineHeight: 1.5 }}>
                                   {n.type === "won"
                                     ? "Won for: " + formatPrice(n.result?.winningBid ?? n.result?.finalPrice)
                                     : "Starting bid: " + formatPrice(auction.startingBid)}
                                   {auction.category && <span style={{ marginLeft: "10px", opacity: .65 }}>Â· {auction.category}</span>}
                                 </div>
                               </div>
-                              <Icon.ArrowRight size={18} color={meta.accent} />
+                              {!isMobile && <Icon.ArrowRight size={18} color={meta.accent} />}
                             </div>
                           )}
 
                           {n.type === "won" && (
                             <button
                               onClick={(e) => { e.stopPropagation(); markRead(nId); navigate("/won"); }}
-                              style={{ marginTop: "14px", padding: "11px 24px", borderRadius: "10px", background: "linear-gradient(135deg,#38bdf8,#6366f1)", border: "none", color: "white", fontWeight: 700, fontSize: "14px", cursor: "pointer", boxShadow: "0 3px 14px rgba(56,189,248,.35)", display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                              style={{ marginTop: "14px", padding: isMobile ? "10px 16px" : "11px 24px", borderRadius: "10px", background: "linear-gradient(135deg,#38bdf8,#6366f1)", border: "none", color: "white", fontWeight: 700, fontSize: "14px", cursor: "pointer", boxShadow: "0 3px 14px rgba(56,189,248,.35)", display: "inline-flex", alignItems: "center", gap: "8px" }}>
                               <Icon.CreditCard size={17} color="white" /> Pay Now
                             </button>
                           )}
@@ -760,7 +776,7 @@ export default function NotificationsPage() {
                           onClick={(e) => deleteOne(e, nId)}
                           disabled={isDeleting}
                           title="Dismiss"
-                          style={{ flexShrink: 0, alignSelf: "flex-start", width: "30px", height: "30px", borderRadius: "8px", border: `1px solid ${t.border}`, background: t.bgCard, cursor: isDeleting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all .15s" }}
+                          style={{ flexShrink: 0, alignSelf: "flex-start", width: isMobile ? "28px" : "30px", height: isMobile ? "28px" : "30px", borderRadius: "8px", border: `1px solid ${t.border}`, background: t.bgCard, cursor: isDeleting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all .15s" }}
                           onMouseEnter={e => { if (!isDeleting) { e.currentTarget.style.background = "rgba(244,63,94,.12)"; e.currentTarget.style.borderColor = "rgba(244,63,94,.4)"; } }}
                           onMouseLeave={e => { e.currentTarget.style.background = t.bgCard; e.currentTarget.style.borderColor = t.border; }}>
                           {isDeleting
