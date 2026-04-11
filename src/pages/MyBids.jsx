@@ -123,9 +123,10 @@ function useCountdown(endTime) {
 }
 
 /* ── BidCard styled like BrowseAuctions AuctionCard ── */
-function BidCard({ bid, navigate, t, walletBalance, refetchWallet, userId, onMarkPaid }) {
+function BidCard({ bid, navigate, t, walletBalance, refetchWallet, userId, onMarkPaid, isMobile = false }) {
   const [hov, setHov] = useState(false);
   const [paying, setPaying] = useState(false);
+  const compact = isMobile;
 
   const auction    = bid.auction && typeof bid.auction === "object" ? bid.auction : null;
   const isEnded    = isAuctionEnded(auction);
@@ -191,7 +192,7 @@ function BidCard({ bid, navigate, t, walletBalance, refetchWallet, userId, onMar
           : isWinner
           ? "linear-gradient(135deg, rgba(52,211,153,0.06), rgba(56,189,248,0.04))"
           : t.bgCardGrad,
-        borderRadius: "20px",
+        borderRadius: compact ? "16px" : "20px",
         overflow: "hidden",
         border: borderColor,
         transform: !isPaid && hov ? "translateY(-6px)" : "translateY(0)",
@@ -203,7 +204,7 @@ function BidCard({ bid, navigate, t, walletBalance, refetchWallet, userId, onMar
       }}>
 
       {/* ── Image (same 200px height as BrowseAuctions) ── */}
-      <div style={{ position: "relative", height: "200px", background: t.bgCardGrad, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ position: "relative", height: compact ? "150px" : "200px", background: t.bgCardGrad, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <img
           src={img}
           alt={auctionTitle}
@@ -248,28 +249,28 @@ function BidCard({ bid, navigate, t, walletBalance, refetchWallet, userId, onMar
       </div>
 
       {/* ── Body ── */}
-      <div style={{ padding: "20px" }}>
+      <div style={{ padding: compact ? "12px" : "20px" }}>
 
         {/* Title */}
-        <h3 style={{ color: t.textPri, fontWeight: 700, fontSize: "15px", margin: "0 0 12px", lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+        <h3 style={{ color: t.textPri, fontWeight: 700, fontSize: compact ? "14px" : "15px", margin: `0 0 ${compact ? "9px" : "12px"}`, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
           {auctionTitle}
         </h3>
 
         {/* Bid + Timer row (mirrors BrowseAuctions layout exactly) */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "14px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: compact ? "10px" : "14px" }}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "4px", color: t.textMut, fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "3px" }}>
-              {SvgIcons.Tag(11)} {bidLabel}
+            <div style={{ display: "flex", alignItems: "center", gap: "4px", color: t.textMut, fontSize: compact ? "10px" : "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: compact ? "2px" : "3px" }}>
+              {SvgIcons.Tag(compact ? 10 : 11)} {bidLabel}
             </div>
-            <div style={{ color: isPaid ? "#64748b" : isWinner ? "#34d399" : isEnded ? t.textSec : "#38bdf8", fontSize: "22px", fontWeight: 800 }}>
+            <div style={{ color: isPaid ? "#64748b" : isWinner ? "#34d399" : isEnded ? t.textSec : "#38bdf8", fontSize: compact ? "18px" : "22px", fontWeight: 800 }}>
               {formatINR(bid.bidAmount)}
             </div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "4px", color: t.textMut, fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "3px" }}>
-              {SvgIcons.Clock(11)} {timeLabel}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "4px", color: t.textMut, fontSize: compact ? "10px" : "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: compact ? "2px" : "3px" }}>
+              {SvgIcons.Clock(compact ? 10 : 11)} {timeLabel}
             </div>
-            <div style={{ color: timeColor, fontSize: "13px", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>
+            <div style={{ color: timeColor, fontSize: compact ? "12px" : "13px", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>
               {timeValue}
             </div>
           </div>
@@ -277,21 +278,21 @@ function BidCard({ bid, navigate, t, walletBalance, refetchWallet, userId, onMar
 
         {/* Progress bar / meta row (mirrors BrowseAuctions) */}
         {isLive ? (
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: compact ? "6px" : "8px", marginBottom: compact ? "10px" : "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "4px", color: t.textMut }}>
-              {SvgIcons.Users(13)}
-              <span style={{ color: t.textMut, fontSize: "12px" }}>{auction?.totalBids ?? 0} bids</span>
+              {SvgIcons.Users(compact ? 12 : 13)}
+              <span style={{ color: t.textMut, fontSize: compact ? "11px" : "12px" }}>{auction?.totalBids ?? 0} bids</span>
             </div>
             <div style={{ flex: 1, height: "3px", background: t.L ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)", borderRadius: "2px", overflow: "hidden" }}>
               <div style={{ height: "100%", width: `${Math.min(100, ((auction?.totalBids ?? 0) / 50) * 100)}%`, background: "linear-gradient(90deg, #38bdf8, #6366f1)", borderRadius: "2px" }} />
             </div>
           </div>
         ) : (
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "4px", color: t.textMut, fontSize: "12px" }}>
-              {SvgIcons.Users(13)} {auction?.totalBids ?? 0} bids
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: compact ? "10px" : "16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "4px", color: t.textMut, fontSize: compact ? "11px" : "12px" }}>
+              {SvgIcons.Users(compact ? 12 : 13)} {auction?.totalBids ?? 0} bids
             </div>
-            <div style={{ fontSize: "11px", color: t.textFaint }}>
+            <div style={{ fontSize: compact ? "10px" : "11px", color: t.textFaint }}>
               {formatDate(bid.createdAt)}
             </div>
           </div>
@@ -307,7 +308,7 @@ function BidCard({ bid, navigate, t, walletBalance, refetchWallet, userId, onMar
         {/* Action button (mirrors BrowseAuctions button style) */}
         {isWinner ? (
           isPaid ? (
-            <div style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1px solid rgba(100,116,139,0.55)", background: "rgba(100,116,139,0.18)", color: "#475569", fontWeight: 800, fontSize: "14px", textAlign: "center" }}>
+            <div style={{ width: "100%", padding: compact ? "10px" : "12px", borderRadius: compact ? "10px" : "12px", border: "1px solid rgba(100,116,139,0.55)", background: "rgba(100,116,139,0.18)", color: "#475569", fontWeight: 800, fontSize: compact ? "13px" : "14px", textAlign: "center" }}>
               Paid
             </div>
           ) : (
@@ -438,24 +439,24 @@ function BidCard({ bid, navigate, t, walletBalance, refetchWallet, userId, onMar
               }}
               onMouseEnter={e => e.currentTarget.style.opacity = ".88"}
               onMouseLeave={e => e.currentTarget.style.opacity = "1"}
-              style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1px solid rgba(52,211,153,0.35)", background: "rgba(52,211,153,0.08)", color: "#34d399", fontWeight: 700, fontSize: "14px", cursor: paying ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", transition: "opacity 0.15s", opacity: paying ? 0.6 : 1 }}>
-              {SvgIcons.Trophy(14)} {paying ? "Processing…" : "Pay via Razorpay"}
+              style={{ width: "100%", padding: compact ? "10px" : "12px", borderRadius: compact ? "10px" : "12px", border: "1px solid rgba(52,211,153,0.35)", background: "rgba(52,211,153,0.08)", color: "#34d399", fontWeight: 700, fontSize: compact ? "13px" : "14px", cursor: paying ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", transition: "opacity 0.15s", opacity: paying ? 0.6 : 1 }}>
+              {SvgIcons.Trophy(compact ? 13 : 14)} {paying ? "Processing…" : "Pay via Razorpay"}
             </button>
           </div>
           )
         ) : isEnded ? (
           <button
             disabled
-            style={{ width: "100%", padding: "12px", borderRadius: "12px", border: `1px solid ${t.border}`, background: "transparent", color: t.textMut, fontWeight: 700, fontSize: "14px", cursor: "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
-            {SvgIcons.Ended(14)} Auction Ended
+            style={{ width: "100%", padding: compact ? "10px" : "12px", borderRadius: compact ? "10px" : "12px", border: `1px solid ${t.border}`, background: "transparent", color: t.textMut, fontWeight: 700, fontSize: compact ? "13px" : "14px", cursor: "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+            {SvgIcons.Ended(compact ? 13 : 14)} Auction Ended
           </button>
         ) : (
           <button
             onClick={(e) => { e.stopPropagation(); if (auctionId) navigate(`/auction/${auctionId}`); }}
             onMouseEnter={e => e.currentTarget.style.opacity = ".88"}
             onMouseLeave={e => e.currentTarget.style.opacity = "1"}
-            style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "none", background: "linear-gradient(135deg,#f43f5e,#dc2626)", color: "white", fontWeight: 700, fontSize: "14px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", transition: "opacity 0.15s" }}>
-            {SvgIcons.Live(14)} Bid Again
+            style={{ width: "100%", padding: compact ? "10px" : "12px", borderRadius: compact ? "10px" : "12px", border: "none", background: "linear-gradient(135deg,#f43f5e,#dc2626)", color: "white", fontWeight: 700, fontSize: compact ? "13px" : "14px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", transition: "opacity 0.15s" }}>
+            {SvgIcons.Live(compact ? 13 : 14)} Bid Again
           </button>
         )}
       </div>
@@ -502,6 +503,22 @@ export default function MyBids() {
   const [filter,       setFilter]       = useState("all");
   const [sort,         setSort]         = useState("newest");
   const [walletBalance, setWalletBalance] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => (
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 768px)").matches : false
+  ));
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return undefined;
+    const media = window.matchMedia("(max-width: 768px)");
+    const onChange = (event) => setIsMobile(event.matches);
+    setIsMobile(media.matches);
+    if (media.addEventListener) media.addEventListener("change", onChange);
+    else media.addListener(onChange);
+    return () => {
+      if (media.removeEventListener) media.removeEventListener("change", onChange);
+      else media.removeListener(onChange);
+    };
+  }, []);
 
   const fetchWallet = async () => {
     if (!userId) return;
@@ -667,13 +684,13 @@ export default function MyBids() {
     <div style={{ background: t.bg, minHeight: "100vh", fontFamily: "'Segoe UI', system-ui, sans-serif", transition: "background 0.25s" }}>
 
       {/* ── HEADER ── */}
-      <div style={{ background: t.bgSec, borderBottom: `1px solid ${t.border}`, padding: "40px 40px 32px" }}>
+      <div style={{ background: t.bgSec, borderBottom: `1px solid ${t.border}`, padding: isMobile ? "24px 14px 20px" : "40px 40px 32px" }}>
         <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "16px" }}>
             <div>
               <div style={{ color: "#38bdf8", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: "8px" }}>📋 Bid History</div>
-              <h1 style={{ color: t.textPri, fontSize: "36px", fontWeight: 900, margin: 0 }}>My Bids</h1>
-              <p style={{ color: t.textMut, marginTop: "8px", fontSize: "15px" }}>Track all your auction activity in one place.</p>
+              <h1 style={{ color: t.textPri, fontSize: isMobile ? "28px" : "36px", fontWeight: 900, margin: 0 }}>My Bids</h1>
+              <p style={{ color: t.textMut, marginTop: "8px", fontSize: isMobile ? "14px" : "15px" }}>Track all your auction activity in one place.</p>
               <div style={{ marginTop: "12px", display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(56,189,248,0.1)", border: "1px solid rgba(56,189,248,0.25)", borderRadius: "10px", padding: "6px 14px" }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M16 14a1 1 0 1 0 2 0 1 1 0 0 0-2 0"/><path d="M22 10H2"/></svg>
                 <span style={{ fontSize: "13px", color: "#38bdf8", fontWeight: 700 }}>Wallet: ₹{walletBalance.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</span>
@@ -702,7 +719,7 @@ export default function MyBids() {
       </div>
 
       {/* ── GRID ── */}
-      <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "32px 40px 60px" }}>
+      <div style={{ maxWidth: "1400px", margin: "0 auto", padding: isMobile ? "18px 14px 28px" : "32px 40px 60px" }}>
         {loading ? (
           <div style={{ textAlign: "center", padding: "100px 0" }}>
             <div style={{ fontSize: "48px", marginBottom: "16px", animation: "pulse 1s infinite" }}>⏳</div>
@@ -731,8 +748,8 @@ export default function MyBids() {
                 <div style={{ fontSize: "16px", fontWeight: 600, color: t.textSec }}>No bids match this filter</div>
               </div>
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "20px" }}>
-                {filtered.map((bid, i) => <BidCard key={bid._id || i} bid={bid} navigate={navigate} t={t} walletBalance={walletBalance} refetchWallet={fetchWallet} userId={userId} onMarkPaid={markBidPaid} />)}
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, minmax(0, 1fr))" : "repeat(auto-fill, minmax(240px, 1fr))", gap: isMobile ? "12px" : "20px" }}>
+                {filtered.map((bid, i) => <BidCard key={bid._id || i} bid={bid} navigate={navigate} t={t} walletBalance={walletBalance} refetchWallet={fetchWallet} userId={userId} onMarkPaid={markBidPaid} isMobile={isMobile} />)}
               </div>
             )}
           </>

@@ -71,10 +71,11 @@ const SvgIcons = {
 };
 
 /* ── WonCard ── */
-function WonCard({ result, t, loadRazorpay, walletBalance, refetchWallet, userId }) {
+function WonCard({ result, t, loadRazorpay, walletBalance, refetchWallet, userId, isMobile = false }) {
   const [hov, setHov] = useState(false);
   const [paying, setPaying] = useState(false);
   const [paid, setPaid] = useState(isResultPaid(result));
+  const compact = isMobile;
 
   const auction      = result.auction;
   const auctionTitle = result.auctionTitle || auction?.title || "Untitled Auction";
@@ -170,7 +171,7 @@ function WonCard({ result, t, loadRazorpay, walletBalance, refetchWallet, userId
         background: paid
           ? "linear-gradient(135deg, rgba(148,163,184,0.14), rgba(100,116,139,0.1))"
           : "linear-gradient(135deg, rgba(52,211,153,0.06), rgba(56,189,248,0.04))",
-        borderRadius: "20px",
+        borderRadius: compact ? "16px" : "20px",
         overflow: "hidden",
         border: paid
           ? "1px solid rgba(148,163,184,0.42)"
@@ -190,7 +191,7 @@ function WonCard({ result, t, loadRazorpay, walletBalance, refetchWallet, userId
       }}>
 
       {/* Image */}
-      <div style={{ position: "relative", height: "200px", background: t.bgCardGrad, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ position: "relative", height: compact ? "150px" : "200px", background: t.bgCardGrad, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <img
           src={img}
           alt={auctionTitle}
@@ -220,52 +221,52 @@ function WonCard({ result, t, loadRazorpay, walletBalance, refetchWallet, userId
       </div>
 
       {/* Body */}
-      <div style={{ padding: "20px" }}>
+      <div style={{ padding: compact ? "12px" : "20px" }}>
 
         {/* Title */}
-        <h3 style={{ color: t.textPri, fontWeight: 700, fontSize: "15px", margin: "0 0 12px", lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+        <h3 style={{ color: t.textPri, fontWeight: 700, fontSize: compact ? "14px" : "15px", margin: `0 0 ${compact ? "9px" : "12px"}`, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
           {auctionTitle}
         </h3>
 
         {/* Winner name */}
-        <div style={{ marginBottom: "6px", fontSize: "12px", color: t.textMut }}>
+        <div style={{ marginBottom: "6px", fontSize: compact ? "11px" : "12px", color: t.textMut }}>
           Winner: <span style={{ color: t.textSec, fontWeight: 700 }}>{result.winnerName || "—"}</span>
         </div>
 
         {/* Seller name */}
         {result.sellerName && (
-          <div style={{ marginBottom: "10px", fontSize: "12px", color: t.textMut }}>
+          <div style={{ marginBottom: "10px", fontSize: compact ? "11px" : "12px", color: t.textMut }}>
             Seller:{" "}
             <span style={{ color: t.textFaint, fontWeight: 600 }}>{result.sellerName}</span>
           </div>
         )}
 
         {/* Winning bid + Ended row */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "14px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: compact ? "10px" : "14px" }}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "4px", color: t.textMut, fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "3px" }}>
-              {SvgIcons.Tag(11)} Winning Bid
+            <div style={{ display: "flex", alignItems: "center", gap: "4px", color: t.textMut, fontSize: compact ? "10px" : "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: compact ? "2px" : "3px" }}>
+              {SvgIcons.Tag(compact ? 10 : 11)} Winning Bid
             </div>
-            <div style={{ color: "#34d399", fontSize: "22px", fontWeight: 800 }}>
+            <div style={{ color: "#34d399", fontSize: compact ? "18px" : "22px", fontWeight: 800 }}>
               {formatINR(result.winningBid)}
             </div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "4px", color: t.textMut, fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "3px" }}>
-              {SvgIcons.Clock(11)} Ended
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "4px", color: t.textMut, fontSize: compact ? "10px" : "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: compact ? "2px" : "3px" }}>
+              {SvgIcons.Clock(compact ? 10 : 11)} Ended
             </div>
-            <div style={{ color: t.textMut, fontSize: "13px", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>
+            <div style={{ color: t.textMut, fontSize: compact ? "12px" : "13px", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>
               {endedAt ? formatDate(new Date(endedAt).toISOString()).split(",")[0] : "—"}
             </div>
           </div>
         </div>
 
         {/* Meta row */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "4px", color: t.textMut, fontSize: "12px" }}>
-            {SvgIcons.Users(13)} {auction?.totalBids ?? 0} bids
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: compact ? "10px" : "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", color: t.textMut, fontSize: compact ? "11px" : "12px" }}>
+            {SvgIcons.Users(compact ? 12 : 13)} {auction?.totalBids ?? 0} bids
           </div>
-          <div style={{ fontSize: "12px", color: t.textFaint }}>
+          <div style={{ fontSize: compact ? "11px" : "12px", color: t.textFaint }}>
             Started {formatINR(auction?.startingBid ?? 0)}
           </div>
         </div>
@@ -288,9 +289,9 @@ function WonCard({ result, t, loadRazorpay, walletBalance, refetchWallet, userId
         {/* ✅ PAID badge — shown instead of buttons once payment is complete */}
         {paid ? (
           <div style={{
-            width: "100%", padding: "13px", borderRadius: "12px",
+            width: "100%", padding: compact ? "10px" : "13px", borderRadius: compact ? "10px" : "12px",
             background: "rgba(100,116,139,0.18)", border: "1px solid rgba(100,116,139,0.55)",
-            color: "#475569", fontWeight: 800, fontSize: "14px",
+            color: "#475569", fontWeight: 800, fontSize: compact ? "13px" : "14px",
             display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
           }}>
             Paid
@@ -334,7 +335,7 @@ function WonCard({ result, t, loadRazorpay, walletBalance, refetchWallet, userId
                     setPaying(false);
                   }
                 }}
-                style={{ width: "100%", padding: "11px", borderRadius: "12px", border: "1px solid rgba(52,211,153,0.35)", background: "rgba(52,211,153,0.1)", color: "#34d399", fontWeight: 700, fontSize: "13px", cursor: paying ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", opacity: paying ? 0.6 : 1, marginBottom: "8px" }}>
+                style={{ width: "100%", padding: compact ? "10px" : "11px", borderRadius: compact ? "10px" : "12px", border: "1px solid rgba(52,211,153,0.35)", background: "rgba(52,211,153,0.1)", color: "#34d399", fontWeight: 700, fontSize: compact ? "12px" : "13px", cursor: paying ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", opacity: paying ? 0.6 : 1, marginBottom: "8px" }}>
                 💰 Pay from Wallet
               </button>
             )}
@@ -399,15 +400,15 @@ function WonCard({ result, t, loadRazorpay, walletBalance, refetchWallet, userId
                 }
               }}
               style={{
-                width: "100%", padding: "12px", borderRadius: "12px",
+                width: "100%", padding: compact ? "10px" : "12px", borderRadius: compact ? "10px" : "12px",
                 border: "1px solid rgba(52,211,153,0.35)",
                 background: paying ? "rgba(52,211,153,0.04)" : "rgba(52,211,153,0.08)",
-                color: "#34d399", fontWeight: 700, fontSize: "14px",
+                color: "#34d399", fontWeight: 700, fontSize: compact ? "13px" : "14px",
                 cursor: paying ? "not-allowed" : "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
                 opacity: paying ? 0.6 : 1, transition: "opacity 0.2s"
               }}>
-              {SvgIcons.CreditCard(15)} {paying ? "Processing…" : "Pay Now"}
+              {SvgIcons.CreditCard(compact ? 14 : 15)} {paying ? "Processing…" : "Pay Now"}
             </button>
           </>
         )}
@@ -455,6 +456,22 @@ export default function WonAuctions() {
   const [sort,          setSort]          = useState("newest");
   const [search,        setSearch]        = useState("");
   const [walletBalance, setWalletBalance] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => (
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 768px)").matches : false
+  ));
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return undefined;
+    const media = window.matchMedia("(max-width: 768px)");
+    const onChange = (event) => setIsMobile(event.matches);
+    setIsMobile(media.matches);
+    if (media.addEventListener) media.addEventListener("change", onChange);
+    else media.addListener(onChange);
+    return () => {
+      if (media.removeEventListener) media.removeEventListener("change", onChange);
+      else media.removeListener(onChange);
+    };
+  }, []);
 
   const fetchWallet = async () => {
     if (!userId) return;
@@ -588,15 +605,15 @@ export default function WonAuctions() {
     <div style={{ background: t.bg, minHeight: "100vh", fontFamily: "'Segoe UI', system-ui, sans-serif", transition: "background 0.25s" }}>
 
       {/* HEADER */}
-      <div style={{ background: t.bgSec, borderBottom: `1px solid ${t.border}`, padding: "40px 40px 32px" }}>
+      <div style={{ background: t.bgSec, borderBottom: `1px solid ${t.border}`, padding: isMobile ? "24px 14px 20px" : "40px 40px 32px" }}>
         <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "16px" }}>
             <div>
               <div style={{ color: "#34d399", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: "8px" }}>
                 🏆 Victory Board
               </div>
-              <h1 style={{ color: t.textPri, fontSize: "36px", fontWeight: 900, margin: 0 }}>Won Auctions</h1>
-              <p style={{ color: t.textMut, marginTop: "8px", fontSize: "15px" }}>Every auction you've won — your collection of victories.</p>
+              <h1 style={{ color: t.textPri, fontSize: isMobile ? "28px" : "36px", fontWeight: 900, margin: 0 }}>Won Auctions</h1>
+              <p style={{ color: t.textMut, marginTop: "8px", fontSize: isMobile ? "14px" : "15px" }}>Every auction you've won — your collection of victories.</p>
               <div style={{ marginTop: "12px", display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.25)", borderRadius: "10px", padding: "6px 14px" }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M16 14a1 1 0 1 0 2 0 1 1 0 0 0-2 0"/><path d="M22 10H2"/></svg>
                 <span style={{ fontSize: "13px", color: "#34d399", fontWeight: 700 }}>Wallet: ₹{walletBalance.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</span>
@@ -620,7 +637,7 @@ export default function WonAuctions() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search won auctions…"
-                style={{ background: t.bgInput, border: `1px solid ${t.borderMd}`, borderRadius: "10px", padding: "10px 14px 10px 38px", color: t.textPri, fontSize: "14px", outline: "none", width: "240px" }}
+                style={{ background: t.bgInput, border: `1px solid ${t.borderMd}`, borderRadius: "10px", padding: "10px 14px 10px 38px", color: t.textPri, fontSize: "14px", outline: "none", width: isMobile ? "100%" : "240px", minWidth: isMobile ? "220px" : "auto" }}
               />
             </div>
             <select value={sort} onChange={e => setSort(e.target.value)}
@@ -635,7 +652,7 @@ export default function WonAuctions() {
       </div>
 
       {/* GRID */}
-      <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "32px 40px 60px" }}>
+      <div style={{ maxWidth: "1400px", margin: "0 auto", padding: isMobile ? "18px 14px 28px" : "32px 40px 60px" }}>
         {loading ? (
           <div style={{ textAlign: "center", padding: "100px 0" }}>
             <div style={{ fontSize: "52px", marginBottom: "16px", animation: "pulse 1s infinite" }}>🏆</div>
@@ -672,7 +689,7 @@ export default function WonAuctions() {
                 <div style={{ color: t.textSec, fontSize: "16px", fontWeight: 600 }}>No results for "{search}"</div>
               </div>
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "20px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, minmax(0, 1fr))" : "repeat(auto-fill, minmax(240px, 1fr))", gap: isMobile ? "12px" : "20px" }}>
                 {filtered.map((result) => (
                   <WonCard
                     key={result._id}
@@ -682,6 +699,7 @@ export default function WonAuctions() {
                     walletBalance={walletBalance}
                     refetchWallet={fetchWallet}
                     userId={userId}
+                    isMobile={isMobile}
                   />
                 ))}
               </div>

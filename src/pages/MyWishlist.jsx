@@ -116,10 +116,11 @@ const SvgIcons = {
 };
 
 // ── Single wishlist card ──────────────────────────────────────────────────────
-function WishlistCard({ auction, onRemove, onComplete, isBusiness }) {
+function WishlistCard({ auction, onRemove, onComplete, isBusiness, isMobile = false }) {
   const t = useThemeStyles();
   const navigate = useNavigate();
   const [hov, setHov] = useState(false);
+  const compact = isMobile;
   const time = useCountdown(auction.endTime, auction.id, auction.status, onComplete);
 
   const isCancelled = auction.status === "Cancelled" || auction.status === "cancelled";
@@ -138,7 +139,7 @@ function WishlistCard({ auction, onRemove, onComplete, isBusiness }) {
       onMouseLeave={() => setHov(false)}
       style={{
         background: t.bgCardGrad,
-        borderRadius: "20px",
+        borderRadius: compact ? "16px" : "20px",
         overflow: "hidden",
         border: isCancelled
           ? "1px solid rgba(239,68,68,0.3)"
@@ -152,7 +153,7 @@ function WishlistCard({ auction, onRemove, onComplete, isBusiness }) {
       }}>
 
       {/* ── Image ── */}
-      <div style={{ position: "relative", height: "200px", background: t.bgCardGrad, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ position: "relative", height: compact ? "150px" : "200px", background: t.bgCardGrad, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <img
           src={auction.img || "https://placehold.co/400x300/1e293b/38bdf8?text=No+Image"}
           alt={auction.title}
@@ -205,26 +206,26 @@ function WishlistCard({ auction, onRemove, onComplete, isBusiness }) {
       </div>
 
       {/* ── Body ── */}
-      <div style={{ padding: "20px" }}>
-        <h3 style={{ color: t.textPri, fontWeight: 700, fontSize: "15px", margin: "0 0 12px", lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+      <div style={{ padding: compact ? "12px" : "20px" }}>
+        <h3 style={{ color: t.textPri, fontWeight: 700, fontSize: compact ? "14px" : "15px", margin: `0 0 ${compact ? "9px" : "12px"}`, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
           {auction.title}
         </h3>
 
         {/* Bid + Timer row */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "14px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: compact ? "10px" : "14px" }}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "4px", color: t.textMut, fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "3px" }}>
-              {SvgIcons.Tag(11)} {bidLabel}
+            <div style={{ display: "flex", alignItems: "center", gap: "4px", color: t.textMut, fontSize: compact ? "10px" : "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: compact ? "2px" : "3px" }}>
+              {SvgIcons.Tag(compact ? 10 : 11)} {bidLabel}
             </div>
-            <div style={{ color: isCancelled ? "#ef4444" : isEnded ? t.textSec : "#38bdf8", fontSize: "22px", fontWeight: 800 }}>
+            <div style={{ color: isCancelled ? "#ef4444" : isEnded ? t.textSec : "#38bdf8", fontSize: compact ? "18px" : "22px", fontWeight: 800 }}>
               {formatINR(auction.currentBid)}
             </div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "4px", color: t.textMut, fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "3px" }}>
-              {SvgIcons.Clock(11)} {timeLabel}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "4px", color: t.textMut, fontSize: compact ? "10px" : "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: compact ? "2px" : "3px" }}>
+              {SvgIcons.Clock(compact ? 10 : 11)} {timeLabel}
             </div>
-            <div style={{ color: timeColor, fontSize: "13px", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>
+            <div style={{ color: timeColor, fontSize: compact ? "12px" : "13px", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>
               {timeValue}
             </div>
           </div>
@@ -232,10 +233,10 @@ function WishlistCard({ auction, onRemove, onComplete, isBusiness }) {
 
         {/* Bids progress bar */}
         {isLive && (
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: compact ? "6px" : "8px", marginBottom: compact ? "10px" : "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "4px", color: t.textMut }}>
-              {SvgIcons.Users(13)}
-              <span style={{ color: t.textMut, fontSize: "12px" }}>{auction.totalBids} bids</span>
+              {SvgIcons.Users(compact ? 12 : 13)}
+              <span style={{ color: t.textMut, fontSize: compact ? "11px" : "12px" }}>{auction.totalBids} bids</span>
             </div>
             <div style={{ flex: 1, height: "3px", background: t.L ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.06)", borderRadius: "2px", overflow: "hidden" }}>
               <div style={{ height: "100%", width: `${Math.min(100, (auction.totalBids / 50) * 100)}%`, background: "linear-gradient(90deg, #38bdf8, #6366f1)", borderRadius: "2px" }} />
@@ -243,11 +244,11 @@ function WishlistCard({ auction, onRemove, onComplete, isBusiness }) {
           </div>
         )}
         {!isLive && !isScheduled && (
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "4px", color: t.textMut, fontSize: "12px" }}>
-              {SvgIcons.Users(13)} {auction.totalBids} bids
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: compact ? "10px" : "16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "4px", color: t.textMut, fontSize: compact ? "11px" : "12px" }}>
+              {SvgIcons.Users(compact ? 12 : 13)} {auction.totalBids} bids
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "3px", color: "#f59e0b", fontSize: "12px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "3px", color: "#f59e0b", fontSize: compact ? "11px" : "12px" }}>
               {SvgIcons.Star(11)} <span style={{ color: t.textSec }}>{auction.sellerRating ?? "4.8"}</span>
             </div>
           </div>
@@ -255,19 +256,19 @@ function WishlistCard({ auction, onRemove, onComplete, isBusiness }) {
 
         {/* Action button */}
         {isCancelled ? (
-          <button disabled style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1px solid rgba(239,68,68,0.3)", background: "rgba(239,68,68,0.08)", color: "#ef4444", fontWeight: 700, fontSize: "14px", cursor: "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
-            {SvgIcons.Cancelled(14)} Auction Cancelled
+          <button disabled style={{ width: "100%", padding: compact ? "10px" : "12px", borderRadius: compact ? "10px" : "12px", border: "1px solid rgba(239,68,68,0.3)", background: "rgba(239,68,68,0.08)", color: "#ef4444", fontWeight: 700, fontSize: compact ? "13px" : "14px", cursor: "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+            {SvgIcons.Cancelled(compact ? 13 : 14)} Auction Cancelled
           </button>
         ) : isEnded ? (
-          <button disabled style={{ width: "100%", padding: "12px", borderRadius: "12px", border: `1px solid ${t.border}`, background: "transparent", color: t.textMut, fontWeight: 700, fontSize: "14px", cursor: "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
-            {SvgIcons.Ended(14)} Auction Ended
+          <button disabled style={{ width: "100%", padding: compact ? "10px" : "12px", borderRadius: compact ? "10px" : "12px", border: `1px solid ${t.border}`, background: "transparent", color: t.textMut, fontWeight: 700, fontSize: compact ? "13px" : "14px", cursor: "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+            {SvgIcons.Ended(compact ? 13 : 14)} Auction Ended
           </button>
         ) : isScheduled ? (
-          <button disabled style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1px solid rgba(245,158,11,0.35)", background: "rgba(245,158,11,0.08)", color: "#f59e0b", fontWeight: 700, fontSize: "14px", cursor: "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
-            {SvgIcons.Scheduled(14)} Not Started Yet
+          <button disabled style={{ width: "100%", padding: compact ? "10px" : "12px", borderRadius: compact ? "10px" : "12px", border: "1px solid rgba(245,158,11,0.35)", background: "rgba(245,158,11,0.08)", color: "#f59e0b", fontWeight: 700, fontSize: compact ? "13px" : "14px", cursor: "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+            {SvgIcons.Scheduled(compact ? 13 : 14)} Not Started Yet
           </button>
         ) : isBusiness ? (
-          <button disabled style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1px solid rgba(99,102,241,0.35)", background: "rgba(99,102,241,0.08)", color: "#6366f1", fontWeight: 700, fontSize: "12px", cursor: "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+          <button disabled style={{ width: "100%", padding: compact ? "10px" : "12px", borderRadius: compact ? "10px" : "12px", border: "1px solid rgba(99,102,241,0.35)", background: "rgba(99,102,241,0.08)", color: "#6366f1", fontWeight: 700, fontSize: compact ? "11px" : "12px", cursor: "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
             🚫 Business accounts can't bid
           </button>
         ) : (
@@ -275,8 +276,8 @@ function WishlistCard({ auction, onRemove, onComplete, isBusiness }) {
             onClick={() => navigate(`/auction/${auction.id}`)}
             onMouseEnter={e => e.currentTarget.style.opacity = ".88"}
             onMouseLeave={e => e.currentTarget.style.opacity = "1"}
-            style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "none", background: isLive ? "linear-gradient(135deg,#f43f5e,#dc2626)" : "linear-gradient(135deg,#38bdf8,#6366f1)", color: "white", fontWeight: 700, fontSize: "14px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", transition: "opacity 0.15s" }}>
-            {isLive ? <>{SvgIcons.Live(14)} Place Bid</> : <>{SvgIcons.Gavel(14)} Place Bid</>}
+            style={{ width: "100%", padding: compact ? "10px" : "12px", borderRadius: compact ? "10px" : "12px", border: "none", background: isLive ? "linear-gradient(135deg,#f43f5e,#dc2626)" : "linear-gradient(135deg,#38bdf8,#6366f1)", color: "white", fontWeight: 700, fontSize: compact ? "13px" : "14px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", transition: "opacity 0.15s" }}>
+            {isLive ? <>{SvgIcons.Live(compact ? 13 : 14)} Place Bid</> : <>{SvgIcons.Gavel(compact ? 13 : 14)} Place Bid</>}
           </button>
         )}
       </div>
@@ -295,6 +296,22 @@ export default function MyWishlist() {
   const [error,     setError]     = useState("");
   const [search,    setSearch]    = useState("");
   const [filter,    setFilter]    = useState("all");
+  const [isMobile, setIsMobile] = useState(() => (
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 768px)").matches : false
+  ));
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return undefined;
+    const media = window.matchMedia("(max-width: 768px)");
+    const onChange = (event) => setIsMobile(event.matches);
+    setIsMobile(media.matches);
+    if (media.addEventListener) media.addEventListener("change", onChange);
+    else media.addListener(onChange);
+    return () => {
+      if (media.removeEventListener) media.removeEventListener("change", onChange);
+      else media.removeListener(onChange);
+    };
+  }, []);
 
   // ── Fetch wishlist from backend ─────────────────────────────────────────────
   useEffect(() => {
@@ -379,13 +396,13 @@ export default function MyWishlist() {
     <div style={{ background: t.bg, minHeight: "100vh", fontFamily: "'Segoe UI', system-ui, sans-serif", transition: "background 0.25s" }}>
 
       {/* ── Header ── */}
-      <div style={{ background: t.bgSec, borderBottom: `1px solid ${t.border}`, padding: "40px 40px 32px" }}>
+      <div style={{ background: t.bgSec, borderBottom: `1px solid ${t.border}`, padding: isMobile ? "24px 14px 20px" : "40px 40px 32px" }}>
         <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "16px" }}>
             <div>
               <div style={{ color: "#f43f5e", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: "8px" }}>❤️ Saved Auctions</div>
-              <h1 style={{ color: t.textPri, fontSize: "36px", fontWeight: 900, margin: 0 }}>My Wishlist</h1>
-              <p style={{ color: t.textMut, marginTop: "8px", fontSize: "15px" }}>
+              <h1 style={{ color: t.textPri, fontSize: isMobile ? "28px" : "36px", fontWeight: 900, margin: 0 }}>My Wishlist</h1>
+              <p style={{ color: t.textMut, marginTop: "8px", fontSize: isMobile ? "14px" : "15px" }}>
                 {loading ? "Loading…" : wishlist.length === 0 ? "No saved auctions yet." : `${wishlist.length} auction${wishlist.length !== 1 ? "s" : ""} saved · ${liveCount} live${cancelledCount > 0 ? ` · ${cancelledCount} cancelled` : ""}`}
               </p>
             </div>
@@ -393,7 +410,7 @@ export default function MyWishlist() {
               <div style={{ position: "relative" }}>
                 <span style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: t.textMut, fontSize: "15px" }}>🔍</span>
                 <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search wishlist…"
-                  style={{ background: t.bgInput, border: `1px solid ${t.borderMd}`, borderRadius: "10px", padding: "10px 14px 10px 38px", color: t.textPri, fontSize: "14px", outline: "none", width: "220px" }} />
+                  style={{ background: t.bgInput, border: `1px solid ${t.borderMd}`, borderRadius: "10px", padding: "10px 14px 10px 38px", color: t.textPri, fontSize: "14px", outline: "none", width: isMobile ? "100%" : "220px", minWidth: isMobile ? "220px" : "auto" }} />
               </div>
               {wishlist.length > 0 && (
                 <button onClick={clearAll}
@@ -425,7 +442,7 @@ export default function MyWishlist() {
       </div>
 
       {/* ── Content ── */}
-      <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "32px 40px" }}>
+      <div style={{ maxWidth: "1400px", margin: "0 auto", padding: isMobile ? "18px 14px 28px" : "32px 40px" }}>
         {loading ? (
           <div style={{ textAlign: "center", padding: "80px 0" }}>
             <div style={{ fontSize: "40px", marginBottom: "16px", animation: "pulse 1s infinite" }}>⏳</div>
@@ -456,9 +473,9 @@ export default function MyWishlist() {
         ) : (
           <>
             <div style={{ color: t.textMut, fontSize: "13px", marginBottom: "20px" }}>{filtered.length} auction{filtered.length !== 1 ? "s" : ""}</div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "20px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, minmax(0, 1fr))" : "repeat(auto-fill, minmax(240px, 1fr))", gap: isMobile ? "12px" : "20px" }}>
               {filtered.map(a => (
-                <WishlistCard key={a.id} auction={a} onRemove={removeItem} isBusiness={role === "business" && a.createdById === String(userId)}
+                <WishlistCard key={a.id} auction={a} onRemove={removeItem} isBusiness={role === "business" && a.createdById === String(userId)} isMobile={isMobile}
                   onComplete={(id) => setWishlist(prev => prev.map(x => x.id === id ? { ...x, status: "Completed", live: false } : x))} />
               ))}
             </div>

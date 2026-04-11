@@ -883,7 +883,7 @@ export default function AuctionDetail() {
       </div>
 
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: isMobile ? "16px 14px 36px" : "24px 32px 60px", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 420px", gap: isMobile ? "18px" : "32px" }}>
-        <div style={{ order: isMobile ? 2 : 1 }}>
+        <div style={{ order: 1 }}>
           <div style={{ borderRadius: isMobile ? "16px" : "20px", overflow: "hidden", border: `1px solid ${t.border}`, aspectRatio: "4/3", position: "relative", background: t.bgCard }}>
             <img src={images[selectedImg]} alt={auction.title} style={{ width: "100%", height: "100%", objectFit: "cover", filter: auction.status === "Cancelled" || auction.status === "Completed" ? "grayscale(20%)" : "none", transition: "opacity 0.2s ease" }} />
             {/* ── FIX: Status badge reflects real auction status ── */}
@@ -969,17 +969,19 @@ export default function AuctionDetail() {
             {bids.map((b, i) => <BidRow key={i} {...b} />)}
           </div>
 
-          {/* ── Reviews ── */}
-          <ReviewsSection
-            auctionId={auction.id}
-            sellerId={auction.sellerId}
-            role={role}
-            userId={userId}
-            t={t}
-          />
+          {/* ── Reviews (desktop here; mobile after bidding panel) ── */}
+          {!isMobile && (
+            <ReviewsSection
+              auctionId={auction.id}
+              sellerId={auction.sellerId}
+              role={role}
+              userId={userId}
+              t={t}
+            />
+          )}
         </div>
 
-        <div style={{ position: isMobile ? "static" : "sticky", top: isMobile ? "auto" : "80px", alignSelf: "start", order: isMobile ? 1 : 2 }}>
+        <div style={{ position: isMobile ? "static" : "sticky", top: isMobile ? "auto" : "80px", alignSelf: "start", order: 2 }}>
           <div style={{ background: t.bgCard, border: `1px solid ${t.borderMd}`, borderRadius: isMobile ? "16px" : "20px", overflow: "hidden", boxShadow: t.shadowCard }}>
             <div style={{ background: timer.urgent ? "linear-gradient(135deg,rgba(244,63,94,0.15),rgba(244,63,94,0.05))" : t.L ? "linear-gradient(135deg,rgba(56,189,248,0.08),rgba(99,102,241,0.04))" : "linear-gradient(135deg,rgba(99,102,241,0.1),rgba(56,189,248,0.05))", borderBottom: `1px solid ${t.border}`, padding: isMobile ? "14px" : "20px", textAlign: "center" }}>
               <div style={{ color: t.textMut, fontSize: isMobile ? "11px" : "12px", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: isMobile ? "8px" : "10px" }}>⏱ Auction Ends In</div>
@@ -1093,6 +1095,18 @@ export default function AuctionDetail() {
             <div style={{ color: t.textFaint, fontSize: "12px", lineHeight: 1.5 }}>All transactions secured. Money held in escrow until delivery confirmed.</div>
           </div>
         </div>
+
+        {isMobile && (
+          <div style={{ order: 3 }}>
+            <ReviewsSection
+              auctionId={auction.id}
+              sellerId={auction.sellerId}
+              role={role}
+              userId={userId}
+              t={t}
+            />
+          </div>
+        )}
       </div>
 
       {/* ══ LOCK DEPOSIT MODAL ══ */}
