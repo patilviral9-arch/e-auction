@@ -175,13 +175,13 @@ export default function AdminSidebar({ isMobile = false, onNavigate, onRequestCl
 
   const expandedWidth = isMobile ? 260 : 240;
   const sidebarWidth = collapsed ? 60 : expandedWidth;
-  const FooterActions = ({ mobileTop = false }) => (
+  const FooterActions = () => (
     <div style={{
       backgroundColor: C.bg,
       flexShrink: 0,
-      padding: mobileTop ? '8px 8px 10px' : '10px 8px max(10px, env(safe-area-inset-bottom))',
-      borderTop: mobileTop ? 'none' : `1px solid ${C.border}`,
-      borderBottom: mobileTop ? `1px solid ${C.border}` : 'none',
+      padding: '10px 8px max(10px, env(safe-area-inset-bottom))',
+      borderTop: `1px solid ${C.border}`,
+      borderBottom: 'none',
       display: 'flex',
       flexDirection: 'column',
       gap: '6px',
@@ -310,9 +310,6 @@ export default function AdminSidebar({ isMobile = false, onNavigate, onRequestCl
         </button>
       </div>
 
-      {isMobile && <FooterActions mobileTop />}
-
-
       {/* Navigation */}
       <nav style={{
         backgroundColor: C.bg,
@@ -348,7 +345,7 @@ export default function AdminSidebar({ isMobile = false, onNavigate, onRequestCl
       </nav>
 
       {/* Footer */}
-      {!isMobile && <FooterActions />}
+      <FooterActions />
     </div>
   );
 }
