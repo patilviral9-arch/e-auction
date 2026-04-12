@@ -3,13 +3,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
-const AUTH_API_BASE = String(
-  import.meta.env.VITE_API_URL ||
-  import.meta.env.VITE_API_BASE_URL ||
-  "/api"
-).replace(/\/+$/, "");
-const authUrl = (path) => `${AUTH_API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
-const REQUEST_TIMEOUT_MS = Number(import.meta.env.VITE_API_TIMEOUT_MS || 600000);
+
 
 // ── Hardcoded light theme tokens ─────────────────────────────────────────────
 const T = {
@@ -77,11 +71,7 @@ export const Signup = () => {
     setLoading(true);
     try {
       const payload = buildPayload(data);
-      const res = await axios.post(
-        authUrl("/user/register"),
-        payload,
-        { timeout: REQUEST_TIMEOUT_MS }
-      );
+      const res = await axios.post("/user/register", payload, { timeout: 25000 });
 
       if (res.status === 201) {
         reset();

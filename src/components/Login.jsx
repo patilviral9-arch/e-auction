@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useMaintenanceMode } from "../hooks/useMaintenanceMode";
-import { apiPost } from "../utils/apiClient";
+import axios from "axios";
 
 // ── Hardcoded light theme tokens ─────────────────────────────────────────────
 const T = {
@@ -125,7 +125,7 @@ export const Login = () => {
     setApiError("");
     setLoading(true);
     try {
-      const res = await apiPost("/user/login", data, { timeout: 25000 });
+      const res = await axios.post("/user/login", data, { timeout: 25000 });
       if (res.status === 200) {
         const token = res.data?.token;
         if (!token) {
