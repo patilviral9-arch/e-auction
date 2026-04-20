@@ -426,8 +426,8 @@ export default function Listings() {
 
       <div style={S.inner}>
         {/* Controls */}
-        <div style={{ display:"flex", gap:"12px", alignItems:"center", margin: isMobile ? "16px 0 14px" : "24px 0 20px", flexWrap:"wrap" }}>
-          <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:"50px", padding:"4px", display:"flex", gap:"4px", maxWidth: "100%", overflowX: "auto" }}>
+        <div style={{ display:"flex", gap:"12px", alignItems: isMobile ? "stretch" : "center", margin: isMobile ? "16px 0 14px" : "24px 0 20px", flexWrap:"wrap", flexDirection: isMobile ? "column" : "row" }}>
+          <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius: isMobile ? "14px" : "50px", padding:"4px", display:"flex", gap:"4px", maxWidth: "100%", overflowX: isMobile ? "visible" : "auto", flexWrap: isMobile ? "wrap" : "nowrap", width: isMobile ? "100%" : "auto" }}>
             {[
               ["all",       "All"],
               ["Active",    "🔴 Live"],
@@ -435,7 +435,7 @@ export default function Listings() {
               ["Completed", "✓ Completed"],
               ["Cancelled", "🚫 Cancelled"],
             ].map(([val, label]) => (
-              <button key={val} style={{ ...S.filterBtn(filter === val), whiteSpace: "nowrap", flexShrink: 0 }} onClick={() => setFilter(val)}>
+              <button key={val} style={{ ...S.filterBtn(filter === val), whiteSpace: "nowrap", flexShrink: 0, ...(isMobile ? { flex: "1 1 calc(50% - 4px)", textAlign: "center", fontSize: "12px", padding: "8px 10px" } : {}) }} onClick={() => setFilter(val)}>
                 {label}
                 {val !== "all" && counts[val] > 0 && <span style={{ marginLeft:"4px", opacity:.55 }}>({counts[val]})</span>}
                 {val === "all" && <span style={{ marginLeft:"4px", opacity:.55 }}>({counts.all})</span>}
@@ -443,7 +443,7 @@ export default function Listings() {
             ))}
           </div>
 
-          <div style={{ position:"relative", flex:1, minWidth:"180px" }}>
+          <div style={{ position:"relative", flex: isMobile ? "0 0 auto" : 1, minWidth: isMobile ? "0" : "180px", width: isMobile ? "100%" : "auto" }}>
             <span style={{ position:"absolute", left:"12px", top:"50%", transform:"translateY(-50%)", fontSize:"14px", color:"var(--text-muted)" }}>🔍</span>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by title or category…"
               style={{ ...S.input, width:"100%", paddingLeft:"34px", boxSizing:"border-box" }} />
