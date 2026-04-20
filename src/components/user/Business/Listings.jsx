@@ -556,9 +556,9 @@ export default function Listings() {
             {filtered.map(a => (
               <div key={a.id} className="lst-card"
                 style={{ ...S.card, padding:0, overflow:"hidden", transition:"all .25s cubic-bezier(.34,1.56,.64,1)" }}>
-                <div style={{ position:"relative", height: isMobile ? "190px" : "160px", background:"var(--bg-card)", overflow:"hidden" }}>
+                <div style={{ position:"relative", height: isMobile ? "190px" : "160px", background:"var(--bg-card)", overflow: isMobile ? "visible" : "hidden" }}>
                   <img src={a.img} alt={a.title} style={{ width:"100%", height:"100%", objectFit:"cover", filter: a.status === "Completed" || a.status === "Cancelled" ? "grayscale(35%)" : "none" }} />
-                  <div style={{ position:"absolute", top:"8px", left:"8px" }}>
+                  <div style={{ position:"absolute", top:"8px", left:"8px", zIndex: 25 }}>
                     <StatusChanger auction={a} onStatusChange={handleStatusChange} />
                   </div>
                   {a.images.length > 1 && (
