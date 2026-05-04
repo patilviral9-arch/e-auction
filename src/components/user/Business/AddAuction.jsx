@@ -162,7 +162,7 @@ export default function AddAuction() {
     setLoading(true);
     try {
       const payload = buildPayload();
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auction/auction`, payload);
+      const res = await axios.post("/auction/auction", payload);
       if (res.status === 201) {
         setPublished(true);
         setTimeout(() => navigate("/Business/Listings"), 2200);
