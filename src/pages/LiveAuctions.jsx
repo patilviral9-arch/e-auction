@@ -395,7 +395,7 @@ export default function LiveAuctions() {
     }
   };
 
-  const CATEGORIES = ["All", "Electronics", "Vehicles", "Luxury", "Furniture", "Collectibles", "Real Estate", "Industrial", "Art", "Sports", "Books"];
+  const CATEGORIES = ["All", "Electronics", "Vehicles", "Furniture", "Real Estate", "Art", "Sports", "Books"];
 
   const filtered = auctions
     .filter(a => category === "All" || a.category === category)

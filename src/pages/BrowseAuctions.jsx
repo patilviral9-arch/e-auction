@@ -9,18 +9,14 @@ const API = `${import.meta.env.VITE_API_URL}/wish`;
 const formatINR = (n) =>
   "₹" + Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
 
-const CATEGORIES = ["All", "Electronics", "Vehicles", "Mobiles", "Luxury", "Furniture", "Collectibles", "Real Estate", "Industrial", "Art", "Sports", "Books"];
+const CATEGORIES = ["All", "Electronics", "Vehicles", "Furniture", "Real Estate", "Art", "Sports", "Books"];
 
 const BROWSE_CATEGORY_ALIASES = {
   All: ["all"],
   Electronics: ["electronics", "electronic", "gadget", "gadgets"],
   Vehicles: ["vehicle", "vehicles", "car", "cars", "bike", "bikes", "automobile", "automobiles"],
-  Mobiles: ["mobile", "mobiles", "phone", "phones", "smartphone", "smartphones"],
-  Luxury: ["luxury", "luxuries"],
   Furniture: ["furniture", "furnitures"],
-  Collectibles: ["collectible", "collectibles", "antique", "antiques"],
   "Real Estate": ["real estate", "realestate", "property", "properties"],
-  Industrial: ["industrial", "industry", "machinery", "machine"],
   Art: ["art", "arts", "painting", "paintings", "sculpture", "sculptures"],
   Sports: ["sport", "sports"],
   Books: ["book", "books"],

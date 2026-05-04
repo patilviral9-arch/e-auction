@@ -9,7 +9,7 @@ import FooterComponent from "../../user/FooterComponent";
 const CLOUDINARY_CLOUD_NAME = "df7qog24u"
 const CLOUDINARY_UPLOAD_PRESET = "E-TEST" 
 
-const CATEGORIES = ["Electronics", "Vehicles", "Luxury", "Furniture", "Collectibles", "Real Estate", "Industrial", "Art", "Sports", "Books"];
+const CATEGORIES = ["Electronics", "Vehicles", "Furniture", "Real Estate", "Art", "Sports", "Books"];
 const CONDITIONS = ["New", "Used – Like New", "Used – Excellent", "Used – Good", "Vintage"]
 const DURATIONS  = [
   { label: "1 Hour",   value: 60 },
